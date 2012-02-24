@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Quizbowl Central</title>
+<script src="http://cdn.sockjs.org/sockjs-0.1.2.min.js"></script>
+<script src='js/bridge.min.js' type='text/javascript'></script>
+<script>
+  var bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
+  bridge.ready(function(){
+    console.log("bridge ready");
+    var dao;
+    bridge.getService('dao',function(obj){
+      dao = obj;
+      dao.search({answer:'dickens'},function(result){
+        console.log(result);
+      });
+    });
+     
+  });
+</script>
+</head>
+<body>
+<%- body %>
+</body>
+</html>
