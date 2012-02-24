@@ -22,22 +22,22 @@ var Dao = function(host, user, password, database){
       }
     }
     if (obj['tournament']!==undefined){
-      query = add_query_term(query,'t.tournament',obj['tournament'],'like');
+      query = util.addQueryTerm(query,'t.tournament',obj['tournament'],'like');
     }
     if (obj['round']!==undefined){
-      query = add_query_term(query,'t.round',obj['round'],'like');
+      query = util.addQueryTerm(query,'t.round',obj['round'],'like');
     }
     if (obj['year']!==undefined){
-      query = add_query_term(query,'t.year',obj['year'],'=');
+      query = util.addQueryTerm(query,'t.year',obj['year'],'=');
     }
     if (obj['category']!==undefined){
-      query = add_query_term(query,'t.category',obj['category'],'like');
+      query = util.addQueryTerm(query,'t.category',obj['category'],'like');
     }
     if (obj['questionNum']!==undefined){
-      query = add_query_term(query,'t.question_num',obj['questionNum'],'like');
+      query = util.addQueryTerm(query,'t.question_num',obj['questionNum'],'like');
     }
     if (obj['difficulty']!==undefined){
-      query = add_query_term(query,'t.difficulty',obj['difficulty'],'like');
+      query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
     }
     query += " group by t.pKey";
     if (obj['random']!==undefined){
@@ -72,6 +72,28 @@ var Dao = function(host, user, password, database){
 var util = {
 escapeSql:function(str) {
             return str;
-          }
+          },
+addQueryTerm:function(str,param,value,comp){
+               values = value.split("|");
+               str += " and (";
+               delimiter = "";
+               for (i=0;i<values.length;i++){
+                 str += delimiter;
+                 if (param == "t.tournament"){
+                   str+="((t.year = "+values[i].substring(0, 4).trim()+") and ";
+                   str+="(t.tournament like '%"+values[i].substring(5).trim().replace(/ /g,'%')+"%'))";
+                 } else {
+                   if (comp=="="){
+                     separator = "";
+                   } else {
+                     separator = "'";
+                   }
+                   str+="("+param+" "+comp+" "+separator+values[i].replace(/ /g,"%")+separator+")";
+                 }
+                 delimiter = " or ";
+               }
+               str+=")";
+               return str;
+             }
 }
 exports.Dao = Dao;
