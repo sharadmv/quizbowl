@@ -6,7 +6,7 @@ var Dao = function(host, user, password, database){
   client.password = password;
   client.database = database;
   this.tossup = {}; 
-  tossup.get = function(pKey, callback){
+  this.tossup.get = function(pKey, callback){
     client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
       if (!err) {
         callback(result[0]);
@@ -15,7 +15,7 @@ var Dao = function(host, user, password, database){
       }
     });
   }
-  tossup.search = function(obj, callback) {
+  this.tossup.search = function(obj, callback) {
     var query = "";
     if (obj['condition']!==undefined && obj['answer']!==undefined){
       if (obj['condition']=="all"){

@@ -37,7 +37,6 @@ bridge.ready(function(){
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel});
   bridge.publishService("dao",bDao);
-  bridge.getService("dao", function(dao) { 
   });
   app.get('/api/search', function (req,res){
     dao.search(req.query, function(result){
