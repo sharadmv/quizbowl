@@ -23,6 +23,11 @@ app.get('/api/search', function (req,res){
       res.json(result);
       });
     });
+app.get('/api/data', function(req,res){
+    dao.data(function(result){
+      res.json(result);
+      });
+    });
 app.get('/',function(req,res){
     res.render('home');
     });

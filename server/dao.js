@@ -68,6 +68,39 @@ var Dao = function(host, user, password, database){
         }
         });
   }
+  this.data = function(callback) {
+    client.query('select count(*) from tossups', function selectCb(err,results,fields){
+        var num_tossups = results[0]['count(*)'];
+        client.query('select count(*) from usernames', function selectCb(err, results, fields){
+          var num_users = results[0]['count(*)'];
+          client.query('select count(*) from scores', function selectCb(err, results, fields){
+            var num_scores = results[0]['count(*)'];
+            client.query('select distinct year,tournament from tossups order by year desc, tournament asc', function selectCb(err, results, fields){
+              var tournaments = results;
+              client.query('select distinct year from tossups', function selectCb(err, results, fields){
+                var years = results;
+                client.query('select distinct difficulty from tossups', function selectCb(err,results,fields){
+                  var difficulties = results;
+                  client.query('select distinct category from tossups', function selectCb(err, results, fields){
+                    var categories = results
+                    data = {}; 
+                    data['data'] = {};
+                    data['data']['numScores'] = num_scores;
+                    data['data']['numQuestions'] = num_tossups;
+                    data['data']['numUsers'] = num_users;
+                    data['data']['difficulties'] = util.convertMapToList(difficulties,'difficulty');
+                    data['data']['years'] = util.convertMapToList(years,'year');
+                    data['data']['categories'] = util.convertMapToList(categories,'category');
+                    data['data']['tournaments'] = util.convertDoubleMapToList(tournaments,'year','tournament');
+                    callback(data);
+                    });
+                  });
+                });
+            });
+          });
+        });
+    });
+  }
 }
 var util = {
 escapeSql:function(str) {
@@ -94,6 +127,20 @@ addQueryTerm:function(str,param,value,comp){
                }
                str+=")";
                return str;
-             }
+             },
+convertMapToList:function(obj,term){
+                   var arr = [];
+                   for (i=0;i<obj.length;i++){
+                     arr[i] = obj[i][term];
+                   }
+                   return arr;
+                 },
+convertDoubleMapToList:function(obj,t1,t2){
+                         var arr = [];
+                         for (i=0;i<obj.length;i++){
+                           arr[i] = obj[i][t1]+" "+obj[i][t2];
+                         }
+                         return arr;
+                       }
 }
 exports.Dao = Dao;
