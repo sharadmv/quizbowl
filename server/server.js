@@ -15,7 +15,7 @@ app.set('views','../public/views/');
 app.listen(1337);
 bridge.ready(function(){
     console.log("Connected to Bridge");
-    ticker = {
+    tickerHandler = {
       push:function(ticker){
         console.log("TICKER: "+ticker);
       }
@@ -28,9 +28,13 @@ bridge.ready(function(){
         dao.search(obj, callback);
       },
       answerReader:function(username, pKey, correct, score, callback){
+        dao.answerReader(username, pKey, correct, score, function(obj){
+          ticker.push(obj);
+          callback(obj);
+        });
       }
     }
-    bridge.joinChannel("ticker", ticker, function(channel){console.log(channel); channel.push("SUP")});
+    bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel});
     bridge.publishService("dao",dao);
     bridge.getService("dao", function(dao) { 
     });
