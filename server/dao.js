@@ -5,6 +5,14 @@ var Dao = function(host, user, password, database){
   client.user = user;
   client.password = password;
   client.database = database;
+  this.get = function(pKey, callback){
+    client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
+      if (!err) {
+        callback(result[0]);
+      } else {
+        console.log(err);
+      }
+    });
   this.search = function(obj, callback) {
     var query = "";
     if (obj['condition']!==undefined && obj['answer']!==undefined){
@@ -101,10 +109,21 @@ var Dao = function(host, user, password, database){
         });
     });
   }
+  this.answerReader = function(username, password, pKey, correct, score, callback) {
+    client.query("insert into scores (username,score,correct,answer,question) values ('"+username+"','"+score+"',"+correct+",'"+util.escapeSql(answer)+"','"+util.escapeSql(pKey)+"')", function(err, info){
+        if (err){
+          console.log(err);
+        else {
+          this.get(pKey, function(question) {
+            callback({name:username,action:{'correct':correct,'score':score, 'answer':question.answer}});
+          }
+        });
+
+  }
 }
 var util = {
 escapeSql:function(str) {
-            return str;
+            return str.replace(/'/g,"''").replace(/\\/g,'\\\\');
           },
 addQueryTerm:function(str,param,value,comp){
                values = value.split("|");

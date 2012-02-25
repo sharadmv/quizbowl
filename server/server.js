@@ -5,6 +5,7 @@ var Bridge = require('../bridge/lib/bridge.js').Bridge;
 var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('50,19,22,175','root','narsiodeyar1','quizbowl');
+var bDao;
 var app = express.createServer();
 var ticker;
 app.use(express.static('../public/static/'));
