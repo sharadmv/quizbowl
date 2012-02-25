@@ -22,10 +22,11 @@ bridge.ready(function(){
   }
   bDao = {
     get:function(pKey, callback) {
-          dao.get(obj, callback);
+          dao.tossup.get(obj, callback);
         },
     search:function(obj, callback){
-          dao.search(obj, callback);
+          console.log("SEARCH: "+obj);
+          //dao.tossup.search(obj, callback);
          },
     answerReader:function(username, pKey, correct, score, callback){
       dao.answerReader(username, pKey, correct, score, function(obj){
