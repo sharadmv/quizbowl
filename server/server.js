@@ -4,7 +4,7 @@ var Ticker = Model.Ticker;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
 var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
 var Dao = require('./dao.js').Dao;
-var dao = new Dao('50,19,22,175','root','narsiodeyar1','quizbowl');
+var dao = new Dao('50.19.22.175','root','narsiodeyar1','quizbowl');
 var bDao;
 var app = express.createServer();
 var ticker;
@@ -18,6 +18,16 @@ bridge.ready(function(){
     ticker = {
       push:function(ticker){
         console.log("TICKER: "+ticker);
+      }
+    }
+    bDao = {
+      get:function(pKey, callback) {
+        dao.get(obj, callback);
+      },
+      search:function(obj, callback){
+        dao.search(obj, callback);
+      },
+      answerReader:function(username, pKey, correct, score, callback){
       }
     }
     bridge.joinChannel("ticker", ticker, function(channel){console.log(channel); channel.push("SUP")});
