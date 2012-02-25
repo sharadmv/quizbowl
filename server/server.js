@@ -1,6 +1,6 @@
 var express = require('express');
-var Bridge = require('../../mqb-prototype/js/bridge/lib/bridge.js').Bridge;
-var bridge = new Bridge({host:'localhost',port:8090,apiKey:"abcdefgh"});
+var Bridge = require('../bridge/lib/bridge.js').Bridge;
+var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var app = express.createServer();
