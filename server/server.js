@@ -7,7 +7,7 @@ var app = express.createServer();
 app.use(express.static('../public/static/'));
 app.enable('jsonp callback');
 app.set('view engine', 'ejs');
-app.set('views','../public/views/');
+app.set('views','../public/views');
 app.listen(1337);
 bridge.ready(function(){
     console.log("Connected to Bridge");
@@ -30,4 +30,10 @@ app.get('/api/data', function(req,res){
     });
 app.get('/',function(req,res){
     res.render('home');
+    });
+app.get('/reader', function(req, res) {
+    res.render('reader');
+    });
+app.get('/multiplayer', function(req, res) {
+    res.render('multiplayer');
     });

@@ -1,0 +1,32 @@
+.content {
+}
+
+#nav {
+  background-color: rgb(120, 50, 170); 
+  height: 70px;
+}
+
+.nav_ele {
+  display: inline-block;
+  padding: 0 30px;
+  color: white !important;
+  line-height: 70px;
+ 
+}
+
+#home-title {
+  text-align: center;
+  font-size: 20px;
+  line-height: 200px;
+}
+
+#wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%
+  margin: 0 auto 60px;
+
+
+#footer {
+  height: 60px;
+}

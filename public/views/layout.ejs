@@ -1,8 +1,11 @@
 <html>
 <head>
 <title>Quizbowl Central</title>
-<script src="http://cdn.sockjs.org/sockjs-0.1.2.min.js"></script>
+<script src="js/sockjs-0.1.2.min.js"></script>
 <script src='js/bridge.min.js' type='text/javascript'></script>
+<link rel="stylesheet" href='css/bootstrap-responsive.min.css' type="text/css"/>
+<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
+<link rel="stylesheet" href="css/index.css" type='text/css'/>
 <script>
   var bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
   var dao;
@@ -15,6 +18,20 @@
 </script>
 </head>
 <body>
-<%- body %>
+<div id="wrapper">
+  <div id="nav">
+    <ul>
+      <a href="/"><li class="active nav_ele">Search</li></a>
+      <a href="/reader"><li class="nav_ele" >Reader</li></a>
+      <a href="/multiplayer"><li class="nav_ele" >Multiplayer</li></a>
+    </ul>
+  </div>
+  <div class="content">
+    <%- body %>
+  </div>
+</div>
+<div id="footer">
+This is the footer. This site is made by Victorious Vikram and Fantastic Fong. Copyright 2012.
+</div>
 </body>
 </html>
