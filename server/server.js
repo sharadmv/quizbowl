@@ -14,36 +14,40 @@ app.set('view engine', 'ejs');
 app.set('views','../public/views/');
 app.listen(1337);
 bridge.ready(function(){
-    console.log("Connected to Bridge");
-    ticker = {
-      push:function(ticker){
-        console.log("TICKER: "+ticker);
-      }
+  console.log("Connected to Bridge");
+  tickerHandler = {
+    push:function(ticker){
+           console.log("TICKER: "+ticker);
+         }
+  }
+  bDao = {
+    get:function(pKey, callback) {
+          dao.get(obj, callback);
+        },
+    search:function(obj, callback){
+          dao.search(obj, callback);
+         },
+    answerReader:function(username, pKey, correct, score, callback){
+      dao.answerReader(username, pKey, correct, score, function(obj){
+        ticker.push(obj);
+        callback(obj);
+      });
     }
-    bDao = {
-      get:function(pKey, callback) {
-        dao.get(obj, callback);
-      },
-      search:function(obj, callback){
-        dao.search(obj, callback);
-      },
-      answerReader:function(username, pKey, correct, score, callback){
-      }
-    }
-    bridge.joinChannel("ticker", ticker, function(channel){console.log(channel); channel.push("SUP")});
-    bridge.publishService("dao",dao);
-    bridge.getService("dao", function(dao) { 
-    });
-app.get('/api/search', function (req,res){
+  }
+  bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel});
+  bridge.publishService("dao",bDao);
+  bridge.getService("dao", function(dao) { 
+  });
+  app.get('/api/search', function (req,res){
     dao.search(req.query, function(result){
       res.json(result);
-      });
     });
-app.get('/api/data', function(req,res){
+  });
+  app.get('/api/data', function(req,res){
     dao.data(function(result){
       res.json(result);
-      });
     });
-app.get('/',function(req,res){
+  });
+  app.get('/',function(req,res){
     res.render('home');
-    });
+  });
