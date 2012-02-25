@@ -10,9 +10,6 @@
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
       dao = obj;
-      dao.search({answer:'dickens'},function(result){
-        console.log(result);
-      });
     });
      
   });
