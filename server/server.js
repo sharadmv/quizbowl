@@ -61,6 +61,7 @@ app.get('/api/user.authenticate', function(req,res) {
       res.json({message:"fail"});
     }
   });
+});
 app.get('/api/user.logoff',function(req,res) {
   if (req.username){
     delete users[req.username];
@@ -88,4 +89,4 @@ app.get('/multiplayer', function(req, res) {
 
 sendUser = function(user,message){ 
   tickers.push(new Ticker(user, message));
-}
+};
