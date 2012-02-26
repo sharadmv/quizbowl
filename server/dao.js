@@ -123,8 +123,20 @@ var Dao = function(host, user, password, database){
     });
 
   }
-  this.authenticate(username, password, callback) {
-    client.query('select * from users where 
+  this.authenticate(user, callback) {
+    client.query("select * from usernames where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
+      if (err) {
+        console.log(err); 
+      } else {
+        if (result.length==1){
+          callback(true);
+        } else if (result.length == 0){
+          callback(false);
+        } else {
+          console.log("AAAAH EXPLODEY FATAL ERROR");
+        }
+      }
+    });
 }
 var util = {
   escapeSql:function(str) {

@@ -50,7 +50,16 @@ app.get('/api/data', function(req,res){
     res.json(result);
   });
 });
+app.get('/api/authenticate', function(req,res) {
+  dao.authenticate(req.query, function(result){
+    if (result){
+      res.json({message:"success"});
+    } else {
+      res.json({message:"fail"});
+    }
+  });
 app.get('/',function(req,res){
+    res.json({
   res.render('home');
 });
 app.get('/reader', function(req, res) {
