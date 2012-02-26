@@ -87,9 +87,6 @@ app.get('/multiplayer', function(req, res) {
   res.render('multiplayer');
 });
 
-
-
-
 sendUser = function(user,message){ 
   tickers.push(new Ticker(user, message));
 };
