@@ -8,6 +8,7 @@ var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao, android;
 var app = express.createServer();
 var ticker;
+var users = [];
 app.use(express.static('../public/static/'));
 app.enable('jsonp callback');
 app.set('view engine', 'ejs');
@@ -19,6 +20,7 @@ bridge.ready(function(){
     push:function(ticker){
            console.log("TICKER: "+ticker);
          }
+
   }
   bDao = {
     get:function(pKey, callback) {
@@ -50,14 +52,30 @@ app.get('/api/data', function(req,res){
     res.json(result);
   });
 });
-app.get('/api/authenticate', function(req,res) {
-  dao.authenticate(req.query, function(result){
+app.get('/api/user.authenticate', function(req,res) {
+  dao.user.authenticate(req.query, function(result){
+    if (result && req.query.username && req.query.password){
+      res.json({message:"success"});
+      users.push(req.query.username, "logged in.");
+    } else {
+      res.json({message:"fail"});
+    }
+  });
+app.get('/api/user.logoff',function(req,res) {
+  if (req.username){
+    delete users[req.username];
+    updateUsers(req.username, "logged off.");
+  }
+});
+app.get('/api/user.create', function(req,res){
+  dao.user.create(req.query, function(result){
     if (result){
       res.json({message:"success"});
     } else {
       res.json({message:"fail"});
     }
   });
+});
 app.get('/',function(req,res){
     res.json({
   res.render('home');
@@ -68,3 +86,10 @@ app.get('/reader', function(req, res) {
 app.get('/multiplayer', function(req, res) {
   res.render('multiplayer');
 });
+
+
+
+
+sendUser = function(user,message){ 
+  tickers.push(new Ticker(user, message));
+}

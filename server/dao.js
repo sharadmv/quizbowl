@@ -6,6 +6,7 @@ var Dao = function(host, user, password, database){
   client.password = password;
   client.database = database;
   this.tossup = {}; 
+  this.user = {};
   this.tossup.get = function(pKey, callback){
     client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
       if (!err) {
@@ -123,7 +124,7 @@ var Dao = function(host, user, password, database){
     });
 
   }
-  this.authenticate(user, callback) {
+  this.user.authenticate(user, callback) {
     client.query("select * from usernames where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
       if (err) {
         console.log(err); 
@@ -137,46 +138,56 @@ var Dao = function(host, user, password, database){
         }
       }
     });
-}
-var util = {
-  escapeSql:function(str) {
-              return str.replace(/'/g,"''").replace(/\\/g,'\\\\');
-            },
-  addQueryTerm:function(str,param,value,comp){
-                 values = value.split("|");
-                 str += " and (";
-                 delimiter = "";
-                 for (i=0;i<values.length;i++){
-                   str += delimiter;
-                   if (param == "t.tournament"){
-                     str+="((t.year = "+values[i].substring(0, 4).trim()+") and ";
-                     str+="(t.tournament like '%"+values[i].substring(5).trim().replace(/ /g,'%')+"%'))";
-                   } else {
-                     if (comp=="="){
-                       separator = "";
+    this.user.create(user, callback){
+      client.query("insert into usernames(username, password) values('"+user.username+"','"+user.password+"')", function(err, result, info){
+        if (err){
+          callback(true);
+        }
+        else {
+          callback(false);
+        }
+      });
+    }
+  }
+  var util = {
+    escapeSql:function(str) {
+                return str.replace(/'/g,"''").replace(/\\/g,'\\\\');
+              },
+    addQueryTerm:function(str,param,value,comp){
+                   values = value.split("|");
+                   str += " and (";
+                   delimiter = "";
+                   for (i=0;i<values.length;i++){
+                     str += delimiter;
+                     if (param == "t.tournament"){
+                       str+="((t.year = "+values[i].substring(0, 4).trim()+") and ";
+                       str+="(t.tournament like '%"+values[i].substring(5).trim().replace(/ /g,'%')+"%'))";
                      } else {
-                       separator = "'";
+                       if (comp=="="){
+                         separator = "";
+                       } else {
+                         separator = "'";
+                       }
+                       str+="("+param+" "+comp+" "+separator+values[i].replace(/ /g,"%")+separator+")";
                      }
-                     str+="("+param+" "+comp+" "+separator+values[i].replace(/ /g,"%")+separator+")";
+                     delimiter = " or ";
                    }
-                   delimiter = " or ";
-                 }
-                 str+=")";
-                 return str;
-               },
-  convertMapToList:function(obj,term){
-                     var arr = [];
-                     for (i=0;i<obj.length;i++){
-                       arr[i] = obj[i][term];
-                     }
-                     return arr;
-                   },
-  convertDoubleMapToList:function(obj,t1,t2){
-                           var arr = [];
-                           for (i=0;i<obj.length;i++){
-                             arr[i] = obj[i][t1]+" "+obj[i][t2];
+                   str+=")";
+                   return str;
+                 },
+    convertMapToList:function(obj,term){
+                       var arr = [];
+                       for (i=0;i<obj.length;i++){
+                         arr[i] = obj[i][term];
+                       }
+                       return arr;
+                     },
+    convertDoubleMapToList:function(obj,t1,t2){
+                             var arr = [];
+                             for (i=0;i<obj.length;i++){
+                               arr[i] = obj[i][t1]+" "+obj[i][t2];
+                             }
+                             return arr;
                            }
-                           return arr;
-                         }
-}
-exports.Dao = Dao;
+  }
+  exports.Dao = Dao;
