@@ -77,7 +77,6 @@ app.get('/api/user.create', function(req,res){
   });
 });
 app.get('/',function(req,res){
-    res.json({
   res.render('home');
 });
 app.get('/reader', function(req, res) {
@@ -86,9 +85,6 @@ app.get('/reader', function(req, res) {
 app.get('/multiplayer', function(req, res) {
   res.render('multiplayer');
 });
-
-
-
 
 sendUser = function(user,message){ 
   tickers.push(new Ticker(user, message));
