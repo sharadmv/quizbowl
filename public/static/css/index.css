@@ -59,9 +59,22 @@
 }
 
 #home-result-wrapper {
-  background-color: blue;
-  width: 100%;
   clear: both;
+  padding: 45px 0;
+  margin: 0 40px;
+}
+
+#home-search-loading {
+  visibility: hidden;
+}
+
+#home-result-refine {
+  visibility: hidden;
+  
+}
+
+#home-results {
+  
 }
 
 
@@ -71,8 +84,8 @@
   height: 100%;
   margin: 0 0  -40px 0;
   background: url("/img/grid_noise.png");
-
 }
+
 #footer {
   background: white;
   height: 40px;
