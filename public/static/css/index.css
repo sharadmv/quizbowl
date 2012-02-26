@@ -1,0 +1,85 @@
+.content {
+}
+
+#nav {
+  background-color: rgb(25, 104, 151);
+  height: 40px;
+}
+
+#nav-inner {
+  width: 970px;
+  margin: 0 auto;
+
+}
+
+#nav-blur {
+  height: 10px;
+  background: -moz-linear-gradient(top,  rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0.25)), color-stop(100%,rgba(0,0,0,0))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 100%); /* IE10+ */
+  background: linear-gradient(top,  rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
+}
+
+.nav-ele {
+  display: inline-block;
+  padding: 0 30px;
+  color: rgba(255, 255, 255, 0.7) !important;
+  line-height: 40px;
+  font-size: 16px;
+  font-family: 'Helvetica Neue' Helvetica, Arial;
+}
+
+.active {
+  color: rgba(255, 255, 255, 1) !important
+}
+
+.nav-ele:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+#home-title {
+  text-align: center;
+  font-size: 80px;
+  margin-top: 200px;
+  font-family: "Forum";
+  text-shadow: 4px 4px 5px rgba(0, 0, 0, .25), 0px -3px 4px white;
+}
+
+#home-form {
+  text-align: center;
+  margin-top: 60px;
+}
+
+#home-search-button {
+  line-height: 13px;
+  height: 13px;
+}
+
+#home-result-wrapper {
+  background-color: blue;
+  width: 100%;
+  clear: both;
+}
+
+
+#wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 0  -40px 0;
+  background: url("/img/grid_noise.png");
+
+}
+#footer {
+  background: white;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+}
+
+input {
+  height: 2.5em;
+}

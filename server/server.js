@@ -52,4 +52,10 @@ bridge.ready(function(){
   });
   app.get('/',function(req,res){
     res.render('home');
-  });
+    });
+app.get('/reader', function(req, res) {
+    res.render('reader');
+    });
+app.get('/multiplayer', function(req, res) {
+    res.render('multiplayer');
+    });
