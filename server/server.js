@@ -2,17 +2,17 @@ var express = require('express');
 var Model = require('./model.js');
 var Ticker = Model.Ticker;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
-var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
+var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh",log:5});
 var Dao = require('./dao.js').Dao;
-var dao = new Dao('50.19.22.175','root','narsiodeyar1','quizbowl');
-var bDao;
+var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
+var bDao, android;
 var app = express.createServer();
 var ticker;
 app.use(express.static('../public/static/'));
 app.enable('jsonp callback');
 app.set('view engine', 'ejs');
 app.set('views','../public/views/');
-app.listen(1337);
+app.listen(80);
 bridge.ready(function(){
   console.log("Connected to Bridge");
   tickerHandler = {
@@ -25,8 +25,10 @@ bridge.ready(function(){
           dao.tossup.get(obj, callback);
         },
     search:function(obj, callback){
-          console.log("SEARCH: "+obj);
-          //dao.tossup.search(obj, callback);
+          dao.tossup.search(obj, function(result){
+            callback(result);
+            });
+
          },
     answerReader:function(username, pKey, correct, score, callback){
       dao.answerReader(username, pKey, correct, score, function(obj){
@@ -38,8 +40,8 @@ bridge.ready(function(){
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel});
   bridge.publishService("dao",bDao);
   });
-  app.get('/api/search', function (req,res){
-    dao.search(req.query, function(result){
+  app.get('/api/tossup.search', function (req,res){
+    dao.tossup.search(req.query, function(result){
       res.json(result);
     });
   });
