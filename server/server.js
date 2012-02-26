@@ -24,38 +24,38 @@ bridge.ready(function(){
     get:function(pKey, callback) {
           dao.tossup.get(obj, callback);
         },
-    search:function(obj, callback){
-          dao.tossup.search(obj, function(result){
-            callback(result);
-            });
+  search:function(obj, callback){
+           dao.tossup.search(obj, function(result){
+             callback(result);
+           });
 
          },
-    answerReader:function(username, pKey, correct, score, callback){
-      dao.answerReader(username, pKey, correct, score, function(obj){
-        ticker.push(obj);
-        callback(obj);
-      });
-    }
+  answerReader:function(username, pKey, correct, score, callback){
+                 dao.answerReader(username, pKey, correct, score, function(obj){
+                   ticker.push(obj);
+                   callback(obj);
+                 });
+               }
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel});
   bridge.publishService("dao",bDao);
+});
+app.get('/api/tossup.search', function (req,res){
+  dao.tossup.search(req.query, function(result){
+    res.json(result);
   });
-  app.get('/api/tossup.search', function (req,res){
-    dao.tossup.search(req.query, function(result){
-      res.json(result);
-    });
+});
+app.get('/api/data', function(req,res){
+  dao.data(function(result){
+    res.json(result);
   });
-  app.get('/api/data', function(req,res){
-    dao.data(function(result){
-      res.json(result);
-    });
-  });
-  app.get('/',function(req,res){
-    res.render('home');
-    });
+});
+app.get('/',function(req,res){
+  res.render('home');
+});
 app.get('/reader', function(req, res) {
-    res.render('reader');
-    });
+  res.render('reader');
+});
 app.get('/multiplayer', function(req, res) {
-    res.render('multiplayer');
-    });
+  res.render('multiplayer');
+});

@@ -123,6 +123,8 @@ var Dao = function(host, user, password, database){
     });
 
   }
+  this.authenticate(username, password, callback) {
+    client.query('select * from users where 
 }
 var util = {
   escapeSql:function(str) {
