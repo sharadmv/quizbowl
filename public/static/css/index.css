@@ -60,7 +60,7 @@
 
 #home-result-wrapper {
   clear: both;
-  padding: 45px 0;
+  padding: 75px 0;
   margin: 0 40px;
 }
 
@@ -70,11 +70,51 @@
 
 #home-result-refine {
   visibility: hidden;
-  
+}
+
+#home-results-wrapper {
+  border-radius: 20px;
+  visibility: hidden;
 }
 
 #home-results {
-  
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid rgba(230, 230, 230, 1);
+  box-shadow: 4px 4px 6px rgba(150, 150, 150, .2);
+}
+
+.home-result {
+  margin-bottom: 20px;
+}
+
+.home-result-year, .home-result-tournament, .home-result-round, .home-result-question-num {
+}
+
+.home-result-category, .home-result-rating, .home-result-difficulty {
+}
+
+.home-result-info {
+  margin: 4px 0;
+}
+
+.home-result-question {
+  margin: 6px 0;
+  line-height: 1.6em;
+}
+
+.home-result-answer {
+  font-style: italic;
+  line-height: 2em;
+}
+
+.home-result-source {
+  font-size: 1.3em;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-variant: small-caps;
+  color: rgba( 100, 180, 120, .9);
+  font-weight: bold;
 }
 
 
