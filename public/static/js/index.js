@@ -5,8 +5,8 @@ var searchData;
 var searchInMiddle = true;
 
 $(document).ready( function() {
-  /*
-  bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
+  
+  /*bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
   bridge.ready(function(){
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
@@ -31,7 +31,8 @@ $(document).ready( function() {
 
 var homeSearch = function() {
   $("#home-search-loading").css("visibility", "visible");
-  jQuery.getJSON(baseURL + "/tossup.search?callback=?", {answer: $("#home-search-input").val()}, function(response) {
+  //jQuery.getJSON(baseURL + "/tossup.search?callback=?", 
+      dao.search({answer: $("#home-search-input").val()}, function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
       homeMoveSearchToTop();
@@ -40,7 +41,7 @@ var homeSearch = function() {
       $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
       $("#home-advance-search").click(openAdvanceSearch);
     }
-    homeLoadResults(response.results);
+    homeLoadResults(response);
   });
 
 }
@@ -62,14 +63,19 @@ var homeMoveSearchToTop = function() {
   searchInMiddle = false;
 };
 
-var homeLoadResults = function(results) {
+var homeLoadResults = function(response) {
+  results = response.results;
   var resultContainer = $("#home-results");
   resultContainer.html("");
+  console.log(response);
   var resultDiv, curResult, info, source;
+  var start, end;
   if( results.length == 0) {
     resultContainer.html("There were no results for your query.");
   } else {
-    resultContainer.append('<div id="home-result-quantity">Displaying '+results.length+' results</div>');
+    response.offset + 1;
+    response.offset + results.length;
+    resultContainer.append('<div id="home-result-quantity">Displaying '+ start +"-"+end+' results of '+response.count+'</div>');
   }
   for(var i = 0; i < results.length; i++) {
     var curResult = results[i];
