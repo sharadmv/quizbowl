@@ -27,6 +27,7 @@ bridge.ready(function(){
           dao.tossup.get(pKey, callback);
         },
   search:function(obj, callback){
+console.log("SUP");
            dao.tossup.search(obj, function(result){
              callback(result);
            });

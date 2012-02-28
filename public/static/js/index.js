@@ -4,17 +4,18 @@ var baseURL = "http://ec2-50-19-22-175.compute-1.amazonaws.com:80/api";
 var searchData;
 var searchInMiddle = true;
 var curOffset;
-$(document).ready( function() {
-  
-  /*bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
+var dao;
+bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
   bridge.ready(function(){
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
       console.log("In sevice");
+      window.dao = obj;
       dao = obj;
     });
-  });*/
-
+  });
+$(document).ready( function() {
+  
   
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
@@ -31,7 +32,9 @@ $(document).ready( function() {
 
 var homeSearch = function(obj) {
   $("#home-search-loading").css("visibility", "visible");
-  jQuery.getJSON(baseURL + "/tossup.search?callback=?", obj, function(response) {
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?", 
+   //dao.search(   
+      obj, function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
       homeMoveSearchToTop();
@@ -111,7 +114,7 @@ var homeLoadResults = function(response) {
   if( end < count) { 
     resultContainer.append('<div id="home-result-next"><a>Next</a></div>');
     $('#home-result-next').click(function() {
-      homeSearch(curOffset+10); 
+      homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
       $('body,html').animate({scrollTop: 0});
     });
   }

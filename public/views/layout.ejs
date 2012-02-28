@@ -3,16 +3,6 @@
 <title>Quizbowl Central</title>
 <script src="js/sockjs-0.1.2.min.js"></script>
 <script src='js/bridge.min.js' type='text/javascript'></script>
-<script>
-  var dao;
-  bridge = new Bridge({apiKey:"abcdefgh",host:"50.19.22.175",port:8091});
-  bridge.ready(function(){
-    console.log("bridge ready");
-    bridge.getService('dao', function(obj) {
-      dao = obj;
-    });
-  });
-</script>
 <link href='http://fonts.googleapis.com/css?family=Forum' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href='css/bootstrap-responsive.min.css' type="text/css"/>
 <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
