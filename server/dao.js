@@ -63,24 +63,27 @@ var Dao = function(host, user, password, database){
       }
     } else {	
       query += " order by year desc, tournament asc, round asc,question_num asc";
+      limitstring = "";
       if (obj['offset']!==undefined) {
-        query += " limit "+pageLength+" offset "+obj['offset'];
+        limitstring += " limit "+pageLength+" offset "+obj['offset'];
       } else {
-        query += " limit "+pageLength;
+        limitstring += " limit "+pageLength;
       }
     }
     if (obj['username']!==undefined){
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating,(select rating from ratings where user="'+obj['username']+'" and question=t.pKey) user_rating from tossups t left outer join ratings r on t.pKey = r.question where '+query;
+      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating,(select rating from ratings where user="'+obj['username']+'" and question=t.pKey) user_rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
     } else {
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating from tossups t left outer join ratings r on t.pKey = r.question where '+query;
+      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
     }
     countstring = 'select count(*) from tossups t where '+query;
-    console.log(querystring);
+    console.log(countstring);
     client.query(countstring,function(err,results,fields){
         count = results.length;
         client.query(querystring,function selectCb(err,results,fields){
           if (!err) {
-          callback({'count':count,'results':results});
+          if (!obj['offset'])
+            obj['offset']=0; 
+          callback({'count':count,'offset':obj['offset'],'results':results});
           } else{ 
           callback(err);
           }
