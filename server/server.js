@@ -2,7 +2,7 @@ var express = require('express');
 var Model = require('./model.js');
 var Ticker = Model.Ticker;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
-var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh",log:5});
+var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao, android;

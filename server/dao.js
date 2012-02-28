@@ -74,9 +74,10 @@ var Dao = function(host, user, password, database){
     } else {
       querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating from tossups t left outer join ratings r on t.pKey = r.question where '+query;
     }
-    countstring = 'select count(*) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
+    countstring = 'select count(*) from tossups t where '+query;
+    console.log(querystring);
     client.query(countstring,function(err,results,fields){
-        count = results[0];
+        count = results.length;
         client.query(querystring,function selectCb(err,results,fields){
           if (!err) {
           callback({'count':count,'results':results});
