@@ -14,6 +14,7 @@ $(document).ready( function() {
     });
   });*/
 
+  
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
       homeSearch();
@@ -32,6 +33,7 @@ var homeSearch = function() {
     if( searchInMiddle) {
       homeMoveSearchToTop();
       $("#home-result-refine").css("visibility", "visible");
+      $("#home-results-wrapper").css("visibility", "visible");
     }
     homeLoadResults(response);
   });
@@ -42,7 +44,8 @@ var homeSearch = function() {
 var homeMoveSearchToTop = function() {
   $("#home-title").css('margin', '26px 40px')
     .css('font-size', '34px')
-    .css('float', 'left');
+    .css('float', 'left')
+    .css('text-shadow', '2px 2px 4px rgba(0, 0, 0, .25), 0px -3px 4px white');
   $("#home-form").css('float', 'left')
     .css('margin', '17px 0')
     $("#home-search-field").css('float', 'left')
@@ -61,18 +64,21 @@ var homeLoadResults = function(results) {
     var curResult = results[i];
     resultContainer.append('<div id="home-result' + i + '" class="home-result"></div>');
     resultDiv = $("#home-result" + i);
-    resultDiv.append('<div class="home-result-info"></div>');
-    info = $("#home-result" + i + " .home-result-info");
-    info.append('<div class="home-result-category">'+curResult.category + '</div>');
-    info.append('<div class="home-result-difficulty">'+curResult.difficulty+'</div>');
-    info.append('<div class="home-result-rating">'+curResult.rating+'</div>');
-    resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
-    resultDiv.append('<div class="home-result-answer">'+curResult.answer+'</div>');
     resultDiv.append('<div class="home-result-source"></div>');
+    resultDiv.append('<div class="home-result-info"></div>');
     source = $('#home-result'+i+" .home-result-source");
-    source.append('<div class="home-result-question-num">'+curResult.question_num+"</div>");
-    source.append('<div class="home-result-round">'+curResult.round+"</div>");
-    source.append('<div class="home-result-tournament">'+curResult.tournament+"</div>");
-    source.append('<div class="home-result-year">'+curResult.year+"</div>");
+    source.append('<span class="home-result-year">Tournament: '+curResult.year+" </span>");
+    source.append('<span class="home-result-tournament">'+curResult.tournament+": </span>");
+    source.append('<span class="home-result-round">'+curResult.round+"  </span>");
+    source.append('<span class="home-result-question-num">Question #'+curResult.question_num+"</span>");
+    
+    var rating = curResult.rating == null ? 0 : curResult.rating;
+
+    
+    info = $("#home-result" + i + " .home-result-info");
+    info.append('<span class="home-result-category">'+curResult.category + ' </span>');
+    info.append('<span class="home-result-difficulty">'+curResult.difficulty+' </span>');
+    resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
+    resultDiv.append('<div class="home-result-answer">Answer: '+curResult.answer+'</div>');
   }
 };
