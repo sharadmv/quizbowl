@@ -78,7 +78,7 @@
 }
 
 #home-results {
-  padding: 20px;
+  padding: 20px 20px 40px 20px;
   background: white;
   border-radius: 10px;
   border: 1px solid rgba(230, 230, 230, 1);
@@ -141,6 +141,22 @@
 .home-advance-radio {
   display: block !important;
 }*/
+
+#home-result-back {
+  cursor: pointer;
+  display: inline;
+  float: left;
+  font-size: 1.4em;
+  margin-left: 100px;
+}
+
+#home-result-next {
+  cursor: pointer;
+  display: inline;
+  float: right;
+  font-size: 1.4em;
+  margin-right: 100px;
+}
 
 
 

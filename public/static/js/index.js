@@ -3,7 +3,7 @@ var baseURL = "http://ec2-50-19-22-175.compute-1.amazonaws.com:80/api";
 
 var searchData;
 var searchInMiddle = true;
-
+var curOffset;
 $(document).ready( function() {
   
   /*bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
@@ -18,21 +18,20 @@ $(document).ready( function() {
   
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
-      homeSearch();
+      homeSearch({'offset':0,answer: $("#home-search-input").val()});
     }
   });
   
-  $("#home-search-button").click( homeSearch);
+  $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
 
   loadAdvancedSearch();
 
 
 });
 
-var homeSearch = function() {
+var homeSearch = function(obj) {
   $("#home-search-loading").css("visibility", "visible");
-  //jQuery.getJSON(baseURL + "/tossup.search?callback=?", 
-      dao.search({answer: $("#home-search-input").val()}, function(response) {
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?", obj, function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
       homeMoveSearchToTop();
@@ -64,18 +63,21 @@ var homeMoveSearchToTop = function() {
 };
 
 var homeLoadResults = function(response) {
+  curOffset = parseInt(response.offset);
+  console.log(curOffset);
   results = response.results;
   var resultContainer = $("#home-results");
   resultContainer.html("");
   console.log(response);
   var resultDiv, curResult, info, source;
-  var start, end;
+  var start, end, count;
+  count = response.count;
   if( results.length == 0) {
     resultContainer.html("There were no results for your query.");
   } else {
-    start = response.offset + 1;
-    end = response.offset + results.length;
-    resultContainer.append('<div id="home-result-quantity">Displaying '+ start +"-"+end+' results of '+response.count+'</div>');
+    start = parseInt(parseInt(response.offset) + 1);
+    end = parseInt(parseInt(response.offset) + results.length);
+    resultContainer.append('<div id="home-result-quantity">Displaying '+ start +"-"+end+' results of '+count+'</div>');
   }
   for(var i = 0; i < results.length; i++) {
     var curResult = results[i];
@@ -93,11 +95,27 @@ var homeLoadResults = function(response) {
 
     
     info = $("#home-result" + i + " .home-result-info");
-    info.append('<span class="home-result-category">'+curResult.category + ' </span>');
-    info.append('<span class="home-result-difficulty"><a href="google.com">'+curResult.difficulty+' </a></span>');
+    info.append('<span class="home-result-category"><a>'+curResult.category + ' </a></span>');
+    info.append('<span class="home-result-difficulty"><a>'+curResult.difficulty+' </a></span>');
     resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
     resultDiv.append('<div class="home-result-answer">Answer: '+curResult.answer+'</div>');
   }
+  if( start-1 > 0 ) {
+    resultContainer.append('<div id="home-result-back"><a>Back</a></div>');
+    $('#home-result-back').click(function() {
+      homeSearch({offset:curOffset-10,answer:$("#home-search-input").val()});;
+      $('body,html').animate({scrollTop: 0});
+    }); 
+  }
+
+  if( end < count) { 
+    resultContainer.append('<div id="home-result-next"><a>Next</a></div>');
+    $('#home-result-next').click(function() {
+      homeSearch(curOffset+10); 
+      $('body,html').animate({scrollTop: 0});
+    });
+  }
+  
 };
 
 
