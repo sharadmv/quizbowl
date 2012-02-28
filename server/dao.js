@@ -102,18 +102,6 @@ var Dao = function(host, user, password, database){
                   client.query('select distinct category from tossups', function selectCb(err, results, fields){
                     var categories = results
                     data = {}; 
-<<<<<<< HEAD
-                    data['data'] = {};
-                    data['data']['numScores'] = num_scores;
-                    data['data']['numQuestions'] = num_tossups;
-                    data['data']['numUsers'] = num_users;
-                    data['data']['difficulties'] = util.convertMapToList(difficulties,'difficulty');
-                    data['data']['years'] = util.convertMapToList(years,'year');
-                    data['data']['categories'] = util.convertMapToList(categories,'category');
-                    data['data']['tournaments'] = util.convertDoubleMapToList(tournaments,'year','tournament');
-                    callback(data);
-                    });
-=======
                   data['data'] = {};
                   data['data']['numScores'] = num_scores;
                   data['data']['numQuestions'] = num_tossups;
@@ -123,13 +111,11 @@ var Dao = function(host, user, password, database){
                   data['data']['categories'] = util.convertMapToList(categories,'category');
                   data['data']['tournaments'] = util.convertDoubleMapToList(tournaments,'year','tournament');
                   callback(data);
->>>>>>> bff730e54ff285c033954b82db64466982e97e4e
                   });
                 });
             });
           });
         });
-<<<<<<< HEAD
     });
   }
   this.answerReader = function(username, pKey, correct, score, callback) {
