@@ -33,17 +33,14 @@ var homeSearch = function() {
   $("#home-search-loading").css("visibility", "visible");
   jQuery.getJSON(baseURL + "/tossup.search?callback=?", {answer: $("#home-search-input").val()}, function(response) {
     $("#home-search-loading").css("visibility", "hidden");
-    console.log(response);     
-    if( searchInMiddle) {
+    if(searchInMiddle) {
       homeMoveSearchToTop();
       $("#home-result-refine").css("visibility", "visible");
       $("#home-results-wrapper").css("visibility", "visible");
       $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
       $("#home-advance-search").click(openAdvanceSearch);
-
-      
     }
-    homeLoadResults(response);
+    homeLoadResults(response.results);
   });
 
 }
