@@ -73,8 +73,8 @@ var homeLoadResults = function(response) {
   if( results.length == 0) {
     resultContainer.html("There were no results for your query.");
   } else {
-    response.offset + 1;
-    response.offset + results.length;
+    start = response.offset + 1;
+    end = response.offset + results.length;
     resultContainer.append('<div id="home-result-quantity">Displaying '+ start +"-"+end+' results of '+response.count+'</div>');
   }
   for(var i = 0; i < results.length; i++) {
