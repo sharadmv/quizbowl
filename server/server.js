@@ -23,8 +23,8 @@ bridge.ready(function(){
 
   }
   bDao = {
-    get:function(pKey, callback) {
-          dao.tossup.get(obj, callback);
+    gett:function(pKey, callback) {
+          dao.tossup.get(pKey, callback);
         },
   search:function(obj, callback){
            dao.tossup.search(obj, function(result){
