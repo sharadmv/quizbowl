@@ -5,23 +5,23 @@ var searchData;
 var searchInMiddle = true;
 var curOffset;
 $(document).ready( function() {
-  
+
   /*bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
-  bridge.ready(function(){
+    bridge.ready(function(){
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
-      console.log("In sevice");
-      dao = obj;
+    console.log("In sevice");
+    dao = obj;
     });
-  });*/
+    });*/
 
-  
+
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
       homeSearch({'offset':0,answer: $("#home-search-input").val()});
     }
   });
-  
+
   $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
 
   loadAdvancedSearch();
@@ -31,7 +31,9 @@ $(document).ready( function() {
 
 var homeSearch = function(obj) {
   $("#home-search-loading").css("visibility", "visible");
-  jQuery.getJSON(baseURL + "/tossup.search?callback=?", obj, function(response) {
+  var params = parseSearch(obj.answer);
+  params.offset = obj.offset;
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?",params , function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
       homeMoveSearchToTop();
@@ -44,7 +46,48 @@ var homeSearch = function(obj) {
   });
 
 }
+var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition"];
+var parseSearch = function(answer){
+  var parameters = {};
+  var terms = answer.trim();
+  term = /[a-zA-Z]+:/g;
+  params = terms.split(term);
+  if (params.length > 1)
+    for (i = 0; i < params.length; i++) {
+      value = params[i].trim();
+      if (value != "" && value.length != 0) {
+        param = terms.substring(0, terms.indexOf(":"))
+          .trim();
+        if (POSSIBLE_PARAMS.indexOf(param)!=-1) {
+          if (value.match('".*".*')) {
 
+            value = value.substring(1, value.indexOf("\"", 1));
+            terms = terms.substring(terms.indexOf("\"",
+                  terms.indexOf(value)) + 1);
+          } else {
+            if (value.indexOf(" ") != -1) {
+
+              value = value.substring(0, value.indexOf(" "));
+
+              terms = terms.substring(terms.indexOf(" ",
+                    terms.indexOf(value)));
+
+            } else {
+              terms = terms.substring(terms.indexOf(value)
+                  + value.length);
+
+            }
+
+          }
+
+          parameters[param] = value.trim();
+        }
+      }
+    }
+  if (parameters.answer === undefined)
+    parameters.answer = terms;
+  return parameters;
+}
 
 var homeMoveSearchToTop = function() {
   $("#home-title").css('margin', '26px 40px')
@@ -90,10 +133,10 @@ var homeLoadResults = function(response) {
     source.append('<span class="home-result-tournament">'+curResult.tournament+": </span>");
     source.append('<span class="home-result-round">'+curResult.round+",  </span>");
     source.append('<span class="home-result-question-num">Question #'+curResult.question_num+"</span>");
-    
+
     var rating = curResult.rating == null ? 0 : curResult.rating;
 
-    
+
     info = $("#home-result" + i + " .home-result-info");
     info.append('<span class="home-result-category"><a>'+curResult.category + ' </a></span>');
     info.append('<span class="home-result-difficulty"><a>'+curResult.difficulty+' </a></span>');
@@ -111,11 +154,11 @@ var homeLoadResults = function(response) {
   if( end < count) { 
     resultContainer.append('<div id="home-result-next"><a>Next</a></div>');
     $('#home-result-next').click(function() {
-      homeSearch(curOffset+10); 
+      homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
       $('body,html').animate({scrollTop: 0});
     });
   }
-  
+
 };
 
 
@@ -139,10 +182,10 @@ var loadAdvancedSearch = function() {
     for(var x = 0; x < searchData.years.length; x++) {
       $("#home-advance-year").append("<option>"+searchData.years[x]+"</option>");
     }
-    
+
     for(var x = 0; x < searchData.tournaments.length; x++) {
       $("#home-advance-tournament").append("<option>"+searchData.tournaments[x]+"</option>");
     }
   });
-  
+
 };
