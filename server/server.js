@@ -77,6 +77,15 @@ app.get('/api/user.create', function(req,res){
     }
   });
 });
+app.get('/api/rating.add', function(req,res){
+  dao.rating.add(req.query, function(result){
+    if (result){
+      res.json({message:"success"});
+    } else {
+      res.json({message:"fail"});
+    }
+  }); 
+});
 app.get('/',function(req,res){
   res.render('home');
 });
