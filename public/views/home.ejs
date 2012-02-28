@@ -4,14 +4,46 @@
 </div>
 
 <div id="home-form"> 
-<div id="home-search-field"><input id="home-search-input" type="text" class="span8" placeholder="ex. Dickens"> <img id="home-search-loading" src="/img/ajax-loader.gif"/></div>
-<div id="home-search-button" class="btn btn-large">Search</div>
+  <div id="home-search-field">
+    <input id="home-search-input" type="text" class="span8" placeholder="ex. Dickens"> 
+    <img id="home-search-loading" src="/img/ajax-loader.gif"/>
+  </div>
+  <div id="home-search-button" class="btn btn-large">Search</div>
 </div>
+<form id="home-advance" class="form-inline">
+  <label>Category</label>
+  <select multiple="multiple" id="home-advance-category">
+  </select>
+
+  <label>Difficulty</label>
+  <select multiple="multiple" id="home-advance-difficulty">
+  </select>
+
+  <label>Keyword Location</label>
+  <label class="radio home-advance-radio">
+    <input type="radio" name="locationRadios" checked>
+    This is stuff
+  </label>
+  <label class="radio home-advance-radio" >
+    <input type="radio" name="locationRadios">
+    This is moar stuff
+  </label>
+
+
+  <label> Year </label>
+  <select multiple="multiple" id="home-advance-year">
+  </select>
+
+  <label>Tournament</label>
+  <select multiple="multiple" id="home-advance-tournament">
+  </select>
+</form>
 </div>
 <div id="home-result-wrapper">
   <div class="row-fluid">
       <div id="home-result-refine" class="span2">
-Search Refine will go here
+        <div id="home-refine-title">Refining your Search</div>
+        <div id="home-refine-button">Refined Search</div>
       </div>
 
       <div id="home-results-wrapper" class="span10">
