@@ -3,16 +3,6 @@
 <title>Quizbowl Central</title>
 <script src="js/sockjs-0.1.2.min.js"></script>
 <script src='js/bridge.min.js' type='text/javascript'></script>
-<script>
-  var dao;
-  bridge = new Bridge({apiKey:"abcdefgh",host:"50.19.22.175",port:8091});
-  bridge.ready(function(){
-    console.log("bridge ready");
-    bridge.getService('dao', function(obj) {
-      dao = obj;
-    });
-  });
-</script>
 <link href='http://fonts.googleapis.com/css?family=Forum' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href='css/bootstrap-responsive.min.css' type="text/css"/>
 <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
@@ -28,6 +18,7 @@
       <a href="/"><li class="active nav-ele">Search</li></a>
       <a href="/reader"><li class="nav-ele" >Reader</li></a>
       <a href="/multiplayer"><li class="nav-ele" >Multiplayer</li></a>
+      <a><li id="login" class="nav-ele">Login</li></a>
     </ul>
     </div>
   </div>
@@ -36,6 +27,7 @@
     </div>
     <%- body %>
   </div>
+  <div id="loginBox">HERE IS MY LOGIN BOX</div>
 </div>
 <div id="footer">
 This site is made by Gerald Fong and Sharad Vikram.

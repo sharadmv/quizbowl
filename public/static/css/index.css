@@ -1,3 +1,6 @@
+a {
+  cursor:pointer;
+}
 .content {
 }
 
@@ -5,6 +8,8 @@
   display: inline-block;
 }
 
+#loginBox {
+}
 #nav {
   background-color: rgb(25, 104, 151);
   height: 40px;
