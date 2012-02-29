@@ -5,6 +5,7 @@ var searchData;
 var searchInMiddle = true;
 var curOffset;
 var dao;
+var loginToggled = false;
 bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
   bridge.ready(function(){
     console.log("bridge ready");
@@ -15,6 +16,17 @@ bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
     });
   });
 $(document).ready( function() {
+  $("#loginBox").hide();
+  $("#login").click(function(){
+      console.log("toggle");
+      $("#loginBox").toggle();
+      loginToggled = true;
+    });
+  $('body').click(function(e) {
+    if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
+      $("#loginBox").hide();
+    }
+  });
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
       homeSearch({'offset':0,answer: $("#home-search-input").val()});
