@@ -60,7 +60,7 @@ var search = function(params) {
       $("#home-result-refine").css("visibility", "visible");
       $("#home-results-wrapper").css("visibility", "visible");
       $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
-      $("#home-advance-search").click(openAdvanceSearch);
+      $("#home-advance-search").click(openAdvancedSearch);
     }
     homeLoadResults(response);
   });
@@ -120,7 +120,7 @@ var homeMoveSearchToTop = function() {
     .css('margin', '0 5px 0 10px');
   $("#home-search-button").css('float', 'left')
     .css('margin', '3px 0');
-  $("#home-form").css('width', '850px');
+  $("#home-form").css('width', '950px');
   searchInMiddle = false;
 };
 
@@ -189,30 +189,121 @@ var homeLoadResults = function(response) {
 };
 
 
-var openAdvanceSearch = function() {
+var openAdvancedSearch = function() {
+  console.log("Opening");
+  $("#home-advance-search").off('click');
   $("#home-advance").css("visibility", "visible");
-  $("#home-advance").css("opacity", 0);
-  $("#home-advance").animate({"height": "130px", "opacity": 1});
+  $("#home-advance").animate({"height": "130px", "opacity": 1}, function() {
+    $("#home-advance-search").click(closeAdvancedSearch);
+    $("#home-advance-search").html("<a>Hide Advanced Search</a>");
+  });
 };
+
+var closeAdvancedSearch = function() {
+  console.log("Closing");
+  $("#home-advance-search").off('click');
+  $("#home-advance").animate({"height": "0px", "opacity": 0}, 300, function() {
+    console.log("Binding open back");
+    $("#home-advance-search").click(openAdvancedSearch);
+    $("#home-advance-search").html("<a>Advanced Search</a>");
+  });
+
+
+}
+
+var keywordLocs = ['answer', 'question', 'all'];
+
+
+
+/*
+var query = "", delimiter = "";
+for (Map.Entry<String, List<String>> e : event.getParameters()
+    .entrySet()) {
+  if (e.getValue().size() > 0) {
+    query += delimiter + e.getKey() + ":\""
+      + Joiner.on("|").join(e.getValue()) + "\"";
+    delimiter = " ";
+  }
+}
+searchBox.setText(query);
+*/
+
+var updateAdvancedQuery = function() {
+  var queryParams = {};
+  queryParams.category = [];
+  $("#home-advance-category option:selected").each(function() {
+    queryParams.category.push($(this).text());
+  })
+
+  queryParams.difficulty = [];
+  $("#home-advance-difficulty option:selected").each(function() {
+    queryParams.difficulty.push($(this).text());
+  })
+
+  queryParams.year = [];
+  $("#home-advance-year option:selected").each(function() {
+    queryParams.year.push($(this).text());
+  })
+
+  queryParams.tournament = [];
+  $("#home-advance-tournament option:selected").each(function() {
+    queryParams.tournament.push($(this).text());
+  })
+
+
+  queryParams.condition = [$(".home-advance-radio :checked").val()];
+  
+    
+  var query = "", delimiter = "";
+  for (var i in queryParams) {
+    if (queryParams[i].length) {
+    query+= delimiter + i + ':"'+queryParams[i].join("|")+'"';
+    delimiter = " ";
+    }
+  }
+  var temp = parseSearch($("#home-search-input").val());
+  $("#home-search-input").val(query.trim()+" "+temp.answer.trim()); 
+};
+
 
 var loadAdvancedSearch = function() {
   jQuery.getJSON(baseURL+"/data?callback=?", function(e) {
     searchData = e.data;
-    for( var x = 0; x < searchData.categories.length; x++) {
-      $("#home-advance-category").append("<option>"+searchData.categories[x]+"</option>");
+    for( var x in searchData.categories) {
+      $("#home-advance-category").append("<option class='home-advance-category'>"+searchData.categories[x]+"</option>");
+    }
+    /*
+    $("#home-advance-category").change(function() {
+      var str = "";
+      $("#home-advance-category option:selected").each(function() {
+        console.log($(this))
+        str += $(this).text() + " ";
+      });
+      console.log(str);
+    });*/
+
+    $("#home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
+
+    for(var x in searchData.difficulties) {
+      $("#home-advance-difficulty").append("<option class='home-advance-difficulty'>"+searchData.difficulties[x]+"</option>");
     }
 
-    for(var x = 0; x < searchData.difficulties.length; x++) {
-      $("#home-advance-difficulty").append("<option>"+searchData.difficulties[x]+"</option>");
+    for( var x in keywordLocs) {
+      $("#home-advance-loc").append('<div><label class="radio home-advance-radio">'+
+        '<input value="'+keywordLocs[x]+'" type="radio" name="locationRadios" checked>'+keywordLocs[x]+
+        '</label></div>');
     }
 
-    for(var x = 0; x < searchData.years.length; x++) {
-      $("#home-advance-year").append("<option>"+searchData.years[x]+"</option>");
+    for(var x in searchData.years) {
+      $("#home-advance-year").append("<option class='home-advance-year'>"+searchData.years[x]+"</option>");
     }
 
-    for(var x = 0; x < searchData.tournaments.length; x++) {
-      $("#home-advance-tournament").append("<option>"+searchData.tournaments[x]+"</option>");
+    for(var x in searchData.tournaments) {
+      $("#home-advance-tournament").append("<option class='home-advance-tournament'>"+searchData.tournaments[x]+"</option>");
     }
+    $(".home-advance-radio :radio").click(updateAdvancedQuery);
+
+
   });
 
 };

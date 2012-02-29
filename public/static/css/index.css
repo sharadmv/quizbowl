@@ -3,6 +3,11 @@ a {
 }
 .content {
 }
+
+.display-inline-block {
+  display: inline-block;
+}
+
 #loginBox {
 }
 #nav {
@@ -125,6 +130,7 @@ a {
   font-weight: bold;
 }
 
+/* Advanced Search */
 
 #home-advance-search {
   float: left;
@@ -136,15 +142,30 @@ a {
   clear: both;
   visibility: hidden;
   height: 0;
-}
-/*
-#home-advance-location {
-  display: inline;
+  margin-left: 332px;
 }
 
-.home-advance-radio {
-  display: block !important;
-}*/
+#home-advance-category {
+  width: 120px;
+}
+
+#home-advance-difficulty {
+  width: 70px;
+  height: 60px;
+}
+
+#home-advance-year {
+  width: 100px;
+}
+
+#home-advance-tournament {
+  width: 250px;
+}
+
+
+
+
+/* Next and Back Buttons */
 
 #home-result-back {
   cursor: pointer;
