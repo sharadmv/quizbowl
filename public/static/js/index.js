@@ -14,6 +14,9 @@ bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
       window.dao = obj;
       dao = obj;
     });
+    bridge.joinChannel('ticker',{push:function(obj){
+      console.log(obj);
+      }});
   });
 $(document).ready( function() {
   $("#loginBox").hide();
@@ -22,11 +25,11 @@ $(document).ready( function() {
       $("#loginBox").toggle();
       loginToggled = true;
     });
-  $('body').click(function(e) {
+  /*$('body').click(function(e) {
     if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
       $("#loginBox").hide();
     }
-  });
+  });*/
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
       homeSearch({'offset':0,answer: $("#home-search-input").val()});

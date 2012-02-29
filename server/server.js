@@ -18,16 +18,14 @@ bridge.ready(function(){
   console.log("Connected to Bridge");
   tickerHandler = {
     push:function(ticker){
-           console.log("TICKER: "+ticker);
+           console.log(ticker.name+" "+ticker.text);
          }
-
   }
   bDao = {
     get:function(pKey, callback) {
           dao.tossup.get(pKey, callback);
         },
   search:function(obj, callback){
-console.log("SUP");
            dao.tossup.search(obj, function(result){
              callback(result);
            });
@@ -38,9 +36,12 @@ console.log("SUP");
                    ticker.push(obj);
                    callback(obj);
                  });
-               }
+               },
+     login:function(name, text){
+             ticker.push({'name':name,'text':text});
+           }
   }
-  bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel});
+  bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);
 });
 app.get('/api/tossup.search', function (req,res){
