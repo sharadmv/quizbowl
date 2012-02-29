@@ -109,6 +109,10 @@ a {
 .home-result-category, .home-result-rating, .home-result-difficulty {
 }
 
+.home-result-category {
+  margin-right: 15px;
+}
+
 .home-result-info {
   margin: 4px 0;
 }
@@ -120,7 +124,8 @@ a {
 
 .home-result-answer {
   font-style: italic;
-  line-height: 2em;
+  line-height: 1.6em;
+  margin: 5px 0;
 }
 
 .home-result-source {
@@ -142,7 +147,9 @@ a {
   clear: both;
   visibility: hidden;
   height: 0;
-  margin-left: 332px;
+  width: 1050px;
+  margin: 0 auto;
+  
 }
 
 #home-advance-category {
@@ -162,6 +169,15 @@ a {
   width: 250px;
 }
 
+#home-advance-loc {
+  width: 100px;
+  height: 40px;
+}
+
+.home-advance-param {
+  display: inline-block;
+  margin: 6px;
+}
 
 
 
