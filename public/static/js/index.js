@@ -32,7 +32,12 @@ var homeSearch = function(obj) {
   $("#home-search-loading").css("visibility", "visible");
   var params = parseSearch(obj.answer);
   params.offset = obj.offset;
-  jQuery.getJSON(baseURL + "/tossup.search?callback=?",params , function(response) {
+  search(params);
+}
+var search = function(params) {
+  dao.search(params,
+  //jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
+  function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
       homeMoveSearchToTop();
@@ -43,7 +48,6 @@ var homeSearch = function(obj) {
     }
     homeLoadResults(response);
   });
-
 }
 var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition"];
 var parseSearch = function(answer){
@@ -137,8 +141,16 @@ var homeLoadResults = function(response) {
 
 
     info = $("#home-result" + i + " .home-result-info");
-    info.append('<span class="home-result-category"><a>'+curResult.category + ' </a></span>');
-    info.append('<span class="home-result-difficulty"><a>'+curResult.difficulty+' </a></span>');
+    info.append('<span class="home-result-category" id = "category'+i+'"><a>'+curResult.category + ' </a></span>');
+    $("#category"+i).click(function(){
+      $("#home-result-input").val("category:"+results[i].category);
+      homeSearch({offset:0,answer:$("#home-result-input")});
+    });
+    info.append('<span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
+    $("#difficulty"+i).click(function(){
+      $("#home-result-input").val("difficulty:"+results[i].difficulty);
+      homeSearch({offset:0,answer:$("#home-result-input")});
+    });
     resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
     resultDiv.append('<div class="home-result-answer">Answer: '+curResult.answer+'</div>');
   }
