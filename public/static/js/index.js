@@ -9,7 +9,7 @@ bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
   bridge.ready(function(){
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
-      console.log("In sevice");
+      console.log("dao ready");
       window.dao = obj;
       dao = obj;
     });
@@ -31,6 +31,7 @@ $(document).ready( function() {
 var homeSearch = function(obj) {
   $("#home-search-loading").css("visibility", "visible");
   var params = parseSearch(obj.answer);
+  $('body,html').animate({scrollTop: 0});
   params.offset = obj.offset;
   search(params);
 }
@@ -110,11 +111,9 @@ var homeMoveSearchToTop = function() {
 
 var homeLoadResults = function(response) {
   curOffset = parseInt(response.offset);
-  console.log(curOffset);
   results = response.results;
   var resultContainer = $("#home-results");
   resultContainer.html("");
-  console.log(response);
   var resultDiv, curResult, info, source;
   var start, end, count;
   count = response.count;
@@ -127,6 +126,7 @@ var homeLoadResults = function(response) {
   }
   for(var i = 0; i < results.length; i++) {
     var curResult = results[i];
+    var r = results;
     resultContainer.append('<div id="home-result' + i + '" class="home-result"></div>');
     resultDiv = $("#home-result" + i);
     resultDiv.append('<div class="home-result-source"></div>');
@@ -142,15 +142,18 @@ var homeLoadResults = function(response) {
 
     info = $("#home-result" + i + " .home-result-info");
     info.append('<span class="home-result-category" id = "category'+i+'"><a>'+curResult.category + ' </a></span>');
-    $("#category"+i).click(function(){
-      $("#home-result-input").val("category:"+results[i].category);
-      homeSearch({offset:0,answer:$("#home-result-input")});
+    (function(){
+      var x = i;
+    $("#category"+x).click(function(){
+      $("#home-search-input").val("category:\""+r[x].category+"\"");
+      homeSearch({offset:0,answer:$("#home-search-input").val()});
     });
     info.append('<span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
-    $("#difficulty"+i).click(function(){
-      $("#home-result-input").val("difficulty:"+results[i].difficulty);
-      homeSearch({offset:0,answer:$("#home-result-input")});
+    $("#difficulty"+x).click(function(){
+      $("#home-search-input").val("difficulty:\""+r[x].difficulty+"\"");
+      homeSearch({offset:0,answer:$("#home-search-input").val()});
     });
+    })();
     resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
     resultDiv.append('<div class="home-result-answer">Answer: '+curResult.answer+'</div>');
   }
@@ -158,7 +161,6 @@ var homeLoadResults = function(response) {
     resultContainer.append('<div id="home-result-back"><a>Back</a></div>');
     $('#home-result-back').click(function() {
       homeSearch({offset:curOffset-10,answer:$("#home-search-input").val()});;
-      $('body,html').animate({scrollTop: 0});
     }); 
   }
 
@@ -166,7 +168,6 @@ var homeLoadResults = function(response) {
     resultContainer.append('<div id="home-result-next"><a>Next</a></div>');
     $('#home-result-next').click(function() {
       homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
-      $('body,html').animate({scrollTop: 0});
     });
   }
 
