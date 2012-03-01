@@ -78,6 +78,7 @@ var Dao = function(host, user, password, database){
     countstring = 'select count(*) from tossups t where '+query;
     console.log(countstring);
     client.query(countstring,function(err,results,fields){
+        if (!err) {
         count = results.length;
         client.query(querystring,function selectCb(err,results,fields){
           if (!err) {
@@ -88,6 +89,9 @@ var Dao = function(host, user, password, database){
           callback(err);
           }
           });
+	} else {
+		console.log(err);
+	}
         });
   }
   this.data = function(callback) {
