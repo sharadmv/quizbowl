@@ -157,14 +157,14 @@ var homeLoadResults = function(response) {
 
 
     info = $("#home-result" + i + " .home-result-info");
-    info.append('<span class="home-result-category" id = "category'+i+'"><a>'+curResult.category + ' </a></span>');
+    info.append('Category: <span class="home-result-category" id = "category'+i+'"><a>'+curResult.category + '</a></span>');
     (function(){
       var x = i;
     $("#category"+x).click(function(){
       $("#home-search-input").val("category:\""+r[x].category+"\"");
       homeSearch({offset:0,answer:$("#home-search-input").val()});
     });
-    info.append('<span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
+    info.append('Difficulty: <span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
     $("#difficulty"+x).click(function(){
       $("#home-search-input").val("difficulty:\""+r[x].difficulty+"\"");
       homeSearch({offset:0,answer:$("#home-search-input").val()});
@@ -194,7 +194,7 @@ var openAdvancedSearch = function() {
   console.log("Opening");
   $("#home-advance-search").off('click');
   $("#home-advance").css("visibility", "visible");
-  $("#home-advance").animate({"height": "130px", "opacity": 1}, function() {
+  $("#home-advance").animate({"height": "80px", "opacity": 1}, 300, function() {
     $("#home-advance-search").click(closeAdvancedSearch);
     $("#home-advance-search").html("<a>Hide Advanced Search</a>");
   });
@@ -212,7 +212,6 @@ var closeAdvancedSearch = function() {
 
 }
 
-var keywordLocs = ['answer', 'question', 'all'];
 
 
 
@@ -251,8 +250,16 @@ var updateAdvancedQuery = function() {
     queryParams.tournament.push($(this).text());
   })
 
+  conditions= [];
+  $("#home-advance-loc option:selected").each(function() {
+    conditions.push($(this).text());
+  })
+  if( conditions.length == 2) {
+    queryParams.condition = ["all"];
+  } else if (conditions.length == 1) {
+    queryParams.condition = [conditions[0]];
+  }
 
-  queryParams.condition = [$(".home-advance-radio :checked").val()];
   
     
   var query = "", delimiter = "";
@@ -283,16 +290,15 @@ var loadAdvancedSearch = function() {
       console.log(str);
     });*/
 
-    $("#home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
+    $("#home-advance-loc, #home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
 
     for(var x in searchData.difficulties) {
       $("#home-advance-difficulty").append("<option class='home-advance-difficulty'>"+searchData.difficulties[x]+"</option>");
     }
+    keywordLocs = ['answer', 'question'];
 
     for( var x in keywordLocs) {
-      $("#home-advance-loc").append('<div><label class="radio home-advance-radio">'+
-        '<input value="'+keywordLocs[x]+'" type="radio" name="locationRadios" checked>'+keywordLocs[x]+
-        '</label></div>');
+      $("#home-advance-loc").append("<option class='home-advance-loc'>"+keywordLocs[x]+"</option>");
     }
 
     for(var x in searchData.years) {
@@ -302,7 +308,6 @@ var loadAdvancedSearch = function() {
     for(var x in searchData.tournaments) {
       $("#home-advance-tournament").append("<option class='home-advance-tournament'>"+searchData.tournaments[x]+"</option>");
     }
-    $(".home-advance-radio :radio").click(updateAdvancedQuery);
 
 
   });
