@@ -52,6 +52,7 @@ var homeSearch = function(obj) {
   search(params);
 }
 var search = function(params) {
+  console.log(params);
   dao.search(params,
   //jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
   function(response) {

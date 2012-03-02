@@ -19,19 +19,24 @@ var Dao = function(host, user, password, database){
         });
   }
   this.tossup.search = function(obj, callback) {
+    console.log(obj);
     var query = "";
     if (obj['condition']!==undefined && obj['answer']!==undefined){
       if (obj['condition']=="all"){
-        query += "(t.answer like '%" + obj['answer'].replace(/ /g,'%') +"%' or t.question like '%" + obj['answer'].replace(/ /g,'%')+"%')";	
+        query += "(t.answer like '%" + util.escapeSql(obj['answer']).replace(/ /g,'%') +"%' or t.question like '%" + obj['answer'].replace(/ /g,'%')+"%')";	
+      } else if (obj['condition']=="question") {
+        query +="(t.question like '%"+util.escapeSql(obj['answer']).replace(/ /g,'%') + "%')";
+      } else if (obj['condition']=="answer") {
+        query += "(t.answer like '%"+util.escapeSql(obj['answer']).replace(/ /g,'%')+"%')";
       }
     } else {
       if (obj['answer']!==undefined){
-        query += "(t.answer like '%" + obj['answer'].replace(/ /g,'%')+"%')";
+        query += "(t.answer like '%" + util.escapeSql(obj['answer']).replace(/ /g,'%')+"%')";
       } else {
         query += "(t.answer like '%%')";
       }
       if (obj['question'] !== undefined){
-        query += " and (t.question like '%" + obj['question'].replace(/ /g,'%') + "%')";
+        query += " and (t.question like '%" + util.escapeSql(obj['question']).replace(/ /g,'%') + "%')";
       }
     }
     if (obj['tournament']!==undefined){
@@ -86,11 +91,13 @@ var Dao = function(host, user, password, database){
             obj['offset']=0; 
           callback({'count':count,'offset':obj['offset'],'results':results});
           } else{ 
-          callback(err);
+          console.log(err);
+          callback({offset:0,results:[]});
           }
           });
 	} else {
 		console.log(err);
+    callback({offset:0,results:[]});
 	}
         });
   }
