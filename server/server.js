@@ -23,24 +23,29 @@ bridge.ready(function(){
          }
   }
   bDao = {
-    get:function(pKey, callback) {
-          dao.tossup.get(pKey, callback);
-        },
-  search:function(obj, callback){
-           dao.tossup.search(obj, function(result){
-             callback(result);
-           });
-
-         },
-  answerReader:function(username, pKey, correct, score, callback){
-                 dao.answerReader(username, pKey, correct, score, function(obj){
-                   ticker.push(obj);
-                   callback(obj);
-                 });
-               },
-     login:function(name, text){
-             ticker.push({'name':name,'text':text});
-           }
+    tossup:{
+      get:function(pKey, callback) {
+        dao.tossup.get(pKey, callback);
+      },
+      search:function(obj, callback){
+        dao.tossup.search(obj, function(result){
+          callback(result);
+        });
+      }
+    },
+    reader:{
+      answerReader:function(username, pKey, correct, score, callback){
+        dao.answerReader(username, pKey, correct, score, function(obj){
+          ticker.push(obj);
+          callback(obj);
+        });
+      }
+    },
+    user:{
+      login:function(name, text){
+        ticker.push({'name':name,'text':text});
+      }
+    }
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);

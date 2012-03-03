@@ -9,6 +9,7 @@ var Dao = function(host, user, password, database){
   this.tossup = {}; 
   this.user = {};
   this.rating = {};
+  this.reader = {};
   this.tossup.get = function(pKey, callback){
     client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
         if (!err) {
@@ -194,13 +195,12 @@ var Dao = function(host, user, password, database){
         });
   }
 
-  this.answerReader = function(username, pKey, correct, score, callback) {
+  this.reader.answer = function(username, pKey, correct, score, callback) {
     client.query("insert into scores (username,score,correct,answer,question) values ('"+username+"','"+score+"',"+correct+",'"+util.escapeSql(answer)+"','"+util.escapeSql(pKey)+"')", function(err, info){
         if (err){
         console.log(err);
         } else {
-        this.get(pKey, function(question) {
-          callback({name:username,action:{'correct':correct,'score':score, 'answer':question.answer}});
+        this.get(pKey, function(question) { callback({name:username,action:{'correct':correct,'score':score, 'answer':question.answer}});
           });
         }
         });
