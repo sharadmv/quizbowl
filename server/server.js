@@ -45,12 +45,11 @@ bridge.ready(function(){
     user:{
       login:function(user,callback){
         dao.user.login(user, function(loggedIn) {
-          if (loggedIn) {
-            ticker.push({'name':name,'text':text});
-            callback({"message":"success"});
-          } else {
-            callback({"message":"failed"});
-          }
+          login(user, loggedIn, function(obj) {
+              callback(obj);
+            }
+          );
+        }
       },
       create:function(user, callback) {
         dao.user.create(user, callback);
@@ -71,14 +70,12 @@ app.get('/api/data', function(req,res){
   });
 });
 app.get('/api/user.login', function(req,res) {
-  dao.user.login(req.query, function(result){
-    if (result && req.query.username && req.query.password){
-      res.json({message:"success"});
-      users.push(req.query.username);
-      sendUser(req.query.username,"logged in");
-    } else {
-      res.json({message:"fail"});
-    }
+  user = new User(req.query.username, req.query.password);
+  dao.user.login(user, function(result){
+    login(user, result, function(obj) {
+        res.json(obj);
+      }
+    );
   });
 });
 app.get('/api/user.logoff',function(req,res) {
@@ -114,7 +111,15 @@ app.get('/reader', function(req, res) {
 app.get('/multiplayer', function(req, res) {
   res.render('multiplayer');
 });
-
+login = function(user, loggedIn, callback) {
+  if (loggedIn) {
+    users.push(user);
+    ticker.push(new Ticker(user, message));
+    callback({message:"success"});
+  } else {
+    callback({message:"failed"});
+  }
+}
 sendUser = function(user,message){ 
   tickers.push(new Ticker(user, message));
 };
