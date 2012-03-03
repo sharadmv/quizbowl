@@ -86,7 +86,7 @@ app.get('/api/user.login', function(req,res) {
   });
 });
 app.get('/api/user.logoff',function(req,res) {
-  req.query.sanitize(["username"."password"]);
+  req.query.sanitize(["username","password"]);
   logoff(req.query,function(obj) {
     res.json(obj);
   });
