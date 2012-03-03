@@ -51,6 +51,11 @@ bridge.ready(function(){
           );
         }
       },
+      logoff:function(user, callback){
+        logoff(user,function(obj) {
+          callback(obj);
+        });
+      },
       create:function(user, callback) {
         dao.user.create(user, callback);
       }       
@@ -79,10 +84,10 @@ app.get('/api/user.login', function(req,res) {
   });
 });
 app.get('/api/user.logoff',function(req,res) {
-  if (req.query.username){
-    delete users[req.query.username];
-    sendUser(req.query.username, "logged off.");
-  }
+  user = new User(req.query.username, req.query.password);
+  logoff(user,function(obj) {
+    res.json(obj);
+  });
 });
 app.get('/api/user.create', function(req,res){
   dao.user.create(req.query, function(result){
@@ -114,11 +119,16 @@ app.get('/multiplayer', function(req, res) {
 login = function(user, loggedIn, callback) {
   if (loggedIn) {
     users.push(user);
-    ticker.push(new Ticker(user, message));
+    ticker.push(new Ticker(user, "logged in"));
     callback({message:"success"});
   } else {
     callback({message:"failed"});
   }
+}
+logoff = function(user, callback) {
+  delete users[user];
+  ticker.push(new Ticker(user, "logged off"));
+  callback({"message":"success"});
 }
 sendUser = function(user,message){ 
   tickers.push(new Ticker(user, message));
