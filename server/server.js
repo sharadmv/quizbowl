@@ -43,8 +43,14 @@ bridge.ready(function(){
       }
     },
     user:{
-      login:function(name, text,callback){
-        ticker.push({'name':name,'text':text});
+      login:function(user,callback){
+        dao.user.login(user, function(loggedIn) {
+          if (loggedIn) {
+            ticker.push({'name':name,'text':text});
+            callback({"message":"success"});
+          } else {
+            callback({"message":"failed"});
+          }
       },
       create:function(user, callback) {
         dao.user.create(user, callback);
