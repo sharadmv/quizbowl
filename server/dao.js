@@ -135,7 +135,7 @@ var Dao = function(host, user, password, database){
     });
     });
   }
-  this.answerReader = function(username, pKey, correct, score, callback) {
+  this.reader.answer = function(username, pKey, correct, score, callback) {
     client.query("insert into scores (username,score,correct,answer,question) values ('"+username+"','"+score+"',"+correct+",'"+util.escapeSql(answer)+"','"+util.escapeSql(pKey)+"')", function(err, info){
         if (err){
         console.log(err);
@@ -147,7 +147,7 @@ var Dao = function(host, user, password, database){
         });
 
   }
-  this.user.authenticate = function(user, callback){
+  this.user.login = function(user, callback){
     client.query("select * from usernames where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
         if (err) {
         console.log(err); 
@@ -191,43 +191,6 @@ var Dao = function(host, user, password, database){
           console.log(err);
           }
           });
-        }
-        });
-  }
-
-  this.reader.answer = function(username, pKey, correct, score, callback) {
-    client.query("insert into scores (username,score,correct,answer,question) values ('"+username+"','"+score+"',"+correct+",'"+util.escapeSql(answer)+"','"+util.escapeSql(pKey)+"')", function(err, info){
-        if (err){
-        console.log(err);
-        } else {
-        this.get(pKey, function(question) { callback({name:username,action:{'correct':correct,'score':score, 'answer':question.answer}});
-          });
-        }
-        });
-
-  }
-  this.user.authenticate = function(user, callback){
-    client.query("select * from usernames where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
-        if (err) {
-        console.log(err); 
-        } else {
-        if (result.length==1){
-        callback(true);
-        } else if (result.length == 0){
-        callback(false);
-        } else {
-        console.log("AAAAH EXPLODEY FATAL ERROR");
-        }
-        }
-        });
-  }
-  this.user.create = function(user, callback){
-    client.query("insert into usernames(username, password) values('"+user.username+"','"+user.password+"')", function(err, result, info){
-        if (err){
-        callback(true);
-        }
-        else {
-        callback(false);
         }
         });
   }

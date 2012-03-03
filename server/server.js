@@ -64,8 +64,8 @@ app.get('/api/data', function(req,res){
     res.json(result);
   });
 });
-app.get('/api/user.authenticate', function(req,res) {
-  dao.user.authenticate(req.query, function(result){
+app.get('/api/user.login', function(req,res) {
+  dao.user.login(req.query, function(result){
     if (result && req.query.username && req.query.password){
       res.json({message:"success"});
       users.push(req.query.username);
