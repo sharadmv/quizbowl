@@ -35,10 +35,10 @@ bridge.ready(function(){
       }
     },
     reader:{
-      answerReader:function(username, pKey, correct, score, callback){
-        dao.answerReader(username, pKey, correct, score, function(obj){
-          ticker.push(obj);
-          callback(obj);
+      answerReader:function(obj, callback){
+        dao.answerReader(obj, function(result){
+          ticker.push(result);
+          callback(result);
         });
       }
     },
@@ -102,6 +102,7 @@ app.get('/api/user.create', function(req,res){
   });
 });
 app.get('/api/rating.add', function(req,res){
+  req.query.sanitize(["username","question","value"]);
   dao.rating.add(req.query, function(result){
     if (result){
       res.json({message:"success"});

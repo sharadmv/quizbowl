@@ -135,12 +135,12 @@ var Dao = function(host, user, password, database){
     });
     });
   }
-  this.reader.answer = function(username, pKey, correct, score, callback) {
-    client.query("insert into scores (username,score,correct,answer,question) values ('"+username+"','"+score+"',"+correct+",'"+util.escapeSql(answer)+"','"+util.escapeSql(pKey)+"')", function(err, info){
+  this.reader.answer = function(obj, callback) {
+    client.query("insert into scores (username,score,correct,answer,question) values ('"+obj.username+"','"+obj.score+"',"+obj.correct+",'"+util.escapeSql(obj.answer)+"','"+util.escapeSql(obj.pKey)+"')", function(err, info){
         if (err){
         console.log(err);
         } else {
-        this.get(pKey, function(question) {
+        this.get(obj.pKey, function(question) {
           callback({name:username,action:{'correct':correct,'score':score, 'answer':question.answer}});
           });
         }
