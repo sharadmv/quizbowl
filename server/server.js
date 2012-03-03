@@ -65,19 +65,19 @@ bridge.ready(function(){
   bridge.publishService("dao",bDao);
 });
 app.get('/api/tossup.search', function (req,res){
-  req.query.sanitize(["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username"]);
+  //req.query.sanitize(["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username"]);
   dao.tossup.search(req.query, function(result){
     res.json(result);
   });
 });
 app.get('/api/data', function(req,res){
-  req.query.sanitize([]);
+  //req.query.sanitize([]);
   dao.data(function(result){
     res.json(result);
   });
 });
 app.get('/api/user.login', function(req,res) {
-  req.query.sanitize(["username","password"]);
+  //req.query.sanitize(["username","password"]);
   dao.user.login(req.query, function(result){
     login(user, result, function(obj) {
         res.json(obj);
@@ -86,13 +86,13 @@ app.get('/api/user.login', function(req,res) {
   });
 });
 app.get('/api/user.logoff',function(req,res) {
-  req.query.sanitize(["username"."password"]);
+  //req.query.sanitize(["username","password"]);
   logoff(req.query,function(obj) {
     res.json(obj);
   });
 });
 app.get('/api/user.create', function(req,res){
-  req.query.sanitize(["username","password"]);
+  //req.query.sanitize(["username","password"]);
   dao.user.create(req.query, function(result){
     if (result){
       res.json({message:"success"});
@@ -102,7 +102,7 @@ app.get('/api/user.create', function(req,res){
   });
 });
 app.get('/api/rating.add', function(req,res){
-  req.query.sanitize(["username","question","value"]);
+  //req.query.sanitize(["username","question","value"]);
   dao.rating.add(req.query, function(result){
     if (result){
       res.json({message:"success"});
@@ -121,15 +121,15 @@ app.get('/multiplayer', function(req, res) {
   res.render('multiplayer');
 });
 //Server Util Functions
-Object.prototype.sanitize = function(strings) {
+/*Object.prototype.sanitize = function(strings) {
   temp = {};
   for (var i in strings) {
     if (this[strings[i]] !== undefined) {
       temp[strings[i]] = this[strings[i]];
     }
   }
-  this = temp;//this line does not work
-}
+  //this = temp;//this line does not work
+}*/
 login = function(user, loggedIn, callback) {
   if (loggedIn) {
     users.push(user);
