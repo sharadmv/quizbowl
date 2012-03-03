@@ -49,7 +49,7 @@ bridge.ready(function(){
               callback(obj);
             }
           );
-        }
+        });
       },
       logoff:function(user, callback){
         logoff(user,function(obj) {

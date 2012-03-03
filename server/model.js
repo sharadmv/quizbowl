@@ -17,6 +17,7 @@ var Model = {
       } else {
         callback({'user':user,message:"already part of ["+this.name+"]"});
       }
+    }
   },
   Game:function(room) {
   }
