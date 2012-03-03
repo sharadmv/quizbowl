@@ -1,6 +1,7 @@
 var express = require('express');
 var Model = require('./model.js');
 var Ticker = Model.Ticker;
+var User = Model.User;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
 //var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
 var bridge = new Bridge({apiKey:"rI5cMTmi"});
@@ -42,9 +43,12 @@ bridge.ready(function(){
       }
     },
     user:{
-      login:function(name, text){
+      login:function(name, text,callback){
         ticker.push({'name':name,'text':text});
-      }
+      },
+      create:function(user, callback) {
+        dao.user.create(user, callback);
+      }       
     }
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
