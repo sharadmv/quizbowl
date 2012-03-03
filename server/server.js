@@ -19,8 +19,8 @@ bridge.ready(function(){
   console.log("Connected to Bridge");
   tickerHandler = {
     push:function(ticker){
-           console.log(ticker.name+" "+ticker.text);
-         }
+      console.log(ticker.name+" "+ticker.text);
+    }
   }
   bDao = {
     tossup:{
@@ -64,16 +64,17 @@ app.get('/api/user.authenticate', function(req,res) {
   dao.user.authenticate(req.query, function(result){
     if (result && req.query.username && req.query.password){
       res.json({message:"success"});
-      users.push(req.query.username, "logged in.");
+      users.push(req.query.username);
+      sendUser(req.query.username,"logged in");
     } else {
       res.json({message:"fail"});
     }
   });
 });
 app.get('/api/user.logoff',function(req,res) {
-  if (req.username){
-    delete users[req.username];
-    updateUsers(req.username, "logged off.");
+  if (req.query.username){
+    delete users[req.query.username];
+    sendUser(req.query.username, "logged off.");
   }
 });
 app.get('/api/user.create', function(req,res){
