@@ -1,6 +1,15 @@
 var baseURL = "http://ec2-50-19-22-175.compute-1.amazonaws.com:80/api";
 
 
+var pageSpecificStyles = function() {
+  if( page == "reader") {
+    $("#home-advance").css("visibility", "visible");
+    $("#home-advance").css("margin-top", "20px");
+    $("#home-advance").css("height", "77px");
+  }
+};
+
+
 var searchData;
 var searchInMiddle = true;
 var curOffset;
@@ -8,34 +17,36 @@ var dao;
 var loginToggled = false;
 bridge = new Bridge({apiKey:"YkYztDEV"});
 bridge.ready(function(){
-    console.log("bridge ready");
-    bridge.getService('dao',function(obj){
-      console.log("dao ready");
-      window.dao = obj;
-      dao = obj;
-      });
-    });
+  console.log("bridge ready");
+  bridge.getService('dao',function(obj){
+    console.log("dao ready");
+    window.dao = obj;
+    dao = obj;
+  });
+});
 $(document).ready( function() {
-    $("#loginBox").hide();
-    $("#login").click(function(){
-      console.log("toggle");
-      $("#loginBox").toggle();
-      loginToggled = true;
-      });
-    $('body').click(function(e) {
-      if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
+  pageSpecificStyles();
+
+  $("#loginBox").hide();
+  $("#login").click(function(){
+    console.log("toggle");
+    $("#loginBox").toggle();
+    loginToggled = true;
+  });
+  $('body').click(function(e) {
+    if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
       $("#loginBox").hide();
-      }
-      });
-    $("#home-search-input").keypress( function(event) {
-      if (event.which == 13) {
+    }
+  });
+  $("#home-search-input").keypress( function(event) {
+    if (event.which == 13) {
       homeSearch({'offset':0,answer: $("#home-search-input").val()});
-      }
-      });
+    }
+  });
 
-    $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
+  $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
 
-    loadAdvancedSearch();
+  loadAdvancedSearch();
 
 
 });
@@ -51,15 +62,15 @@ var search = function(params) {
   //dao.search(params,
   jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
       function(response) {
-      $("#home-search-loading").css("visibility", "hidden");
-      if(searchInMiddle) {
-      homeMoveSearchToTop();
-      $("#home-result-refine").css("visibility", "visible");
-      $("#home-results-wrapper").css("visibility", "visible");
-      $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
-      $("#home-advance-search").click(openAdvancedSearch);
-      }
-      homeLoadResults(response);
+        $("#home-search-loading").css("visibility", "hidden");
+        if(searchInMiddle) {
+          homeMoveSearchToTop();
+          $("#home-result-refine").css("visibility", "visible");
+          $("#home-results-wrapper").css("visibility", "visible");
+          $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
+          $("#home-advance-search").click(openAdvancedSearch);
+        }
+        homeLoadResults(response);
       });
 }
 var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition","sort"];
@@ -148,16 +159,16 @@ var homeLoadResults = function(response) {
     }
 
     $("#home-sort-change").click( function() {
-        if( sortedBy == "date") {
+      if( sortedBy == "date") {
         sortedBy = "rating";
         updateAdvancedQuery(searchCallBack);
 
-        } else {
+      } else {
         sortedBy = "date";
         updateAdvancedQuery(searchCallBack);
-        }
+      }
 
-        });
+    });
   }
   for(var i = 0; i < results.length; i++) {
     var curResult = results[i];
@@ -178,32 +189,32 @@ var homeLoadResults = function(response) {
     info = $("#home-result" + i + " .home-result-info");
     info.append('Category: <span class="home-result-category" id = "category'+i+'"><a>'+curResult.category + '</a></span>');
     (function(){
-     var x = i;
-     $("#category"+x).click(function(){
-       $("#home-search-input").val("category:\""+r[x].category+"\"");
-       homeSearch({offset:0,answer:$("#home-search-input").val()});
-       });
-     info.append('Difficulty: <span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
-     $("#difficulty"+x).click(function(){
-       $("#home-search-input").val("difficulty:\""+r[x].difficulty+"\"");
-       homeSearch({offset:0,answer:$("#home-search-input").val()});
-       });
-     })();
+      var x = i;
+      $("#category"+x).click(function(){
+        $("#home-search-input").val("category:\""+r[x].category+"\"");
+        homeSearch({offset:0,answer:$("#home-search-input").val()});
+      });
+      info.append('Difficulty: <span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
+      $("#difficulty"+x).click(function(){
+        $("#home-search-input").val("difficulty:\""+r[x].difficulty+"\"");
+        homeSearch({offset:0,answer:$("#home-search-input").val()});
+      });
+    })();
     resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
     resultDiv.append('<div class="home-result-answer">Answer: '+curResult.answer+'</div>');
   }
   if( start-1 > 0 ) {
     resultContainer.append('<div id="home-result-back"><a>Back</a></div>');
     $('#home-result-back').click(function() {
-        homeSearch({offset:curOffset-10,answer:$("#home-search-input").val()});;
-        }); 
+      homeSearch({offset:curOffset-10,answer:$("#home-search-input").val()});;
+    }); 
   }
 
   if( end < count) { 
     resultContainer.append('<div id="home-result-next"><a>Next</a></div>');
     $('#home-result-next').click(function() {
-        homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
-        });
+      homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
+    });
   }
 
 };
@@ -214,9 +225,9 @@ var openAdvancedSearch = function() {
   $("#home-advance").css("visibility", "visible");
   $("#home-advance").css("margin-bottom", "20px");
   $("#home-advance").animate({"height": "80px", "opacity": 1}, 300, function() {
-      $("#home-advance-search").click(closeAdvancedSearch);
-      $("#home-advance-search").html("<a>Hide Advanced Search</a>");
-      });
+    $("#home-advance-search").click(closeAdvancedSearch);
+    $("#home-advance-search").html("<a>Hide Advanced Search</a>");
+  });
 };
 
 var closeAdvancedSearch = function() {
@@ -224,10 +235,10 @@ var closeAdvancedSearch = function() {
   $("#home-advance-search").off('click');
   $("#home-advance").css("margin-bottom", "0px");
   $("#home-advance").animate({"height": "0px", "opacity": 0}, 300, function() {
-      console.log("Binding open back");
-      $("#home-advance-search").click(openAdvancedSearch);
-      $("#home-advance-search").html("<a>Advanced Search</a>");
-      });
+    console.log("Binding open back");
+    $("#home-advance-search").click(openAdvancedSearch);
+    $("#home-advance-search").html("<a>Advanced Search</a>");
+  });
 
 
 }
@@ -238,28 +249,28 @@ var updateAdvancedQuery = function(callback) {
   var queryParams = {};
   queryParams.category = [];
   $("#home-advance-category option:selected").each(function() {
-      queryParams.category.push($(this).text());
-      })
+    queryParams.category.push($(this).text());
+  })
 
   queryParams.difficulty = [];
   $("#home-advance-difficulty option:selected").each(function() {
-      queryParams.difficulty.push($(this).text());
-      })
+    queryParams.difficulty.push($(this).text());
+  })
 
   queryParams.year = [];
   $("#home-advance-year option:selected").each(function() {
-      queryParams.year.push($(this).text());
-      })
+    queryParams.year.push($(this).text());
+  })
 
   queryParams.tournament = [];
   $("#home-advance-tournament option:selected").each(function() {
-      queryParams.tournament.push($(this).text());
-      })
+    queryParams.tournament.push($(this).text());
+  })
 
   conditions= [];
   $("#home-advance-loc option:selected").each(function() {
-      conditions.push($(this).text());
-      })
+    conditions.push($(this).text());
+  })
   if( conditions.length == 2) {
     queryParams.condition = ["all"];
   } else if (conditions.length == 1) {
@@ -280,10 +291,8 @@ var updateAdvancedQuery = function(callback) {
   }
   var temp = parseSearch($("#home-search-input").val());
   $("#home-search-input").val(query.trim()+" "+temp.answer.trim()); 
-  console.log("HERE");
 
-  if( typeof callback !== "undefined") {
-    console.log("Calling");
+  if( typeof callback === "function") {
     callback();
   }
 };
@@ -291,29 +300,29 @@ var updateAdvancedQuery = function(callback) {
 
 var loadAdvancedSearch = function() {
   jQuery.getJSON(baseURL+"/data?callback=?", function(e) {
-      searchData = e.data;
-      for( var x in searchData.categories) {
+    searchData = e.data;
+    for( var x in searchData.categories) {
       $("#home-advance-category").append("<option class='home-advance-category'>"+searchData.categories[x]+"</option>");
-      }
+    }
 
-      $("#home-advance-loc, #home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
+    $("#home-advance-loc, #home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
 
-      for(var x in searchData.difficulties) {
+    for(var x in searchData.difficulties) {
       $("#home-advance-difficulty").append("<option class='home-advance-difficulty'>"+searchData.difficulties[x]+"</option>");
-      }
-      keywordLocs = ['answer', 'question'];
+    }
+    keywordLocs = ['answer', 'question'];
 
-      for( var x in keywordLocs) {
+    for( var x in keywordLocs) {
       $("#home-advance-loc").append("<option class='home-advance-loc'>"+keywordLocs[x]+"</option>");
-      }
+    }
 
-      for(var x in searchData.years) {
+    for(var x in searchData.years) {
       $("#home-advance-year").append("<option class='home-advance-year'>"+searchData.years[x]+"</option>");
-      }
+    }
 
-      for(var x in searchData.tournaments) {
-        $("#home-advance-tournament").append("<option class='home-advance-tournament'>"+searchData.tournaments[x]+"</option>");
-      }
+    for(var x in searchData.tournaments) {
+      $("#home-advance-tournament").append("<option class='home-advance-tournament'>"+searchData.tournaments[x]+"</option>");
+    }
 
 
   });
