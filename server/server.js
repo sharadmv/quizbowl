@@ -113,13 +113,19 @@ app.get('/api/rating.add', function(req,res){
   }); 
 });
 app.get('/',function(req,res){
-  res.render('home');
+  res.render('home', {
+    current: 'home'
+  });
 });
 app.get('/reader', function(req, res) {
-  res.render('reader');
+  res.render('reader', {
+    current: 'reader'
+  });
 });
 app.get('/multiplayer', function(req, res) {
-  res.render('multiplayer');
+  res.render('multiplayer', {
+    current: 'multiplayer'
+  });
 });
 //Server Util Functions
 sanitize = function(obj, strings) {

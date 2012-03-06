@@ -70,7 +70,7 @@ a {
 #home-result-wrapper {
   clear: both;
   margin: 0 40px;
-  padding: 20 0 70px 0;
+  padding-bottom: 70px;
 }
 
 #home-search-loading {
@@ -87,20 +87,22 @@ a {
 }
 
 #home-results {
-  padding: 20px 20px 40px 20px;
+  padding: 20px 30px 40px 30px;
   background: white;
   border-radius: 10px;
   border: 1px solid rgba(230, 230, 230, 1);
-  box-shadow: 4px 4px 6px rgba(150, 150, 150, .2);
+  box-shadow: 4px 4px 6px rgba(150, 150, 150, .1);
 }
 
 #home-result-quantity {
   color: rgba(150, 150, 150, 1);
   margin: 5px 0 20px 0;
+  float: left;
 }
 
 .home-result {
   margin-bottom: 20px;
+  clear:both;
 }
 
 .home-result-year, .home-result-tournament, .home-result-round, .home-result-question-num {
@@ -135,6 +137,12 @@ a {
   font-weight: bold;
 }
 
+/* Search Sort */
+
+#home-sort {
+  float: right;
+}
+
 /* Advanced Search */
 
 #home-advance-search {
@@ -144,12 +152,16 @@ a {
 }
 
 #home-advance {
+  box-shadow: 4px 4px 6px rgba(150, 150, 150, .1);
   clear: both;
   visibility: hidden;
   height: 0;
   width: 1050px;
   margin: 0 auto;
-  
+  padding: 7px 15px 14px;
+  border-radius: 10px;
+  border: 1px solid rgb(230, 230, 230);
+  background: white;
 }
 
 #home-advance-category {
