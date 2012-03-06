@@ -7,7 +7,7 @@ var curOffset;
 var dao;
 var loginToggled = false;
 //bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
-bridge = new Bridge({apiKey:"rI5cMTmi"});
+bridge = new Bridge({apiKey:"YkYztDEV"});
   bridge.ready(function(){
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
