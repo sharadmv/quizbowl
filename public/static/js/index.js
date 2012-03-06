@@ -6,8 +6,7 @@ var searchInMiddle = true;
 var curOffset;
 var dao;
 var loginToggled = false;
-//bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
-bridge = new Bridge({apiKey:"rI5cMTmi"});
+bridge = new Bridge({host: '50.19.22.175', port: 8091, apiKey: "abcdefgh"});
   bridge.ready(function(){
     console.log("bridge ready");
     bridge.getService('dao',function(obj){
@@ -15,9 +14,6 @@ bridge = new Bridge({apiKey:"rI5cMTmi"});
       window.dao = obj;
       dao = obj;
     });
-    bridge.joinChannel('ticker',{push:function(obj){
-      console.log(obj);
-      }});
   });
 $(document).ready( function() {
   $("#loginBox").hide();
@@ -26,11 +22,11 @@ $(document).ready( function() {
       $("#loginBox").toggle();
       loginToggled = true;
     });
-  /*$('body').click(function(e) {
+  $('body').click(function(e) {
     if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
       $("#loginBox").hide();
     }
-  });*/
+  });
   $("#home-search-input").keypress( function(event) {
     if (event.which == 13) {
       homeSearch({'offset':0,answer: $("#home-search-input").val()});
@@ -52,9 +48,8 @@ var homeSearch = function(obj) {
   search(params);
 }
 var search = function(params) {
-  console.log(params);
-  dao.search(params,
-  //jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
+  //dao.search(params,
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
   function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
@@ -67,7 +62,7 @@ var search = function(params) {
     homeLoadResults(response);
   });
 }
-var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition"];
+var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition","sort"];
 var parseSearch = function(answer){
   var parameters = {};
   var terms = answer.trim();
@@ -126,6 +121,8 @@ var homeMoveSearchToTop = function() {
   searchInMiddle = false;
 };
 
+var sortedBy = "date"
+
 var homeLoadResults = function(response) {
   curOffset = parseInt(response.offset);
   results = response.results;
@@ -140,6 +137,27 @@ var homeLoadResults = function(response) {
     start = parseInt(parseInt(response.offset) + 1);
     end = parseInt(parseInt(response.offset) + results.length);
     resultContainer.append('<div id="home-result-quantity">Displaying '+ start +"-"+end+' results of '+count+'</div>');
+    if( sortedBy == "date") {
+      resultContainer.append('<div id="home-sort"><a id="home-sort-change">Sort by Rating</a></div>');
+    } else {
+      resultContainer.append('<div id="home-sort"><a id="home-sort-change">Sort by Date</div>');
+    }
+
+    var searchCallBack = function() {
+      $("#home-search-button").click();
+    }
+
+    $("#home-sort-change").click( function() {
+      if( sortedBy == "date") {
+        sortedBy = "rating";
+        updateAdvancedQuery(searchCallBack);
+
+      } else {
+        sortedBy = "date";
+        updateAdvancedQuery(searchCallBack);
+      }
+
+    });
   }
   for(var i = 0; i < results.length; i++) {
     var curResult = results[i];
@@ -192,9 +210,9 @@ var homeLoadResults = function(response) {
 
 
 var openAdvancedSearch = function() {
-  console.log("Opening");
   $("#home-advance-search").off('click');
   $("#home-advance").css("visibility", "visible");
+  $("#home-advance").css("margin-bottom", "20px");
   $("#home-advance").animate({"height": "80px", "opacity": 1}, 300, function() {
     $("#home-advance-search").click(closeAdvancedSearch);
     $("#home-advance-search").html("<a>Hide Advanced Search</a>");
@@ -204,6 +222,7 @@ var openAdvancedSearch = function() {
 var closeAdvancedSearch = function() {
   console.log("Closing");
   $("#home-advance-search").off('click');
+  $("#home-advance").css("margin-bottom", "0px");
   $("#home-advance").animate({"height": "0px", "opacity": 0}, 300, function() {
     console.log("Binding open back");
     $("#home-advance-search").click(openAdvancedSearch);
@@ -215,21 +234,7 @@ var closeAdvancedSearch = function() {
 
 
 
-
-/*
-var query = "", delimiter = "";
-for (Map.Entry<String, List<String>> e : event.getParameters()
-    .entrySet()) {
-  if (e.getValue().size() > 0) {
-    query += delimiter + e.getKey() + ":\""
-      + Joiner.on("|").join(e.getValue()) + "\"";
-    delimiter = " ";
-  }
-}
-searchBox.setText(query);
-*/
-
-var updateAdvancedQuery = function() {
+var updateAdvancedQuery = function(callback) {
   var queryParams = {};
   queryParams.category = [];
   $("#home-advance-category option:selected").each(function() {
@@ -261,6 +266,9 @@ var updateAdvancedQuery = function() {
     queryParams.condition = [conditions[0]];
   }
 
+  queryParams.sort = [];
+  queryParams.sort.push(sortedBy);
+
   
     
   var query = "", delimiter = "";
@@ -272,6 +280,12 @@ var updateAdvancedQuery = function() {
   }
   var temp = parseSearch($("#home-search-input").val());
   $("#home-search-input").val(query.trim()+" "+temp.answer.trim()); 
+  console.log("HERE");
+
+  if( typeof callback !== "undefined") {
+    console.log("Calling");
+    callback();
+  }
 };
 
 
@@ -281,15 +295,6 @@ var loadAdvancedSearch = function() {
     for( var x in searchData.categories) {
       $("#home-advance-category").append("<option class='home-advance-category'>"+searchData.categories[x]+"</option>");
     }
-    /*
-    $("#home-advance-category").change(function() {
-      var str = "";
-      $("#home-advance-category option:selected").each(function() {
-        console.log($(this))
-        str += $(this).text() + " ";
-      });
-      console.log(str);
-    });*/
 
     $("#home-advance-loc, #home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
 
