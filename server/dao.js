@@ -20,7 +20,6 @@ var Dao = function(host, user, password, database){
         });
   }
   this.tossup.search = function(obj, callback) {
-    console.log(obj);
     var query = "";
     if (obj['condition']!==undefined && obj['answer']!==undefined){
       if (obj['condition']=="all"){
@@ -68,7 +67,11 @@ var Dao = function(host, user, password, database){
         }
       }
     } else {	
-      query += " order by year desc, tournament asc, round asc,question_num asc";
+      if (obj['sort'] == undefined || obj['sort'] == 'date') {
+        query += " order by year desc, tournament asc, round asc,question_num asc";
+      } else if (obj['sort'] == 'rating') {
+        query += " order by sum(r.rating) desc";
+      }
       limitstring = "";
       if (obj['offset']!==undefined) {
         limitstring += " limit "+pageLength+" offset "+obj['offset'];
@@ -77,12 +80,12 @@ var Dao = function(host, user, password, database){
       }
     }
     if (obj['username']!==undefined){
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating,(select rating from ratings where user="'+obj['username']+'" and question=t.pKey) user_rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
+      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating,(select rating from ratings where user="'+obj['username']+'" and question=t.pKey) user_rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
     } else {
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
+      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
     }
-    countstring = 'select count(*) from tossups t where '+query;
-    console.log(countstring);
+    countstring = 'select count(*),sum(r.rating) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
+    console.log(querystring);
     client.query(countstring,function(err,results,fields){
         if (!err) {
         count = results.length;

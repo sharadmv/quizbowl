@@ -53,8 +53,8 @@ var homeSearch = function(obj) {
 }
 var search = function(params) {
   console.log(params);
-  dao.search(params,
-  //jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
+  //dao.search(params,
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
   function(response) {
     $("#home-search-loading").css("visibility", "hidden");
     if(searchInMiddle) {
@@ -67,7 +67,7 @@ var search = function(params) {
     homeLoadResults(response);
   });
 }
-var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition"];
+var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition","sort"];
 var parseSearch = function(answer){
   var parameters = {};
   var terms = answer.trim();
