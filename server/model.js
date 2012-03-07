@@ -26,9 +26,25 @@ Room:function(name) {
 Game:function(room) {
      },
 Util:{
+tidy:function(str){
+	var r = str.toLowerCase();
+	r = r.replace(new RegExp(/\r\t\n/g),"");
+        r = r.replace(new RegExp(/[àáâãäå]/g),"a");
+        r = r.replace(new RegExp(/æ/g),"ae");
+        r = r.replace(new RegExp(/ç/g),"c");
+        r = r.replace(new RegExp(/[èéêë]/g),"e");
+        r = r.replace(new RegExp(/[ìíîï]/g),"i");
+        r = r.replace(new RegExp(/ñ/g),"n");                
+        r = r.replace(new RegExp(/[òóôõö]/g),"o");
+        r = r.replace(new RegExp(/œ/g),"oe");
+        r = r.replace(new RegExp(/[ùúûü]/g),"u");
+        r = r.replace(new RegExp(/[ýÿ]/g),"y");
+        return r.trim();
+},
 checkAnswer:function(answer,canon,callback){
-              answer = answer.tidy();
-              canon = canon.tidy();
+              console.log(answer,canon);
+              answer = this.tidy(answer);
+              canon = this.tidy(canon);
               this.spellcheck(answer,function(ans){
                   actual = answer.split(" ");
                   checked = ans.trim().split(" ");
@@ -144,20 +160,5 @@ host: post_domain,
 
            }
      }
-}
-String.prototype.tidy = function(){
-	var r = this.toLowerCase();
-	r = r.replace(new RegExp(/\r\t\n/g),"");
-        r = r.replace(new RegExp(/[àáâãäå]/g),"a");
-        r = r.replace(new RegExp(/æ/g),"ae");
-        r = r.replace(new RegExp(/ç/g),"c");
-        r = r.replace(new RegExp(/[èéêë]/g),"e");
-        r = r.replace(new RegExp(/[ìíîï]/g),"i");
-        r = r.replace(new RegExp(/ñ/g),"n");                
-        r = r.replace(new RegExp(/[òóôõö]/g),"o");
-        r = r.replace(new RegExp(/œ/g),"oe");
-        r = r.replace(new RegExp(/[ùúûü]/g),"u");
-        r = r.replace(new RegExp(/[ýÿ]/g),"y");
-        return r.trim();
 }
 module.exports = Model;

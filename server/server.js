@@ -5,8 +5,8 @@ var User = Model.User;
 var Util = Model.Util;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
 //var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
-//var bridge = new Bridge({apiKey:"R+DPnfAq"});
-var bridge = {ready:function(){}}
+var bridge = new Bridge({apiKey:"R+DPnfAq"});
+//var bridge = {ready:function(){}}
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
@@ -65,22 +65,23 @@ bridge.ready(function(){
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);
+  console.log("published dao");
 });
 app.get('/api/tossup.search', function (req,res){
-  //req.query = sanitize(req.query,["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username","sort"]);
+  req.query = sanitize(req.query,["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username","sort"]);
   dao.tossup.search(req.query, function(result){
     console.log(result);
     res.json(result);
   });
 });
 app.get('/api/data', function(req,res){
-  //req.query = sanitize(req.query,[]);
+  req.query = sanitize(req.query,[]);
   dao.data(function(result){
     res.json(result);
   });
 });
 app.get('/api/user.login', function(req,res) {
-  //req.query = sanitize(req.query, ["username","password"]);
+  req.query = sanitize(req.query, ["username","password"]);
   dao.user.login(req.query, function(result){
     login(user, result, function(obj) {
         res.json(obj);
@@ -95,7 +96,7 @@ app.get('/api/user.logoff',function(req,res) {
   });
 });
 app.get('/api/user.create', function(req,res){
-  //req.query = sanitize(req.query,["username","password"]);
+  req.query = sanitize(req.query,["username","password"]);
   dao.user.create(req.query, function(result){
     if (result){
       res.json({message:"success"});
@@ -105,7 +106,7 @@ app.get('/api/user.create', function(req,res){
   });
 });
 app.get('/api/rating.add', function(req,res){
-  //req.query = sanitize(req.query, ["username","question","value"]);
+  req.query = sanitize(req.query, ["username","question","value"]);
   dao.rating.add(req.query, function(result){
     if (result){
       res.json({message:"success"});
@@ -115,11 +116,13 @@ app.get('/api/rating.add', function(req,res){
   }); 
 });
 app.get('/api/answer.spell', function(req,res) {
+  req.query = sanitize(req.query, ["text"]);
   Util.spellcheck(req.query['text'],function(text) {
     res.json({value:text});
   });    
 });
 app.get('/api/answer.check', function(req,res){
+  req.query = sanitize(req.query, ["answer","canon"]);
   Util.checkAnswer(req.query['answer'],req.query['canon'],function(obj){
     res.json({value:obj});
   });
@@ -142,8 +145,9 @@ app.get('/multiplayer', function(req, res) {
 //Server Util Functions
 sanitize = function(obj, strings) {
   temp = {};
+  strings.push("callback");
+  strings.push("_");
   for (var i in strings) {
-    strings.push("callback");
     if (obj[strings[i]] !== undefined) {
       temp[strings[i]] = obj[strings[i]];
     }
