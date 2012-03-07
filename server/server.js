@@ -4,7 +4,8 @@ var Ticker = Model.Ticker;
 var User = Model.User;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
 //var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
-var bridge = new Bridge({apiKey:"R+DPnfAq"});
+//var bridge = new Bridge({apiKey:"R+DPnfAq"});
+var bridge = {ready:function(){}}
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
