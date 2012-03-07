@@ -2,6 +2,7 @@ var express = require('express');
 var Model = require('./model.js');
 var Ticker = Model.Ticker;
 var User = Model.User;
+var Util = Model.Util;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
 //var bridge = new Bridge({host:'50.19.22.175',port:8090,apiKey:"abcdefgh"});
 //var bridge = new Bridge({apiKey:"R+DPnfAq"});
@@ -112,6 +113,16 @@ app.get('/api/rating.add', function(req,res){
       res.json({message:"fail"});
     }
   }); 
+});
+app.get('/api/answer.spell', function(req,res) {
+  Util.spellcheck(req.query['text'],function(text) {
+    res.json({value:text});
+  });    
+});
+app.get('/api/answer.check', function(req,res){
+  Util.checkAnswer(req.query['answer'],req.query['canon'],function(obj){
+    res.json({value:obj});
+  });
 });
 app.get('/',function(req,res){
   res.render('home', {
