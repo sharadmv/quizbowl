@@ -26,42 +26,41 @@ bridge.ready(function(){
     }
   }
   bDao = {
-    tossup:{
-      get:function(pKey, callback) {
-        dao.tossup.get(pKey, callback);
-      },
-      search:function(obj, callback){
-        dao.tossup.search(obj, function(result){
-          callback(result);
-        });
-      }
+    "tossup_get":function(pKey, callback) {
+      dao.tossup.get(pKey, callback);
     },
-    reader:{
-      answerReader:function(obj, callback){
-        dao.answerReader(obj, function(result){
-          ticker.push(result);
-          callback(result);
-        });
-      }
+    "tossup_search":function(obj, callback){
+      dao.tossup.search(obj, function(result){
+        callback(result);
+      });
     },
-    user:{
-      login:function(user,callback){
-        dao.user.login(user, function(loggedIn) {
-          login(user, loggedIn, function(obj) {
-              callback(obj);
-            }
-          );
-        });
-      },
-      logoff:function(user, callback){
-        logoff(user,function(obj) {
-          callback(obj);
-        });
-      },
-      create:function(user, callback) {
-        dao.user.create(user, callback);
-      }       
-    }
+    "tossup_search_java":function(obj,callback){
+      dao.tossup.search(obj,function(result){
+        callback.callback(result);
+      });
+    },
+    "reader_answer":function(obj, callback){
+      dao.answerReader(obj, function(result){
+        ticker.push(result);
+        callback(result);
+      });
+    },
+    "user_login":function(user,callback){
+      dao.user.login(user, function(loggedIn) {
+        login(user, loggedIn, function(obj) {
+            callback(obj);
+          }
+        );
+      });
+    },
+    "user_logoff":function(user, callback){
+      logoff(user,function(obj) {
+        callback(obj);
+      });
+    },
+    "user_create":function(user, callback) {
+      dao.user.create(user, callback);
+    }       
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);

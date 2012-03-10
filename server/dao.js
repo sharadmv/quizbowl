@@ -58,12 +58,13 @@ var Dao = function(host, user, password, database){
       query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
     }
     query += " group by t.pKey";
+    limitstring = "";
     if (obj['random']!==undefined){
       if (obj['random']=='true'){
         if (obj['limit']!==undefined){
-          query += " order by rand()";
+          limitstring+= " order by rand()";
         } else {
-          query += " order by rand() limit 1";
+          limitstring+= " order by rand() limit 1";
         }
       }
     } else {	
@@ -72,7 +73,6 @@ var Dao = function(host, user, password, database){
       } else if (obj['sort'] == 'rating') {
         query += " order by sum(r.rating) desc";
       }
-      limitstring = "";
       if (obj['offset']!==undefined) {
         limitstring += " limit "+pageLength+" offset "+obj['offset'];
       } else {
