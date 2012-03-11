@@ -495,6 +495,9 @@ var correctAnswer = function() {
       $("#reader-feedback-text").remove();
     });
   }, 2000);
+  loadAnswer();
+  addStartQuestion();
+  clearTimeout(buzzTimeout);
 };
 
 var incorrectAnswer = function() {
@@ -562,8 +565,10 @@ var addReaderBuzz = function() {
   $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
   $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip</div>');
   $("#reader-bottom").css("width", "180px");
+  $("#reader-buzz").unbind('click');
   $("#reader-buzz").click(buzzClick);
   $("#reader-skip").click(skipQuestion);
+  $(document).unbind('keypress');
   $(document).keypress(function(e) {
       if( e.which == 32) {
       $(document).unbind('keypress');
