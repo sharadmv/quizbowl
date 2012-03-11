@@ -495,7 +495,7 @@ var timesUp = function() {
 }
 
 var correctAnswer = function() {
-  console.log("CORRECT");
+  addStartQuestion();
   notifyBottom("Correct Answer", true);
   setTimeout(function() {
     $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
@@ -504,11 +504,11 @@ var correctAnswer = function() {
     });
   }, 2000);
   loadAnswer();
-  addStartQuestion();
   clearTimeout(buzzTimeout);
 };
 
 var incorrectAnswer = function() {
+  addStartQuestion();
   notifyBottom("Incorrect Answer", false);
   setTimeout(function() {
     $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
@@ -516,12 +516,11 @@ var incorrectAnswer = function() {
     });
   }, 2000);
   loadAnswer();
-  addStartQuestion();
   clearTimeout(buzzTimeout);
 };
 
 var notifyBottom = function(message, positive) {
-  $("#reader-feedback").append("<div id='reader-feedback-text'>"+message+"</div>");
+  $("#reader-bottom").append("<span id='reader-feedback-text'>"+message+"</span>");
   if( positive) {
     $("#reader-feedback-text").css("color", "blue");
   }
@@ -559,7 +558,7 @@ var onSubmitInput = function() {
 
 var addStartQuestion = function() {
   $("#reader-bottom").append('<button id="reader-start-question" class="btn-primary btn">Start Question</button>');
-  $("#reader-bottom").css('width', '145px');
+  $("#reader-bottom").css('width', '250px');
   $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif"/>');
   $("#reader-start-question").click(onReaderStart);
   $(document).keypress( function(event) {
@@ -575,6 +574,7 @@ var setScore = function(score) {
 }
 
 
+var controlDown = false;
 var addReaderBuzz = function() {
   $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
   $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip</div>');
@@ -584,9 +584,14 @@ var addReaderBuzz = function() {
   $("#reader-skip").click(skipQuestion);
   $(document).unbind('keypress');
   $(document).keypress(function(e) {
+    console.log(e);
     if( e.which == 32) {
+
       $(document).unbind('keypress');
       buzzClick();
+    } else if( e.which == 0) {
+      $(document).unbind('keypress');
+      skipQuestion();
     }
   });
 }
