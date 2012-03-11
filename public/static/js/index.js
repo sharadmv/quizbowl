@@ -391,7 +391,7 @@ var searchRandomQuestion = function(callback) {
       function(response) {
         $("#reader-question-loading").remove();
         replaceStartWithBuzz();
-        beginQuestion(response.results[0]);
+        callback(response.results[0]);
       });
 }
 
@@ -430,6 +430,7 @@ var addWord = function() {
   curWord++;
   if( curWord >= curQuestion.splittedQuestion.length) {
     clearInterval(curQuestion.intervalId);
+    curQuestion.itervalId = undefined;
     buzzTimeout = setTimeout(timesUp, 5000);
   }
 }
@@ -457,6 +458,7 @@ var addSubmitAnswer = function() {
   $("#reader-bottom").append('<div id="reader-input-submit" class="btn btn-primary">Submit</div>');
   $("#reader-bottom").css('width',$("#reader-input").width() + $("#reader-input-submit").width() + 70);
   clearInterval(curQuestion.intervalId);
+  curQuestion.intervalId = undefined;
   $("#reader-input").keypress( function(event) {
     if (event.which == 13) {
       onSubmitInput();
@@ -468,7 +470,7 @@ var addSubmitAnswer = function() {
 };
 
 var timesUp = function() {
-  notifyBottom("Times up!");
+  notifyBottom("Times up!", false);
   setTimeout(function() {
     $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
       $("#reader-feedback-text").remove();
@@ -481,11 +483,16 @@ var timesUp = function() {
 }
 
 var correctAnswer = function() {
-  notifyBottom("Correct Answer");
+  notifyBottom("Correct Answer", true);
+  setTimeout(function() {
+    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
+      $("#reader-feedback-text").remove();
+    });
+  }, 2000);
 };
 
 var incorrectAnswer = function() {
-  notifyBottom("Incorrect Answer");
+  notifyBottom("Incorrect Answer", false);
   setTimeout(function() {
     $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
       $("#reader-feedback-text").remove();
@@ -496,8 +503,11 @@ var incorrectAnswer = function() {
   clearTimeout(buzzTimeout);
 };
 
-var notifyBottom = function(message) {
+var notifyBottom = function(message, positive) {
   $("#reader-feedback").append("<div id='reader-feedback-text'>"+message+"</div>");
+  if( positive) {
+    $("#reader-feedback-text").css("color", "blue");
+  }
 };
 
 var loadAnswer = function() {
@@ -559,7 +569,11 @@ var addReaderBuzz = function() {
 var skipQuestion = function() {
   $("#reader-skip").unbind('click');
   clearInterval(curQuestion.intervalId);
-  searchRandomQuestion(beginQuestion);
+  curQuestion.intervalId = undefined;
+  searchRandomQuestion(function(e) {
+    $("#reader-skip").click(skipQuestion);
+    beginQuestion(e);
+  });
 };
 
 var replaceSubmitWithBuzz = function() {
@@ -576,13 +590,14 @@ var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
         } else {
           wrongAnswerCallback(); }
       });
-
 };
 
 var updateReaderSpeed = function() {
   speedIncrement = $("#reader-speed-input").val();
   if( curQuestion.splittedQuestion != undefined && curQuestion.splittedQuestion.length >curWord) {
     clearInterval(curQuestion.intervalId);
-    curQuestion.intervalId = setInterval(addWord, getSpeed());
+    if( curQuestion.intervalId != undefined) {
+      curQuestion.intervalId = setInterval(addWord, getSpeed());
+    }
   }
 };
