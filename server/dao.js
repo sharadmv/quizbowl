@@ -9,7 +9,7 @@ var Dao = function(host, user, password, database){
   this.tossup = {}; 
   this.user = {};
   this.rating = {};
-  this.reader = {};
+  this.single= {};
   this.tossup.get = function(pKey, callback){
     client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
         if (!err) {
@@ -58,12 +58,13 @@ var Dao = function(host, user, password, database){
       query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
     }
     query += " group by t.pKey";
+    limitstring = "";
     if (obj['random']!==undefined){
       if (obj['random']=='true'){
         if (obj['limit']!==undefined){
-          query += " order by rand()";
+          limitstring+= " order by rand()";
         } else {
-          query += " order by rand() limit 1";
+          limitstring+= " order by rand() limit 1";
         }
       }
     } else {	
@@ -72,7 +73,6 @@ var Dao = function(host, user, password, database){
       } else if (obj['sort'] == 'rating') {
         query += " order by sum(r.rating) desc";
       }
-      limitstring = "";
       if (obj['offset']!==undefined) {
         limitstring += " limit "+pageLength+" offset "+obj['offset'];
       } else {
@@ -92,17 +92,17 @@ var Dao = function(host, user, password, database){
         client.query(querystring,function selectCb(err,results,fields){
           if (!err) {
           if (!obj['offset'])
-            obj['offset']=0; 
+          obj['offset']=0; 
           callback({'count':count,'offset':obj['offset'],'results':results});
           } else{ 
           console.log(err);
           callback({offset:0,results:[]});
           }
           });
-	} else {
-		console.log(err);
-    callback({offset:0,results:[]});
-	}
+        } else {
+        console.log(err);
+        callback({offset:0,results:[]});
+        }
         });
   }
   this.data = function(callback) {
@@ -130,16 +130,16 @@ var Dao = function(host, user, password, database){
                     data['data']['categories'] = util.convertMapToList(categories,'category');
                     data['data']['tournaments'] = util.convertDoubleMapToList(tournaments,'year','tournament');
                     callback(data);
+                    });
                   });
                 });
             });
           });
         });
     });
-    });
   }
-  this.reader.answer = function(obj, callback) {
-    client.query("insert into scores (username,score,correct,answer,question) values ('"+obj.username+"','"+obj.score+"',"+obj.correct+",'"+util.escapeSql(obj.answer)+"','"+util.escapeSql(obj.pKey)+"')", function(err, info){
+  this.single.answer = function(obj, callback) {
+    client.query("insert into single (user,score,correct,answer,question) values (?,?,?,?,?)",[obj.username,obj.score,obj.correct,obj.answer,obj.pKey], function(err, info){
         if (err){
         console.log(err);
         } else {
@@ -166,12 +166,12 @@ var Dao = function(host, user, password, database){
         });
   }
   this.user.create = function(user, callback){
-    client.query("insert into usernames(username, password) values('"+user.username+"','"+user.password+"')", function(err, result, info){
+    client.query("insert into user(username, email, fb_id) values('"+user.username+"','"+user.email+"','"+user.fbId+"')", function(err, result, info){
         if (err){
-        callback(true);
+        callback({message:"success"});
         }
         else {
-        callback(false);
+        callback({message:"failure",error:err});
         }
         });
   }

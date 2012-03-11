@@ -16,6 +16,7 @@ var curOffset;
 var dao;
 var loginToggled = false;
 bridge = new Bridge({apiKey:"YkYztDEV"});
+//bridge = new Bridge({apiKey:"abcdefgh"});
 bridge.ready(function(){
   bridge.getService('dao',function(obj){
     window.dao = obj;

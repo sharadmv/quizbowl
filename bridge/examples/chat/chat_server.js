@@ -9,24 +9,19 @@ require('http').createServer(function (request, response) {
 var Bridge = require(__dirname+'/../../lib/bridge.js').Bridge;
 // bridge = new Bridge({host: 'ec2-50-19-181-20.compute-1.amazonaws.com'});
 
-bridge = new Bridge({host: 'localhost', port: 8090, apiKey: 'abcdefgh'});
+bridge = new Bridge({apiKey: 'rI5cMTmi'});
 
-bridge.ready(function(){
-
-  var ChatServer = {
-    join: function(name, handler, callback){
-      console.log("RECEIVED JOIN REQUEST");
-      bridge.joinChannel('lobby', handler, callback);
-    },
-    leave: function(name, handler, callback){
-      console.log("RECEIVED LEAVE REQUEST");
-      bridge.leaveChannel('lobby', handler, callback);
-    }
+var ChatServer = {
+  join: function(name, handler, callback){
+    console.log("RECEIVED JOIN REQUEST");
+    bridge.joinChannel('lobby', handler, callback);
+  },
+  leave: function(name, handler, callback){
+    console.log("RECEIVED LEAVE REQUEST");
+    bridge.leaveChannel('lobby', handler, callback);
   }
+}
 
-  bridge.publishService('chatserver', ChatServer, function(){
-      console.log('started chatserver');
-  });
-
+bridge.publishService('chatserver', ChatServer, function(){
+    console.log('started chatserver');
 });
-
