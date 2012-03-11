@@ -446,7 +446,6 @@ var replaceStartWithBuzz = function() {
 
 var buzzClick = function() {
   $("#reader-buzz, #reader-skip").unbind('click');
-  $("#reader-input").focus();
   clearTimeout(buzzTimeout);
   $("#reader-buzz, #reader-skip").remove();
   addSubmitAnswer();
@@ -464,6 +463,8 @@ var addSubmitAnswer = function() {
     }
   });
   $("#reader-input-submit").click(onSubmitInput);
+  $("#reader-input").trigger('click');
+  $("#reader-input").focus();
 };
 
 var timesUp = function() {
