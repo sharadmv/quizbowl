@@ -36,13 +36,18 @@ bridge.ready(function(){
       });
     },
     "user_login":function(user,callback){
-      dao.user.login(user, function(loggedIn) {
+      dao.user.get(user.fbId,function(result) {
+      if (result.length == 1){
         login(user, loggedIn, function(obj) {
-            if (callback) {
+          if (callback) {
             callback(obj);
-            }
           }
-        );
+        });
+      } else {
+        dao.user.create(user,function(result){
+          console.log(result);
+        });
+      }
       });
     },
     "user_logoff":function(user, callback){
