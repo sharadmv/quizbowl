@@ -560,7 +560,7 @@ var addStartQuestion = function() {
   $("#reader-bottom").css('width', '145px');
   $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif"/>');
   $("#reader-start-question").click(onReaderStart);
-  $("#reader-start-question").keypress( function(event) {
+  $(document).keypress( function(event) {
     if (event.which == 32) {
       $(document).unbind('keypress');
       onReaderStart();
