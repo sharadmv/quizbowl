@@ -19,129 +19,90 @@ app.enable('jsonp callback');
 app.set('view engine', 'ejs');
 app.set('views','../public/views/');
 app.listen(80);
-bridge.ready(function(){
-  console.log("Connected to Bridge");
-  tickerHandler = {
-    push:function(ticker){
-      console.log(ticker.name+" "+ticker.text);
-    }
-  }
-  bDao = {
-    "tossup_get":function(pKey, callback) {
-      dao.tossup.get(pKey, callback);
-    },
-    "tossup_search":function(obj, callback){
-      dao.tossup.search(obj, function(result){
-        callback(result);
+app.get('/api/tossup.search', function (req,res){
+    req.query = sanitize(req.query,["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username","sort"]);
+    dao.tossup.search(req.query, function(result){
+      console.log(result);
+      res.json(result);
       });
-    },
-    "tossup_search_java":function(obj,callback){
-      dao.tossup.search(obj,function(result){
-        callback.callback(result);
+    });
+app.get('/api/data', function(req,res){
+    req.query = sanitize(req.query,[]);
+    dao.data(function(result){
+      res.json(result);
       });
-    },
-    "reader_answer":function(obj, callback){
-      dao.answerReader(obj, function(result){
-        ticker.push(result);
-        callback(result);
-      });
-    },
-    "user_login":function(user,callback){
-      dao.user.login(user, function(loggedIn) {
-        login(user, loggedIn, function(obj) {
-            callback(obj);
-          }
+    });
+app.get('/api/user.login', function(req,res) {
+    req.query = sanitize(req.query, ["username","password"]);
+    dao.user.login(req.query, function(result){
+      login(user, result, function(obj) {
+        res.json(obj);
+        }
         );
       });
-    },
-    "user_logoff":function(user, callback){
-      logoff(user,function(obj) {
-        callback(obj);
-      });
-    },
-    "user_create":function(user, callback) {
-      dao.user.create(user, callback);
-    }       
-  }
-  bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
-  bridge.publishService("dao",bDao);
-  console.log("published dao");
-});
-app.get('/api/tossup.search', function (req,res){
-  req.query = sanitize(req.query,["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username","sort"]);
-  dao.tossup.search(req.query, function(result){
-    console.log(result);
-    res.json(result);
-  });
-});
-app.get('/api/data', function(req,res){
-  req.query = sanitize(req.query,[]);
-  dao.data(function(result){
-    res.json(result);
-  });
-});
-app.get('/api/user.login', function(req,res) {
-  req.query = sanitize(req.query, ["username","password"]);
-  dao.user.login(req.query, function(result){
-    login(user, result, function(obj) {
-        res.json(obj);
-      }
-    );
-  });
-});
+    });
 app.get('/api/user.logoff',function(req,res) {
-  req.query = sanitize(req.query,["username","password"]);
-  logoff(req.query,function(obj) {
-    res.json(obj);
-  });
-});
+    req.query = sanitize(req.query,["username","password"]);
+    logoff(req.query,function(obj) {
+      res.json(obj);
+      });
+    });
 app.get('/api/user.create', function(req,res){
-  req.query = sanitize(req.query,["username","password"]);
-  dao.user.create(req.query, function(result){
-    if (result){
+    req.query = sanitize(req.query,["username","password"]);
+    dao.user.create(req.query, function(result){
+      if (result){
       res.json({message:"success"});
-    } else {
+      } else {
       res.json({message:"fail"});
-    }
-  });
-});
+      }
+      });
+    });
 app.get('/api/rating.add', function(req,res){
-  req.query = sanitize(req.query, ["username","question","value"]);
-  dao.rating.add(req.query, function(result){
-    if (result){
+    req.query = sanitize(req.query, ["username","question","value"]);
+    dao.rating.add(req.query, function(result){
+      if (result){
       res.json({message:"success"});
-    } else {
+      } else {
       res.json({message:"fail"});
-    }
-  }); 
-});
+      }
+      }); 
+    });
 app.get('/api/answer.spell', function(req,res) {
-  req.query = sanitize(req.query, ["text"]);
-  Util.spellcheck(req.query['text'],function(text) {
-    res.json({value:text});
-  });    
-});
+    req.query = sanitize(req.query, ["text"]);
+    Util.spellcheck(req.query['text'],function(text) {
+      res.json({value:text});
+      });    
+    });
 app.get('/api/answer.check', function(req,res){
-  req.query = sanitize(req.query, ["answer","canon"]);
-  Util.checkAnswer(req.query['answer'],req.query['canon'],function(obj){
-    res.json({value:obj});
-  });
-});
+    req.query = sanitize(req.query, ["answer","canon"]);
+    Util.checkAnswer(req.query['answer'],req.query['canon'],function(obj){
+      res.json({value:obj});
+      });
+    });
+app.get('/api/single.answer', function(req,res){
+    req.query = sanitize(req.query, ["username","answer","score","correct","pKey"]);
+    dao.single.answer(req.query, function(obj){
+      if (obj.correct){
+      answer(req.query.username, obj.answer, req.query.score);
+      }
+      res.json({message:"success"});
+      });
+    });
 app.get('/',function(req,res){
-  res.render('home', {
-    current: 'home'
-  });
+    res.render('home', {
+current: 'home'
 });
+    });
 app.get('/reader', function(req, res) {
-  res.render('reader', {
-    current: 'reader'
-  });
+    res.render('reader', {
+current: 'reader'
 });
+    });
 app.get('/multiplayer', function(req, res) {
-  res.render('multiplayer', {
-    current: 'multiplayer'
-  });
+    res.render('multiplayer', {
+current: 'multiplayer'
 });
+    });
 //Server Util Functions
 sanitize = function(obj, strings) {
   temp = {};
@@ -154,18 +115,4 @@ sanitize = function(obj, strings) {
   }
   return temp;
   //this = temp;//this line does not work
-}
-login = function(user, loggedIn, callback) {
-  if (loggedIn) {
-    users.push(user);
-    ticker.push(new Ticker(user, "logged in"));
-    callback({message:"success"});
-  } else {
-    callback({message:"failed"});
-  }
-}
-logoff = function(user, callback) {
-  delete users[user];
-  ticker.push(new Ticker(user, "logged off"));
-  callback({"message":"success"});
 }
