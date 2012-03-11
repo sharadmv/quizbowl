@@ -489,9 +489,11 @@ var timesUp = function() {
 }
 
 var correctAnswer = function() {
+  console.log("CORRECT");
   notifyBottom("Correct Answer", true);
   setTimeout(function() {
     $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
+      console.log("REMOVING");
       $("#reader-feedback-text").remove();
     });
   }, 2000);
