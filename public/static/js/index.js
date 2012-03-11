@@ -13,65 +13,71 @@ var pageSpecificStyles = function() {
 var searchData;
 var searchInMiddle = true;
 var curOffset;
-var dao;
+var dao, ticker;
 var loginToggled = false;
 bridge = new Bridge({apiKey:"R+DPnfAq"});
 bridge.ready(function(){
   bridge.getService('dao',function(obj){
     window.dao = obj;
     dao = obj;
+    });
+  bridge.joinChannel('ticker',{push:function(ticker) {
+        $("#tickerBox").append("<div class='ticker'><b>"+ticker.name+"</b> "+ticker.text+"</div>"); 
+      }
+    }, function(obj){
+    ticker = obj;
+    });
   });
-});
 $(document).ready( function() {
-  pageSpecificStyles();
+    pageSpecificStyles();
 
-  if (page == "home" ) {
+    if (page == "home" ) {
     $("#loginBox").hide();
     $("#login").click(function(){
       console.log("toggle");
       $("#loginBox").toggle();
       loginToggled = true;
-    });
+      });
     $('body').click(function(e) {
       if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
-        $("#loginBox").hide();
+      $("#loginBox").hide();
       }
-    });
+      });
     $("#home-search-input").keypress( function(event) {
       if (event.which == 13) {
-        homeSearch({'offset':0,answer: $("#home-search-input").val()});
+      homeSearch({'offset':0,answer: $("#home-search-input").val()});
       }
-    });
+      });
 
     $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
 
     loadAdvancedSearch();
 
-  } else if (page == "reader") {
-    loadAdvancedSearch();
-    
-    $("#reader-start-question").click(onReaderStart);
+    } else if (page == "reader") {
+      loadAdvancedSearch();
 
-    $("#reader-speed-input").change(updateReaderSpeed);
+      $("#reader-start-question").click(onReaderStart);
 
-    $("#reader-toggle-difficulty").click( function() {
-      hideDifficulty = !hideDifficulty;
-      if( hideDifficulty) {
-        $("#reader-toggle-difficulty").html("Show Difficulty");
-      } else {
-        $("#reader-toggle-difficulty").html("Hide Difficulty");
-      }
-    });
+      $("#reader-speed-input").change(updateReaderSpeed);
 
-    $("#reader-toggle-category").click( function() {
-      hideCategory = !hideCategory;
-      if( hideCategory) {
-        $("#reader-toggle-category").html("Show Difficulty");
-      } else {
-        $("#reader-toggle-category").html("Hide Difficulty");
-      }
-    });
-  };
+      $("#reader-toggle-difficulty").click( function() {
+          hideDifficulty = !hideDifficulty;
+          if( hideDifficulty) {
+          $("#reader-toggle-difficulty").html("Show Difficulty");
+          } else {
+          $("#reader-toggle-difficulty").html("Hide Difficulty");
+          }
+          });
+
+      $("#reader-toggle-category").click( function() {
+          hideCategory = !hideCategory;
+          if( hideCategory) {
+          $("#reader-toggle-category").html("Show Difficulty");
+          } else {
+          $("#reader-toggle-category").html("Hide Difficulty");
+          }
+          });
+    };
 
 
 });
@@ -87,15 +93,15 @@ var search = function(params) {
   //dao.search(params,
   jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
       function(response) {
-        $("#home-search-loading").css("visibility", "hidden");
-        if(searchInMiddle) {
-          homeMoveSearchToTop();
-          $("#home-result-refine").css("visibility", "visible");
-          $("#home-results-wrapper").css("visibility", "visible");
-          $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
-          $("#home-advance-search").click(openAdvancedSearch);
-        }
-        homeLoadResults(response);
+      $("#home-search-loading").css("visibility", "hidden");
+      if(searchInMiddle) {
+      homeMoveSearchToTop();
+      $("#home-result-refine").css("visibility", "visible");
+      $("#home-results-wrapper").css("visibility", "visible");
+      $("#home-form").append('<div id="home-advance-search"><a>Advanced Search</a></div>');
+      $("#home-advance-search").click(openAdvancedSearch);
+      }
+      homeLoadResults(response);
       });
 }
 var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "answer", "question", "condition","sort"];
@@ -184,16 +190,16 @@ var homeLoadResults = function(response) {
     }
 
     $("#home-sort-change").click( function() {
-      if( sortedBy == "date") {
+        if( sortedBy == "date") {
         sortedBy = "rating";
         updateAdvancedQuery(searchCallBack);
 
-      } else {
+        } else {
         sortedBy = "date";
         updateAdvancedQuery(searchCallBack);
-      }
+        }
 
-    });
+        });
   }
   for(var i = 0; i < results.length; i++) {
     var curResult = results[i];
@@ -214,32 +220,32 @@ var homeLoadResults = function(response) {
     info = $("#home-result" + i + " .home-result-info");
     info.append('Category: <span class="home-result-category" id = "category'+i+'"><a>'+curResult.category + '</a></span>');
     (function(){
-      var x = i;
-      $("#category"+x).click(function(){
-        $("#home-search-input").val("category:\""+r[x].category+"\"");
-        homeSearch({offset:0,answer:$("#home-search-input").val()});
-      });
-      info.append('Difficulty: <span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
-      $("#difficulty"+x).click(function(){
-        $("#home-search-input").val("difficulty:\""+r[x].difficulty+"\"");
-        homeSearch({offset:0,answer:$("#home-search-input").val()});
-      });
-    })();
+     var x = i;
+     $("#category"+x).click(function(){
+       $("#home-search-input").val("category:\""+r[x].category+"\"");
+       homeSearch({offset:0,answer:$("#home-search-input").val()});
+       });
+     info.append('Difficulty: <span class="home-result-difficulty" id = "difficulty'+i+'"><a>'+curResult.difficulty+' </a></span>');
+     $("#difficulty"+x).click(function(){
+       $("#home-search-input").val("difficulty:\""+r[x].difficulty+"\"");
+       homeSearch({offset:0,answer:$("#home-search-input").val()});
+       });
+     })();
     resultDiv.append('<div class="home-result-question">'+curResult.question+'</div>');
     resultDiv.append('<div class="home-result-answer">Answer: '+curResult.answer+'</div>');
   }
   if( start-1 > 0 ) {
     resultContainer.append('<div id="home-result-back"><a>Back</a></div>');
     $('#home-result-back').click(function() {
-      homeSearch({offset:curOffset-10,answer:$("#home-search-input").val()});;
-    }); 
+        homeSearch({offset:curOffset-10,answer:$("#home-search-input").val()});;
+        }); 
   }
 
   if( end < count) { 
     resultContainer.append('<div id="home-result-next"><a>Next</a></div>');
     $('#home-result-next').click(function() {
-      homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
-    });
+        homeSearch({offset:curOffset+10,answer:$("#home-search-input").val()}); 
+        });
   }
 
 };
@@ -250,9 +256,9 @@ var openAdvancedSearch = function() {
   $("#home-advance").css("visibility", "visible");
   $("#home-advance").css("margin-bottom", "20px");
   $("#home-advance").animate({"height": "80px", "opacity": 1}, 300, function() {
-    $("#home-advance-search").click(closeAdvancedSearch);
-    $("#home-advance-search").html("<a>Hide Advanced Search</a>");
-  });
+      $("#home-advance-search").click(closeAdvancedSearch);
+      $("#home-advance-search").html("<a>Hide Advanced Search</a>");
+      });
 };
 
 var closeAdvancedSearch = function() {
@@ -260,10 +266,10 @@ var closeAdvancedSearch = function() {
   $("#home-advance-search").off('click');
   $("#home-advance").css("margin-bottom", "0px");
   $("#home-advance").animate({"height": "0px", "opacity": 0}, 300, function() {
-    console.log("Binding open back");
-    $("#home-advance-search").click(openAdvancedSearch);
-    $("#home-advance-search").html("<a>Advanced Search</a>");
-  });
+      console.log("Binding open back");
+      $("#home-advance-search").click(openAdvancedSearch);
+      $("#home-advance-search").html("<a>Advanced Search</a>");
+      });
 
 
 }
@@ -272,28 +278,28 @@ var getQueryString = function() {
   var queryParams = {};
   queryParams.category = [];
   $("#home-advance-category option:selected").each(function() {
-    queryParams.category.push($(this).text());
-  })
+      queryParams.category.push($(this).text());
+      })
 
   queryParams.difficulty = [];
   $("#home-advance-difficulty option:selected").each(function() {
-    queryParams.difficulty.push($(this).text());
-  })
+      queryParams.difficulty.push($(this).text());
+      })
 
   queryParams.year = [];
   $("#home-advance-year option:selected").each(function() {
-    queryParams.year.push($(this).text());
-  })
+      queryParams.year.push($(this).text());
+      })
 
   queryParams.tournament = [];
   $("#home-advance-tournament option:selected").each(function() {
-    queryParams.tournament.push($(this).text());
-  })
+      queryParams.tournament.push($(this).text());
+      })
 
   conditions= [];
   $("#home-advance-loc option:selected").each(function() {
-    conditions.push($(this).text());
-  })
+      conditions.push($(this).text());
+      })
   if( conditions.length == 2) {
     queryParams.condition = ["all"];
   } else if (conditions.length == 1) {
@@ -333,29 +339,29 @@ var updateAdvancedQuery = function(callback) {
 
 var loadAdvancedSearch = function() {
   jQuery.getJSON(baseURL+"/data?callback=?", function(e) {
-    searchData = e.data;
-    for( var x in searchData.categories) {
+      searchData = e.data;
+      for( var x in searchData.categories) {
       $("#home-advance-category").append("<option class='home-advance-category'>"+searchData.categories[x]+"</option>");
-    }
+      }
 
-    $("#home-advance-loc, #home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
+      $("#home-advance-loc, #home-advance-category, #home-advance-difficulty, #home-advance-year, #home-advance-tournament").change(updateAdvancedQuery);
 
-    for(var x in searchData.difficulties) {
+      for(var x in searchData.difficulties) {
       $("#home-advance-difficulty").append("<option class='home-advance-difficulty'>"+searchData.difficulties[x]+"</option>");
-    }
-    keywordLocs = ['answer', 'question'];
+      }
+      keywordLocs = ['answer', 'question'];
 
-    for( var x in keywordLocs) {
+      for( var x in keywordLocs) {
       $("#home-advance-loc").append("<option class='home-advance-loc'>"+keywordLocs[x]+"</option>");
-    }
+      }
 
-    for(var x in searchData.years) {
+      for(var x in searchData.years) {
       $("#home-advance-year").append("<option class='home-advance-year'>"+searchData.years[x]+"</option>");
-    }
+      }
 
-    for(var x in searchData.tournaments) {
-      $("#home-advance-tournament").append("<option class='home-advance-tournament'>"+searchData.tournaments[x]+"</option>");
-    }
+      for(var x in searchData.tournaments) {
+        $("#home-advance-tournament").append("<option class='home-advance-tournament'>"+searchData.tournaments[x]+"</option>");
+      }
 
 
   });
@@ -438,11 +444,11 @@ var addWord = function() {
 var replaceStartWithBuzz = function() {
   $("#reader-start-question").unbind('click');
   $("#reader-start-question").animate({opacity: 0}, 400, function() {
-    $("#reader-start-question").remove();
-    addReaderBuzz();
-    $("#reader-buzz, #reader-skip").css("opacity", 0);
-    $("#reader-buzz, #reader-skip").animate({opacity: 1}, 400);
-  });
+      $("#reader-start-question").remove();
+      addReaderBuzz();
+      $("#reader-buzz, #reader-skip").css("opacity", 0);
+      $("#reader-buzz, #reader-skip").animate({opacity: 1}, 400);
+      });
 };
 
 var buzzClick = function() {
@@ -460,10 +466,10 @@ var addSubmitAnswer = function() {
   clearInterval(curQuestion.intervalId);
   curQuestion.intervalId = undefined;
   $("#reader-input").keypress( function(event) {
-    if (event.which == 13) {
+      if (event.which == 13) {
       onSubmitInput();
-    }
-  });
+      }
+      });
   $("#reader-input-submit").click(onSubmitInput);
   $("#reader-input").trigger('click');
   $("#reader-input").focus();
@@ -472,10 +478,10 @@ var addSubmitAnswer = function() {
 var timesUp = function() {
   notifyBottom("Times up!", false);
   setTimeout(function() {
-    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
-      $("#reader-feedback-text").remove();
-    });
-  }, 4000);
+      $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
+        $("#reader-feedback-text").remove();
+        });
+      }, 4000);
   loadAnswer();
   $("#reader-bottom").html("");
   addStartQuestion();
@@ -494,10 +500,10 @@ var correctAnswer = function() {
 var incorrectAnswer = function() {
   notifyBottom("Incorrect Answer", false);
   setTimeout(function() {
-    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
-      $("#reader-feedback-text").remove();
-    });
-  }, 2000);
+      $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
+        $("#reader-feedback-text").remove();
+        });
+      }, 2000);
   loadAnswer();
   addStartQuestion();
   clearTimeout(buzzTimeout);
@@ -525,18 +531,18 @@ var onSubmitInput = function() {
   $("#reader-input").unbind('keypress');
   var answer = $("#reader-input").val();
   checkAnswer(answer, function() {
-    setScore(curWord);
-    replaceSubmitWithBuzz();
-    searchRandomQuestion(beginQuestion);
-    correctAnswer();
-  }, function() {
-    if( curQuestion.splittedQuestion.length > curWord) {
       setScore(curWord);
-    }
-    $("#reader-input").remove();
-    $("#reader-input-submit").remove();
-    incorrectAnswer();
-  });
+      replaceSubmitWithBuzz();
+      searchRandomQuestion(beginQuestion);
+      correctAnswer();
+      }, function() {
+      if( curQuestion.splittedQuestion.length > curWord) {
+      setScore(curWord);
+      }
+      $("#reader-input").remove();
+      $("#reader-input-submit").remove();
+      incorrectAnswer();
+      });
 
 }
 
@@ -559,11 +565,11 @@ var addReaderBuzz = function() {
   $("#reader-buzz").click(buzzClick);
   $("#reader-skip").click(skipQuestion);
   $(document).keypress(function(e) {
-    if( e.which == 32) {
+      if( e.which == 32) {
       $(document).unbind('keypress');
       buzzClick();
-    }
-  });
+      }
+      });
 }
 
 var skipQuestion = function() {
@@ -585,10 +591,10 @@ var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
   var params = {canon: curQuestion.answer, answer: answer};
   jQuery.getJSON(baseURL + "/answer.check?callback=?", params,
       function(response) {
-        if( response.value) {
-          rightAnswerCallback();
-        } else {
-          wrongAnswerCallback(); }
+      if( response.value) {
+      rightAnswerCallback();
+      } else {
+      wrongAnswerCallback(); }
       });
 };
 
