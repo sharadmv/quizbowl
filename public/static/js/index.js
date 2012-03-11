@@ -17,9 +17,7 @@ var dao;
 var loginToggled = false;
 bridge = new Bridge({apiKey:"YkYztDEV"});
 bridge.ready(function(){
-  console.log("bridge ready");
   bridge.getService('dao',function(obj){
-    console.log("dao ready");
     window.dao = obj;
     dao = obj;
   });
@@ -27,26 +25,35 @@ bridge.ready(function(){
 $(document).ready( function() {
   pageSpecificStyles();
 
-  $("#loginBox").hide();
-  $("#login").click(function(){
-    console.log("toggle");
-    $("#loginBox").toggle();
-    loginToggled = true;
-  });
-  $('body').click(function(e) {
-    if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
-      $("#loginBox").hide();
-    }
-  });
-  $("#home-search-input").keypress( function(event) {
-    if (event.which == 13) {
-      homeSearch({'offset':0,answer: $("#home-search-input").val()});
-    }
-  });
+  if (page == "home" ) {
+    $("#loginBox").hide();
+    $("#login").click(function(){
+      console.log("toggle");
+      $("#loginBox").toggle();
+      loginToggled = true;
+    });
+    $('body').click(function(e) {
+      if (!($(e.target).is("#loginBox")||$(e.target).is("#login"))) {
+        $("#loginBox").hide();
+      }
+    });
+    $("#home-search-input").keypress( function(event) {
+      if (event.which == 13) {
+        homeSearch({'offset':0,answer: $("#home-search-input").val()});
+      }
+    });
 
-  $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
+    $("#home-search-button").click( function() {homeSearch({'offset':0,answer: $("#home-search-input").val()}) });
 
-  loadAdvancedSearch();
+    loadAdvancedSearch();
+
+  } else if (page == "reader") {
+    loadAdvancedSearch();
+    
+    $("#reader-start-question").click(onReaderStart);
+
+    $("#reader-speed-input").change(updateReaderSpeed);
+  };
 
 
 });
@@ -243,9 +250,7 @@ var closeAdvancedSearch = function() {
 
 }
 
-
-
-var updateAdvancedQuery = function(callback) {
+var getQueryString = function() {
   var queryParams = {};
   queryParams.category = [];
   $("#home-advance-category option:selected").each(function() {
@@ -280,8 +285,6 @@ var updateAdvancedQuery = function(callback) {
   queryParams.sort = [];
   queryParams.sort.push(sortedBy);
 
-
-
   var query = "", delimiter = "";
   for (var i in queryParams) {
     if (queryParams[i].length) {
@@ -289,8 +292,20 @@ var updateAdvancedQuery = function(callback) {
       delimiter = " ";
     }
   }
-  var temp = parseSearch($("#home-search-input").val());
-  $("#home-search-input").val(query.trim()+" "+temp.answer.trim()); 
+  var searchInput = $("#home-search-input");
+  var temp;
+  if( searchInput.length == 0) {
+    temp = "";
+  } else {
+    temp = parseSearch($("#home-search-input").val());
+  }
+
+  return query.trim()+" "+ (temp == "" ? "" : temp.answer.trim());
+};
+
+
+var updateAdvancedQuery = function(callback) {
+  $("#home-search-input").val(getQueryString());
 
   if( typeof callback === "function") {
     callback();
@@ -327,4 +342,174 @@ var loadAdvancedSearch = function() {
 
   });
 
+};
+
+
+/* Reader Code */
+var curQuestion = {}; 
+var curWord = 0;
+var readerScore = 0;
+var startSpeed = 350;
+var speedPerIncrement = 3;
+var speedIncrement = 50;
+var buzzTimeout;
+
+var getSpeed = function() {
+  return startSpeed + speedPerIncrement * (speedIncrement-50) * -1;
+}
+
+var onReaderStart = function() {
+  $("#reader-start-question").unbind('click');
+  searchRandomQuestion(beginQuestion);
+};
+
+var searchRandomQuestion = function(callback) {
+  var params = parseSearch(getQueryString());
+  params.random = "true";
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?", params,
+      function(response) {
+        replaceStartWithBuzz();
+        beginQuestion(response.results[0]);
+      });
+}
+
+var beginQuestion = function(response) {
+  $("#reader-text-wrapper").html("");
+  $("#reader-text-wrapper").append('<div id="reader-question-info"></div>');
+  var questionInfo = $("#reader-question-info");
+  console.log(response);
+  var source = response.year + " " + response.tournament + ": " + response.round + ", Question #" + response.question_num;
+  questionInfo.append(source);
+
+  curQuestion = response;
+  curQuestion.splittedQuestion = curQuestion.question.split(' ');
+  $("#reader-text-wrapper").append('<div id="reader-question"></div>');
+  curWord = 0;
+
+  curQuestion.intervalId = setInterval(addWord, getSpeed());
+}
+
+var addWord = function() {
+  $("#reader-question").append(curQuestion.splittedQuestion[curWord] + ' ');
+  curWord++;
+  if( curWord >= curQuestion.splittedQuestion.length) {
+    clearInterval(curQuestion.intervalId);
+    buzzTimeout = setTimeout(timesUp, 5000);
+  }
+}
+
+var replaceStartWithBuzz = function() {
+  $("#reader-start-question").unbind('click');
+  $("#reader-start-question").animate({opacity: 0}, 400, function() {
+    $("#reader-start-question").remove();
+    addReaderBuzz();
+    $("#reader-buzz").css("opacity", 0);
+    $("#reader-buzz").animate({opacity: 1}, 400);
+  });
+};
+
+var buzzClick = function() {
+  $("#reader-input").focus();
+  $("#reader-buzz").unbind('click');
+  $("#reader-buzz").remove();
+  $("#reader-bottom").append('<input id="reader-input" type="text" class="input-medium" placeholder="Answer"></div>');
+  $("#reader-bottom").append('<div id="reader-input-submit" class="btn btn-primary">Submit</div>');
+  $("#reader-bottom").css('width',$("#reader-input").width() + $("#reader-input-submit").width() + 70);
+  clearInterval(curQuestion.intervalId);
+  $("#reader-input").keypress( function(event) {
+    if (event.which == 13) {
+      onSubmitInput();
+    }
+  });
+  $("#reader-input-submit").click(onSubmitInput);
+  buzzTimeout = setTimeout(timesUp, 5000);
+};
+
+var timesUp = function() {
+  notifyBottom("Times up!");
+  loadAnswer();
+}
+
+var incorrectAnswer = function() {
+  notifyBottom("Incorrect Answer");
+  loadAnswer();
+};
+
+var notifyBottom = function(message) {
+  $("#reader-feedback").append("<div id='reader-feedback-text'>"+message+"</div>");
+};
+
+var loadAnswer = function() {
+  $("#reader-question").html(curQuestion.question);
+  $("#reader-text-wrapper").append('<div id="reader-answer">Answer: ' + curQuestion.answer + '</div');
+}
+
+var onSubmitInput = function() {
+  clearTimeout(buzzTimeout);
+  $("#reader-input-submit").unbind('click');
+  $("#reader-input").unbind('keypress');
+  var answer = $("#reader-input").val();
+  checkAnswer(answer, function() {
+    setScore(curWord);
+    replaceSubmitWithBuzz();
+    startNextQuestion();
+    searchRandomQuestion(beginQuestion);
+  }, function() {
+    if( curQuestion.splittedQuestion.length > curWord) {
+      setScore(curWord);
+    }
+    $("#reader-input").remove();
+    $("#reader-input-submit").remove();
+    addStartQuestion();
+    incorrectAnswer();
+  });
+
+}
+
+var addStartQuestion = function() {
+  $("#reader-bottom").append('<button id="reader-start-question" class="btn-primary btn">Start Question</button>');
+  $("#reader-bottom").css('width', '110px');
+};
+
+var setScore = function(score) {
+  $("#reader-score").html(score);
+}
+
+
+var addReaderBuzz = function() {
+  $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
+  $("#reader-bottom").css("width", "100px");
+  $("#reader-buzz").click(buzzClick);
+  $(document).keypress(function(e) {
+    if( e.which == 32) {
+      buzzClick();
+      $(document).unbind('keypress');
+    }
+  });
+}
+
+var replaceSubmitWithBuzz = function() {
+  $("#reader-input, #reader-input-submit").remove();
+  addReaderBuzz();
+}
+
+var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
+  var params = {canon: curQuestion.answer, answer: answer};
+  jQuery.getJSON(baseURL + "/answer.check?callback=?", params,
+      function(response) {
+        if( response.value) {
+          rightAnswerCallback();
+          addBUzz
+        } else {
+          wrongAnswerCallback(); }
+      });
+
+};
+
+var updateReaderSpeed = function() {
+  speedIncrement = $("#reader-speed-input").val();
+  if( curQuestion.splittedQuestion != undefined && curQuestion.splittedQuestion.length >curWord) {
+    clearInterval(curQuestion.intervalId);
+    curQuestion.intervalId = setInterval(addWord, getSpeed());
+  }
 };
