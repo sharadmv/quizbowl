@@ -422,7 +422,6 @@ var beginQuestion = function(response) {
     $("#reader-text-wrapper").append('<div id="reader-question-details">'+diffAndCat+'</div>');
   }
 
-
   curQuestion = response;
   curQuestion.splittedQuestion = curQuestion.question.split(' ');
   $("#reader-text-wrapper").append('<div id="reader-question"></div>');
@@ -536,18 +535,18 @@ var onSubmitInput = function() {
   $("#reader-input").unbind('keypress');
   var answer = $("#reader-input").val();
   checkAnswer(answer, function() {
+    setScore(curWord);
+    $("#reader-input").remove();
+    $("#reader-input-submit").remove();
+    correctAnswer();
+  }, function() {
+    if( curQuestion.splittedQuestion.length > curWord) {
       setScore(curWord);
-      replaceSubmitWithBuzz();
-      searchRandomQuestion(beginQuestion);
-      correctAnswer();
-      }, function() {
-      if( curQuestion.splittedQuestion.length > curWord) {
-      setScore(curWord);
-      }
-      $("#reader-input").remove();
-      $("#reader-input-submit").remove();
-      incorrectAnswer();
-      });
+    }
+    $("#reader-input").remove();
+    $("#reader-input-submit").remove();
+    incorrectAnswer();
+  });
 
 }
 
@@ -572,11 +571,11 @@ var addReaderBuzz = function() {
   $("#reader-skip").click(skipQuestion);
   $(document).unbind('keypress');
   $(document).keypress(function(e) {
-      if( e.which == 32) {
+    if( e.which == 32) {
       $(document).unbind('keypress');
       buzzClick();
-      }
-      });
+    }
+  });
 }
 
 var skipQuestion = function() {
@@ -598,10 +597,10 @@ var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
   var params = {canon: curQuestion.answer, answer: answer};
   jQuery.getJSON(baseURL + "/answer.check?callback=?", params,
       function(response) {
-      if( response.value) {
-      rightAnswerCallback();
-      } else {
-      wrongAnswerCallback(); }
+        if( response.value) {
+          rightAnswerCallback();
+        } else {
+          wrongAnswerCallback(); }
       });
 };
 
