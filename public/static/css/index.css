@@ -239,7 +239,7 @@ input {
   background: #fff;
   width: 900px;
   margin: 16px auto;
-  height: 300px;
+  height: 400px;
   border: 3px solid rgb(230, 230, 230);
   padding: 14px;
 
@@ -248,11 +248,12 @@ input {
 #reader-start-question {
   width: 110px;
   text-align: center;
+  margin: 0 6px 2px 0;
 }
 
 #reader-bottom {
   margin: 20px auto 5px auto;
-  width: 110px;
+  width: 145px;
 }
 
 #reader-question-info {
@@ -265,8 +266,8 @@ input {
 
 #reader-question {
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-  font-size: 1.4em;
-  line-height: 1.5em;
+  font-size: 1.3em;
+  line-height: 1.4em;
 
 }
 
@@ -281,7 +282,7 @@ input {
 
 #reader-controls {
   margin: 16px;
-  padding: 16px 30px 0px 30px;
+  padding: 16px 30px 8px 30px;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   font-size: 1.2em;
   background: white;
@@ -306,4 +307,18 @@ input {
   font-weight: bold;
   color: rgba(200, 30, 50, 1);
   margin-top: 10px;
+}
+
+#reader-question-details {
+  margin-bottom: 10px;
+}
+
+#reader-skip {
+  margin-left: 15px;
+}
+
+#reader-question-loading {
+  margin-top: 2px;
+  visibility: hidden;
+  position: absolute;
 }

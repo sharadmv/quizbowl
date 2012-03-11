@@ -16,7 +16,6 @@ var curOffset;
 var dao;
 var loginToggled = false;
 bridge = new Bridge({apiKey:"R+DPnfAq"});
-//bridge = new Bridge({apiKey:"abcdefgh"});
 bridge.ready(function(){
   bridge.getService('dao',function(obj){
     window.dao = obj;
@@ -54,6 +53,24 @@ $(document).ready( function() {
     $("#reader-start-question").click(onReaderStart);
 
     $("#reader-speed-input").change(updateReaderSpeed);
+
+    $("#reader-toggle-difficulty").click( function() {
+      hideDifficulty = !hideDifficulty;
+      if( hideDifficulty) {
+        $("#reader-toggle-difficulty").html("Show Difficulty");
+      } else {
+        $("#reader-toggle-difficulty").html("Hide Difficulty");
+      }
+    });
+
+    $("#reader-toggle-category").click( function() {
+      hideCategory = !hideCategory;
+      if( hideCategory) {
+        $("#reader-toggle-category").html("Show Difficulty");
+      } else {
+        $("#reader-toggle-category").html("Hide Difficulty");
+      }
+    });
   };
 
 
@@ -351,9 +368,11 @@ var curQuestion = {};
 var curWord = 0;
 var readerScore = 0;
 var startSpeed = 350;
-var speedPerIncrement = 3;
+var speedPerIncrement = 5;
 var speedIncrement = 50;
 var buzzTimeout;
+var hideDifficulty = false;
+var hideCategory = true;
 
 var getSpeed = function() {
   return startSpeed + speedPerIncrement * (speedIncrement-50) * -1;
@@ -365,10 +384,12 @@ var onReaderStart = function() {
 };
 
 var searchRandomQuestion = function(callback) {
+  $("#reader-question-loading").css("visibility", "visible");
   var params = parseSearch(getQueryString());
   params.random = "true";
   jQuery.getJSON(baseURL + "/tossup.search?callback=?", params,
       function(response) {
+        $("#reader-question-loading").remove();
         replaceStartWithBuzz();
         beginQuestion(response.results[0]);
       });
@@ -381,6 +402,20 @@ var beginQuestion = function(response) {
   console.log(response);
   var source = response.year + " " + response.tournament + ": " + response.round + ", Question #" + response.question_num;
   questionInfo.append(source);
+
+
+  var diffAndCat = "";
+  if( !hideDifficulty) {
+    diffAndCat += "Difficulty: " + response.difficulty + " ";
+  }
+  if( !hideCategory) {
+    diffAndCat += "Category: " + response.category;
+  }
+
+  if( diffAndCat != "") {
+    $("#reader-text-wrapper").append('<div id="reader-question-details">'+diffAndCat+'</div>');
+  }
+
 
   curQuestion = response;
   curQuestion.splittedQuestion = curQuestion.question.split(' ');
@@ -404,16 +439,21 @@ var replaceStartWithBuzz = function() {
   $("#reader-start-question").animate({opacity: 0}, 400, function() {
     $("#reader-start-question").remove();
     addReaderBuzz();
-    $("#reader-buzz").css("opacity", 0);
-    $("#reader-buzz").animate({opacity: 1}, 400);
+    $("#reader-buzz, #reader-skip").css("opacity", 0);
+    $("#reader-buzz, #reader-skip").animate({opacity: 1}, 400);
   });
 };
 
 var buzzClick = function() {
-  $("#reader-input").focus();
-  $("#reader-buzz").unbind('click');
-  $("#reader-buzz").remove();
-  $("#reader-bottom").append('<input id="reader-input" type="text" class="input-medium" placeholder="Answer"></div>');
+  $("#reader-buzz, #reader-skip").unbind('click');
+  clearTimeout(buzzTimeout);
+  $("#reader-buzz, #reader-skip").remove();
+  addSubmitAnswer();
+  buzzTimeout = setTimeout(timesUp, 10000);
+};
+
+var addSubmitAnswer = function() {
+  $("#reader-bottom").append('<input id="reader-input"/>');
   $("#reader-bottom").append('<div id="reader-input-submit" class="btn btn-primary">Submit</div>');
   $("#reader-bottom").css('width',$("#reader-input").width() + $("#reader-input-submit").width() + 70);
   clearInterval(curQuestion.intervalId);
@@ -423,17 +463,37 @@ var buzzClick = function() {
     }
   });
   $("#reader-input-submit").click(onSubmitInput);
-  buzzTimeout = setTimeout(timesUp, 5000);
+  $("#reader-input").trigger('click');
+  $("#reader-input").focus();
 };
 
 var timesUp = function() {
   notifyBottom("Times up!");
+  setTimeout(function() {
+    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
+      $("#reader-feedback-text").remove();
+    });
+  }, 4000);
   loadAnswer();
+  $("#reader-bottom").html("");
+  addStartQuestion();
+  clearTimeout(buzzTimeout);
 }
+
+var correctAnswer = function() {
+  notifyBottom("Correct Answer");
+};
 
 var incorrectAnswer = function() {
   notifyBottom("Incorrect Answer");
+  setTimeout(function() {
+    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
+      $("#reader-feedback-text").remove();
+    });
+  }, 2000);
   loadAnswer();
+  addStartQuestion();
+  clearTimeout(buzzTimeout);
 };
 
 var notifyBottom = function(message) {
@@ -441,6 +501,10 @@ var notifyBottom = function(message) {
 };
 
 var loadAnswer = function() {
+  if( $("#reader-question-details").length == 0) {
+    $('<div id="reader-question-details"></div>').insertAfter("#reader-question-info");
+  }
+  $("#reader-question-details").html('Difficulty: ' + curQuestion.difficulty + ' Category: ' + curQuestion.category );
   $("#reader-question").html(curQuestion.question);
   $("#reader-text-wrapper").append('<div id="reader-answer">Answer: ' + curQuestion.answer + '</div');
 }
@@ -453,15 +517,14 @@ var onSubmitInput = function() {
   checkAnswer(answer, function() {
     setScore(curWord);
     replaceSubmitWithBuzz();
-    startNextQuestion();
     searchRandomQuestion(beginQuestion);
+    correctAnswer();
   }, function() {
     if( curQuestion.splittedQuestion.length > curWord) {
       setScore(curWord);
     }
     $("#reader-input").remove();
     $("#reader-input-submit").remove();
-    addStartQuestion();
     incorrectAnswer();
   });
 
@@ -469,7 +532,9 @@ var onSubmitInput = function() {
 
 var addStartQuestion = function() {
   $("#reader-bottom").append('<button id="reader-start-question" class="btn-primary btn">Start Question</button>');
-  $("#reader-bottom").css('width', '110px');
+  $("#reader-bottom").css('width', '145px');
+  $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif"/>');
+  $("#reader-start-question").click(onReaderStart);
 };
 
 var setScore = function(score) {
@@ -479,15 +544,23 @@ var setScore = function(score) {
 
 var addReaderBuzz = function() {
   $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
-  $("#reader-bottom").css("width", "100px");
+  $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip</div>');
+  $("#reader-bottom").css("width", "180px");
   $("#reader-buzz").click(buzzClick);
+  $("#reader-skip").click(skipQuestion);
   $(document).keypress(function(e) {
     if( e.which == 32) {
-      buzzClick();
       $(document).unbind('keypress');
+      buzzClick();
     }
   });
 }
+
+var skipQuestion = function() {
+  $("#reader-skip").unbind('click');
+  clearInterval(curQuestion.intervalId);
+  searchRandomQuestion(beginQuestion);
+};
 
 var replaceSubmitWithBuzz = function() {
   $("#reader-input, #reader-input-submit").remove();
@@ -500,7 +573,6 @@ var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
       function(response) {
         if( response.value) {
           rightAnswerCallback();
-          addBUzz
         } else {
           wrongAnswerCallback(); }
       });
