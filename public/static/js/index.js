@@ -15,7 +15,7 @@ var searchInMiddle = true;
 var curOffset;
 var dao;
 var loginToggled = false;
-bridge = new Bridge({apiKey:"YkYztDEV"});
+bridge = new Bridge({apiKey:"R+DPnfAq"});
 //bridge = new Bridge({apiKey:"abcdefgh"});
 bridge.ready(function(){
   bridge.getService('dao',function(obj){

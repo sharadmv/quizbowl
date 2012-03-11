@@ -3,27 +3,44 @@ var xml = require('node-xml');
 var natural= require('natural');
 natural.PorterStemmer.attach();
 var Model = {
-User:function(name, password) {
+User:function(name) {
        this.name = name;
-       this.password = password;
      },
 Ticker:function(name, text){
          this.name = name;
          this.text = text;
        },
-Room:function(name) {
+Room:function(name,password,handler) {
        this.users = [];
+       this.password=password;
        this.name = name;
-       this.join = function(user, callback) {
-         if (users.indexOf(user)!=-1) {
-           users.push(user);
-           callback({'user':user,message:"joined ["+this.name+"] successfully"});
+       this.join = function(user,password, callback) {
+         if (this.users.indexOf(user)==-1) {
+           if (password==this.password){
+            this.users.push(user);
+            user.room = this;
+            callback({joined:true,'user':user.name,message:"joined ["+this.name+"] successfully"});
+           } else {
+             callback({joined:false,'user':user.name,message:"incorrect password"});
+           }
          } else {
-           callback({'user':user,message:"already part of ["+this.name+"]"});
+           callback({joined:true,'user':user,message:"already part of ["+this.name+"]"});
          }
        }
+       this.leave = function(user, callback) {
+         if (this.users.indexOf(user)!=-1){
+           this.users.pop(user);
+           user.room = null;
+           callback({'user':user,message:"left ["+this.name+"] successfully"});
+         } else {
+           callback({'user':user,message:"is not part of the room"});
+         }
+       }
+       this.handler = handler;
      },
 Game:function(room) {
+       this.start = function(questions) {
+       }
      },
 Util:{
 tidy:function(str){
