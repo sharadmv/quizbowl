@@ -17,9 +17,19 @@ a {
 }
 
 #nav-inner {
-  width: 970px;
+  width: 1020px;
   margin: 0 auto;
 
+}
+
+#nav-title {
+  color: white;
+  font-family: 'Cabin Condensed', 'Helvetica Neue', Arial;
+  font-size: 18px;
+}
+
+#login {
+  margin-left: 300px !important;
 }
 
 #nav-blur {
@@ -36,7 +46,7 @@ a {
 .nav-ele {
   display: inline-block;
   padding: 0 30px;
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 40px;
   font-size: 16px;
   font-family: 'Helvetica Neue' Helvetica, Arial;

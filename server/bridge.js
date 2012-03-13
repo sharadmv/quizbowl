@@ -145,7 +145,7 @@ login = function(user, loggedIn, callback) {
   }
 }
 logoff = function(user, callback) {
-  delete users.user;
+  delete users[user.username];
   ticker.push(new Ticker(user.username, "logged off"));
   callback({"message":"success"});
 }
