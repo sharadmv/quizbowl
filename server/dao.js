@@ -158,7 +158,7 @@ var Dao = function(host, user, password, database){
         callback(result);
         }
         });
-  });
+  };
   this.user.login = function(user, callback){
     client.query("select * from usernames where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
         if (err) {
