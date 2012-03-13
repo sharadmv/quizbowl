@@ -26,16 +26,14 @@
   };
 
   // Load the SDK Asynchronously
-  (function(d){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     ref.parentNode.insertBefore(js, ref);
-   }(document));
+        (function(d){
+           var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+           js = d.createElement('script'); js.id = id; js.async = true;
+           js.src = "//connect.facebook.net/en_US/all.js";
+           d.getElementsByTagName('head')[0].appendChild(js);
+         }(document));
 </script>
 <div id="wrapper">
-    <div class="fb-login-button">Login with Facebook</div>
   <div id="nav">
     <div id="nav-inner">
     <ul>
@@ -53,7 +51,7 @@
     <div id="tickerBox">
     </div>
   </div>
-  <div id="loginBox">
+  <div class="fb-login-button" id="loginBox">
   </div>
 </div>
 <div id="footer">
