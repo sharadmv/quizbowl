@@ -583,11 +583,11 @@ var addReaderBuzz = function() {
   $("#reader-skip").click(skipQuestion);
   $(document).unbind('keypress');
   $(document).keypress(function(e) {
-    if( e.which == 32) {
+    if( e.keyCode == 32 && !e.ctrlKey) {
 
       $(document).unbind('keypress');
       buzzClick();
-    } else if( e.which == 0) {
+    } else if( e.which == 0 || e.keyCode == 32 && e.ctrlKey) {
       $(document).unbind('keypress');
       skipQuestion();
     }
