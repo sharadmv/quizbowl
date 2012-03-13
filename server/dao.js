@@ -151,16 +151,16 @@ var Dao = function(host, user, password, database){
 
   }
   this.user.get = function(id,callback) {
-    client.query('select * from usernames where fb_id='+id, function(err,result,field){
+    client.query('select * from user where fb_id="'+id+'"', function(err,result,field){
         if (err){
         console.log(err);
         } else {
         callback(result);
         }
         });
-  });
+  }
   this.user.login = function(user, callback){
-    client.query("select * from usernames where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
+    client.query("select * from user where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
         if (err) {
         console.log(err); 
         } else {
@@ -175,8 +175,9 @@ var Dao = function(host, user, password, database){
         });
   }
   this.user.create = function(user, callback){
-    client.query("insert into user(username, email, fb_id) values('"+user.username+"','"+user.email+"','"+user.fbId+"')", function(err, result, info){
-        if (err){
+    console.log("CREATING: "+JSON.stringify(user));
+    client.query("insert into user(name, email, fb_id) values('"+user.username+"','"+user.email+"','"+user.fbId+"')", function(err, result, info){
+        if (!err){
         callback({message:"success"});
         }
         else {
