@@ -38,14 +38,23 @@ bridge.ready(function(){
     "user_login":function(user,callback){
       dao.user.get(user.fbId,function(result) {
       if (result.length == 1){
-        login(user, loggedIn, function(obj) {
+        login(user, result.loggedIn, function(obj) {
           if (callback) {
             callback(obj);
           }
         });
       } else {
         dao.user.create(user,function(result){
-          console.log(result);
+          if (result.message = "success") {
+            console.log(result);
+            login(user, true, function(obj) {
+              if (callback) {
+                callback(obj);
+              }
+            });
+          } else {
+
+          }
         });
       }
       });
@@ -76,7 +85,7 @@ join:function(user,room,handler,callback){
        if (roomnames.indexOf(room)!=-1){
        } else {
          roomnames.push(room);
-         rooms.room = new Room(room.name,room.password,handler);
+         rooms.room = new Room(room,room.password,handler);
          bridge.joinChannel(room,
              {
               chat:function(name,message){
@@ -89,14 +98,15 @@ join:function(user,room,handler,callback){
           if (obj.joined) {
             bridge.joinChannel(room,handler,callback);
             users.user.handler = handler;
+            console.log(users.user.name+" joined ["+room+"]");
           }  
-        console.log(roomnames,JSON.stringify(rooms));
        });
        } else {
          callback({message:"user must be logged in"});
        }
      },
 leave:function(user){
+        console.log(users.user);
         room = users.user.room.name;
         if (roomnames.indexOf(room)==-1){
         } else {
@@ -105,10 +115,12 @@ leave:function(user){
             delete rooms.room;
             roomnames.pop(room); 
           }
+          console.log(rooms.room);
         }
         bridge.leaveChannel(room,users.user.handler);
+        console.log("HI");
         users.user.handler=null;
-        console.log(roomnames,JSON.stringify(rooms));
+        console.log(roomnames,rooms);
       },
 getRooms:function(callback){
            callback(rooms);
@@ -125,6 +137,7 @@ answer = function(user, answer, score) {
 login = function(user, loggedIn, callback) {
   if (true){//loggedIn) {
     users.user = new User(user);
+    console.log(users);
     ticker.push(new Ticker(user.username, "logged in"));
     callback({message:"success"});
   } else {

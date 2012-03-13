@@ -239,7 +239,7 @@ input {
   background: #fff;
   width: 900px;
   margin: 16px auto;
-  height: 400px;
+  height: 300px;
   border: 3px solid rgb(230, 230, 230);
   padding: 14px;
 
@@ -248,12 +248,13 @@ input {
 #reader-start-question {
   width: 110px;
   text-align: center;
-  margin: 0 6px 2px 0;
+  margin-right: 6px;
 }
 
 #reader-bottom {
   margin: 20px auto 5px auto;
   width: 125px;
+  height: 40px;
 }
 
 #reader-question-info {
@@ -276,7 +277,7 @@ input {
 }
 
 #reader-input {
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
 
