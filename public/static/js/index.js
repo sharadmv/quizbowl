@@ -102,8 +102,10 @@ var homeSearch = function(obj) {
   search(params);
 }
 var search = function(params) {
-  //dao.search(params,
-  jQuery.getJSON(baseURL + "/tossup.search?callback=?",params ,
+  var request = {};
+  request.params = params;
+  console.log(request);
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?",request ,
       function(response) {
         $("#home-search-loading").css("visibility", "hidden");
         if(searchInMiddle) {
