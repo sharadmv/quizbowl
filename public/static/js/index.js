@@ -582,16 +582,7 @@ var addReaderBuzz = function() {
   $("#reader-buzz").click(buzzClick);
   $("#reader-skip").click(skipQuestion);
   $(document).unbind('keypress');
-  $(document).keypress(function(e) {
-    if( e.keyCode == 32 && !e.ctrlKey) {
-
-      $(document).unbind('keypress');
-      buzzClick();
-    } else if( e.which == 0 || e.keyCode == 32 && e.ctrlKey) {
-      $(document).unbind('keypress');
-      skipQuestion();
-    }
-  });
+  spacebarBind();
 }
 
 var skipQuestion = function() {
@@ -606,6 +597,10 @@ var skipQuestion = function() {
     $("#reader-skip").click(skipQuestion);
     beginQuestion(e);
   });
+  spacebarBind();
+};
+
+var spacebarBind = function() {
   $(document).keypress(function(e) {
     if( e.which == 32) {
 
@@ -616,6 +611,7 @@ var skipQuestion = function() {
       skipQuestion();
     }
   });
+
 };
 
 var replaceSubmitWithBuzz = function() {
