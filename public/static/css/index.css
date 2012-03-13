@@ -248,12 +248,11 @@ input {
 #reader-start-question {
   width: 110px;
   text-align: center;
-  margin-right: 6px;
 }
 
 #reader-bottom {
   margin: 20px auto 5px auto;
-  width: 125px;
+  width: 115px;
   height: 40px;
 }
 
@@ -308,6 +307,9 @@ input {
   font-weight: bold;
   color: rgba(200, 30, 50, 1);
   margin-top: 10px;
+  height: 16px;
+  padding-right: 4px;
+  opacity: 0;
 }
 
 #reader-question-details {
@@ -322,4 +324,5 @@ input {
   margin-top: 2px;
   visibility: hidden;
   position: absolute;
+  margin-left: 6px;
 }

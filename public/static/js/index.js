@@ -34,7 +34,6 @@ $(document).ready( function() {
     if (page == "home" ) {
     $("#loginBox").hide();
     $("#login").click(function(){
-      console.log("toggle");
       $("#loginBox").toggle();
       loginToggled = true;
       });
@@ -269,11 +268,9 @@ var openAdvancedSearch = function() {
 };
 
 var closeAdvancedSearch = function() {
-  console.log("Closing");
   $("#home-advance-search").off('click');
   $("#home-advance").css("margin-bottom", "0px");
   $("#home-advance").animate({"height": "0px", "opacity": 0}, 300, function() {
-    console.log("Binding open back");
     $("#home-advance-search").click(openAdvancedSearch);
     $("#home-advance-search").html("<a>Advanced Search</a>");
   });
@@ -381,7 +378,7 @@ var curQuestion = {};
 var curWord = 0;
 var readerScore = 0;
 var startSpeed = 350;
-var speedPerIncrement = 5;
+var speedPerIncrement = 15;
 var speedIncrement = 50;
 var buzzTimeout;
 var hideDifficulty = false;
@@ -412,7 +409,6 @@ var beginQuestion = function(response) {
   $("#reader-text-wrapper").html("");
   $("#reader-text-wrapper").append('<div id="reader-question-info"></div>');
   var questionInfo = $("#reader-question-info");
-  console.log(response);
   var source = response.year + " " + response.tournament + ": " + response.round + ", Question #" + response.question_num;
   questionInfo.append(source);
 
@@ -468,7 +464,7 @@ var buzzClick = function() {
 var addSubmitAnswer = function() {
   $("#reader-bottom").append('<input id="reader-input"/>');
   $("#reader-bottom").append('<div id="reader-input-submit" class="btn btn-primary">Submit</div>');
-  $("#reader-bottom").css('width',$("#reader-input").width() + $("#reader-input-submit").width() + 70);
+  $("#reader-bottom").css('width',$("#reader-input").width() + $("#reader-input-submit").width() + 55);
   clearInterval(curQuestion.intervalId);
   curQuestion.intervalId = undefined;
   $("#reader-input").keypress( function(event) {
@@ -484,12 +480,11 @@ var addSubmitAnswer = function() {
 var timesUp = function() {
   notifyBottom("Times up!", false);
   setTimeout(function() {
-    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
-      $("#reader-feedback-text").remove();
-    });
+    $("#reader-feedback-text").animate({opacity: 0}, 500);
   }, 4000);
   loadAnswer();
   $("#reader-bottom").html("");
+  $(document).unbind("keypress");
   addStartQuestion();
   clearTimeout(buzzTimeout);
 }
@@ -498,10 +493,7 @@ var correctAnswer = function() {
   addStartQuestion();
   notifyBottom("Correct Answer", true);
   setTimeout(function() {
-    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
-      console.log("REMOVING");
-      $("#reader-feedback-text").remove();
-    });
+    $("#reader-feedback-text").animate({opacity: 0}, 500);
   }, 2000);
   loadAnswer();
   clearTimeout(buzzTimeout);
@@ -511,19 +503,23 @@ var incorrectAnswer = function() {
   addStartQuestion();
   notifyBottom("Incorrect Answer", false);
   setTimeout(function() {
-    $("#reader-feedback-text").animate({opacity: 0}, 500, function() {
-      $("#reader-feedback-text").remove();
-    });
+    $("#reader-feedback-text").animate({opacity: 0}, 500);
   }, 2000);
   loadAnswer();
   clearTimeout(buzzTimeout);
 };
 
 var notifyBottom = function(message, positive) {
-  $("#reader-bottom").append("<span id='reader-feedback-text'>"+message+"</span>");
+  $("#reader-feedback-text").html(message);
+  $("#reader-feedback-text").css("opacity", 1);
+  var color;
   if( positive) {
-    $("#reader-feedback-text").css("color", "blue");
+    color = "blue";
+  } else {
+    color = "red";
   }
+  $("#reader-feedback-text").css("color", color);
+
 };
 
 var loadAnswer = function() {
@@ -544,6 +540,7 @@ var onSubmitInput = function() {
     setScore(curWord);
     $("#reader-input").remove();
     $("#reader-input-submit").remove();
+    $("#reader-question-loading").remove();
     correctAnswer();
   }, function() {
     if( curQuestion.splittedQuestion.length > curWord) {
@@ -551,6 +548,7 @@ var onSubmitInput = function() {
     }
     $("#reader-input").remove();
     $("#reader-input-submit").remove();
+    $("#reader-question-loading").remove();
     incorrectAnswer();
   });
 
@@ -558,7 +556,7 @@ var onSubmitInput = function() {
 
 var addStartQuestion = function() {
   $("#reader-bottom").append('<button id="reader-start-question" class="btn-primary btn">Start Question</button>');
-  $("#reader-bottom").css('width', '250px');
+  $("#reader-bottom").css('width', '110px');
   $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif"/>');
   $("#reader-start-question").click(onReaderStart);
   $(document).keypress( function(event) {
@@ -578,13 +576,13 @@ var controlDown = false;
 var addReaderBuzz = function() {
   $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
   $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip</div>');
-  $("#reader-bottom").css("width", "180px");
+  $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif">');
+  $("#reader-bottom").css("width", "170px");
   $("#reader-buzz").unbind('click');
   $("#reader-buzz").click(buzzClick);
   $("#reader-skip").click(skipQuestion);
   $(document).unbind('keypress');
   $(document).keypress(function(e) {
-    console.log(e);
     if( e.which == 32) {
 
       $(document).unbind('keypress');
@@ -597,17 +595,31 @@ var addReaderBuzz = function() {
 }
 
 var skipQuestion = function() {
+  $("#reader-question-loading").css("visibility", "visible");
   $("#reader-skip").unbind('click');
   clearInterval(curQuestion.intervalId);
+  clearTimeout(buzzTimeout);
+  $(document).unbind("keypress");
   curQuestion.intervalId = undefined;
   searchRandomQuestion(function(e) {
+    $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif">');
     $("#reader-skip").click(skipQuestion);
     beginQuestion(e);
+  });
+  $(document).keypress(function(e) {
+    if( e.which == 32) {
+
+      $(document).unbind('keypress');
+      buzzClick();
+    } else if( e.which == 0) {
+      $(document).unbind('keypress');
+      skipQuestion();
+    }
   });
 };
 
 var replaceSubmitWithBuzz = function() {
-  $("#reader-input, #reader-input-submit").remove();
+  $("#reader-question-loading, #reader-input, #reader-input-submit").remove();
   addReaderBuzz();
 }
 
