@@ -21,6 +21,10 @@ bridge.ready(function(){
   bridge.getService('dao',function(obj){
     window.dao = obj;
     dao = obj;
+  });
+  bridge.getService('user',function(obj){
+    window.user = obj;
+    user = obj;
     if( typeof(FB) != "undefined") {
       onFBInit();
     }
@@ -681,7 +685,7 @@ var onLogin = function(response) {
   FB.api('/me', function(userData) {
     FB.user = userData;   
     user = {username: userData.name, email: userData.email, fbId: userData.id};
-    dao.user_login(user, function(response) {
+    user.login(user, function(response) {
       if( response.message != "success") {
         console.log("Error when dao login");
       }
@@ -689,10 +693,10 @@ var onLogin = function(response) {
   });
 };
 
-var onUnload = function() {
-  if( typeof(dao) != "undefined" && typeof(user) != "undefined") {
-    dao.user_logoff(user);
-  }
+
+
+var userKeepAlive = function() {
+  setInterval(
 };
 
 
@@ -741,8 +745,8 @@ $(document).ready( function() {
                 },
              render: function() {
                        var variables = {search_label: "My Search"};
-                       var template = _.template( $("#search_template").html(), {blah: "la"});
-                       this.$el.html(template);
+                       //var template = _.template( $("#search_template").html(), {blah: "la"});
+                       //this.$el.html(template);
                      },
              events: {
                        "click input[type=button]": "doSearch"
