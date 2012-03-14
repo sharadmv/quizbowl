@@ -1,6 +1,7 @@
 var Client = require('mysql').Client;
 var client = new Client();
 var pageLength = 10;
+var cache={};
 var Dao = function(host, user, password, database){
   client.host = host;
   client.user = user;
@@ -19,7 +20,10 @@ var Dao = function(host, user, password, database){
         }
         });
   }
-  this.tossup.search = function(obj, callback) {
+  this.tossup.search = function(temp, callback) {
+    obj = temp.params;
+    console.log(obj);
+    if (cache[JSON.stringify(obj)] === undefined){
     var query = "";
     if (obj['condition']!==undefined && obj['answer']!==undefined){
       if (obj['condition']=="all"){
@@ -85,12 +89,12 @@ var Dao = function(host, user, password, database){
       querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
     }
     countstring = 'select count(*),sum(r.rating) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
-    console.log(querystring);
     client.query(countstring,function(err,results,fields){
         if (!err) {
         count = results.length;
         client.query(querystring,function selectCb(err,results,fields){
           if (!err) {
+          cache[JSON.stringify(obj)]={'count':count,'offset':obj['offset'],'results':results};
           if (!obj['offset'])
           obj['offset']=0; 
           callback({'count':count,'offset':obj['offset'],'results':results});
@@ -104,6 +108,9 @@ var Dao = function(host, user, password, database){
         callback({offset:0,results:[]});
         }
         });
+    } else {
+      callback(cache[JSON.stringify(obj)]);
+    }
   }
   this.data = function(callback) {
     client.query('select count(*) from tossups', function selectCb(err,results,fields){
@@ -160,10 +167,11 @@ var Dao = function(host, user, password, database){
         });
   };
   this.user.login = function(user, callback){
-    client.query("select * from user where username = '"+user.username+"' and password = '"+user.password+"'", function(err, result, field){
+    client.query("select * from user where username = '"+user.username+"' and fb_id = '"+user.fbId+"'", function(err, result, field){
         if (err) {
         console.log(err); 
         } else {
+        console.log(result);
         if (result.length==1){
         callback(true);
         } else if (result.length == 0){

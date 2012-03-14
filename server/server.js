@@ -20,9 +20,8 @@ app.set('view engine', 'ejs');
 app.set('views','../public/views/');
 app.listen(80);
 app.get('/api/tossup.search', function (req,res){
-    req.query = sanitize(req.query,["answer","question","condition","tournament","round","year","category","questionNum","difficulty","limit","random","offset","username","sort"]);
+    req.query = sanitize(req.query,["params"]);
     dao.tossup.search(req.query, function(result){
-      console.log(result);
       res.json(result);
       });
     });
