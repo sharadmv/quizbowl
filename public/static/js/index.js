@@ -36,10 +36,13 @@ bridge.ready(function(){
     ticker = obj;
   });
 });
-$(document).ready( function() {
+
+
+
+
+$(function() {
   pageSpecificStyles();
 
-  $(window).unload(onUnload);
 
   if (page == "home" ) {
     $("#loginBox").hide();
@@ -687,22 +690,33 @@ var onLogin = function(response) {
     user = {username: userData.name, email: userData.email, fbId: userData.id};
     userService.login(user, function(response) {
       if( response.message != "success") {
-        console.log("Error when dao login");
+        console.log("Error when dao login: ");
+        console.log(response);
       }
     });
+    startKeepAlive();
   });
 };
 
-var onUnload = function() {
-  console.log("Unloading");
+var keepAliveDelay = 9000; // 9 seconds
+var keepAliveId; // interval id
+var userKeepAlive = function() {
+  console.log(user);
+  userService.alive(user, function(e) {console.log("Response from keepalive: " + e)});
+};
+
+var startKeepAlive = function() {
+  keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
 };
 
 
 
 
-$(document).ready( function() {
 
-  /* Multiplayer using Bridge and Backbone */
+/* Multiplayer using Bridge and Backbone */
+
+$(function() {
+
 
   _.templateSettings = {
     interpolate: /\<\@\=(.+?)\@\>/g,
