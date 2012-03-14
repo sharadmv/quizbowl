@@ -12,8 +12,10 @@ var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
 var ticker;
 var users = {};
+var userTimeout = {};
 var rooms = {};
 var roomnames=[];
+var LOGOFF_TIME = 10000;
 bridge.ready(function(){
   console.log("Connected to Bridge");
   tickerHandler = {
@@ -34,11 +36,13 @@ bridge.ready(function(){
       dao.tossup.search(obj,function(result){
         callback.callback(result);
       });
-    },
-    "user_login":function(user,callback){
+    }
+  }
+  var user = {
+    login:function(user,callback){
       dao.user.get(user.fbId,function(result) {
       if (result.length == 1){
-        login(user, result.loggedIn, function(obj) {
+        login(user, true, function(obj) {
           if (callback) {
             callback(obj);
           }
@@ -59,16 +63,19 @@ bridge.ready(function(){
       }
       });
     },
-    "user_logoff":function(user, callback){
+    logoff:function(user, callback){
       logoff(user,function(obj) {
           if (callback){
         callback(obj);
         }
       });
     },
-    "user_create":function(user, callback) {
-      dao.user.create(user, callback);
-    },
+    alive:function(user, callback){
+      clearTimeout(userTimeout[user.fbId]);
+      userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
+    }
+  }
+  var reader = {
     "single_answer":function(score, callback) {
 
       dao.single.answer(score, function(obj){
@@ -128,6 +135,7 @@ getRooms:function(callback){
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);
+  bridge.publishService("user",user);
   bridge.publishService("multi",multi);
   console.log("published dao");
 });
@@ -135,17 +143,21 @@ answer = function(user, answer, score) {
   ticker.push(new Ticker(user, "answered "+answer+" correctly with a score of "+score));
 }
 login = function(user, loggedIn, callback) {
-  if (true){//loggedIn) {
-    users.user = new User(user);
-    console.log(users);
+  if (loggedIn) {
+    users[user.fbId] = new User(user.username,user.email,user.fbId);
     ticker.push(new Ticker(user.username, "logged in"));
+    userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
+    console.log(userTimeout);
     callback({message:"success"});
   } else {
     callback({message:"failed"});
   }
 }
 logoff = function(user, callback) {
-  delete users[user.username];
+  console.log("LOGGING OFF: "+user.username);
+  delete users[user.fbId];
   ticker.push(new Ticker(user.username, "logged off"));
-  callback({"message":"success"});
+  if (callback) {
+    callback({"message":"success"});
+  }
 }

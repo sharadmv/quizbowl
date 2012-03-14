@@ -3,8 +3,10 @@ var xml = require('node-xml');
 var natural= require('natural');
 natural.PorterStemmer.attach();
 var Model = {
-User:function(name) {
+User:function(name,email,fbId) {
        this.name = name;
+       this.email = email;
+       this.fbId = fbId;
      },
 Ticker:function(name, text){
          this.name = name;
