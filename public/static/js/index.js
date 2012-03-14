@@ -33,7 +33,7 @@ bridge.ready(function(){
     window.readerService  = obj;
   });
   bridge.joinChannel('ticker',{push:function(ticker) {
-    $("#tickerBox").append("<div class='ticker'><b>"+ticker.user.name+"</b> "+ticker.text+"</div>"); 
+    $("#tickerBox").append("<div class='ticker'><img src='https://graph.facebook.com/"+ticker.user.fbId+"/picture'></img><b>"+ticker.user.username+"</b> "+ticker.text+"</div>"); 
   }
   }, function(obj){
     ticker = obj;
@@ -418,7 +418,8 @@ var searchRandomQuestion = function(callback) {
   $("#reader-question-loading").css("visibility", "visible");
   var params = parseSearch(getQueryString());
   params.random = "true";
-  jQuery.getJSON(baseURL + "/tossup.search?callback=?", params,
+  
+  jQuery.getJSON(baseURL + "/tossup.search?callback=?", { params: params},
       function(response) {
         $("#reader-question-loading").remove();
         replaceStartWithBuzz();
@@ -560,14 +561,14 @@ var onSubmitInput = function() {
 
   checkAnswer(answer, function() {
     setScore(curWord);
+    readerService.answer(user, {score: score, correct: true, answer: answer, pKey: curQuestion.pKey}, function(e) {console.log(e)});
     $("#reader-input").remove();
     $("#reader-input-submit").remove();
     $("#reader-question-loading").remove();
     correctAnswer();
   }, function() {
-    if( curQuestion.splittedQuestion.length > curWord) {
-      setScore(curWord);
-    }
+    setScore(0);
+    readerService.answer(user, {score: score, correct: false, answer: answer, pKey: curQuestion.pKey}, function(e) {console.log(e)});
     $("#reader-input").remove();
     $("#reader-input-submit").remove();
     $("#reader-question-loading").remove();
@@ -644,9 +645,10 @@ var replaceSubmitWithBuzz = function() {
 
 var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
   var params = {canon: curQuestion.answer, answer: answer};
+
   jQuery.getJSON(baseURL + "/answer.check?callback=?", params,
       function(response) {
-        readerService.answer(user, {score: score, correct: response.value, answer: answer, pKey: curQuestion.pKey}, function(e) {console.log(e)});
+      console.log("Score to send: " + score);
         if( response.value) {
           rightAnswerCallback();
         } else {
@@ -680,7 +682,6 @@ var onFBInit = function() {
   FB.getLoginStatus( function() {
     if( response.status === "connected") {
       onFBLogin();
-      console.log("You are loggedin already");
     } else if( response.status === "not_authorized" ) {
       // they have not authed 
       console.log("You are not logegd in yet");
@@ -695,19 +696,14 @@ var onFBInit = function() {
 
 
 var onFBLogin = function(response) {
+  $("#login").unbind('click');
   FB.api('/me', function(userData) {
     FB.user = userData;   
     user = {username: userData.name, email: userData.email, fbId: userData.id};
-    userService.login(user, function(response) {
-      if( response.status != "success" && response.code == 100 || response.status) {
-        replaceFBLoginWithLogout();
-      } else {
-        bridgeError("user.login", response);
-      }
-    });
-    startKeepAlive();
+    login();
   });
 };
+
 
 var replaceFBLoginWithLogout = function() {
   $("#login").html("Logout");
@@ -718,8 +714,8 @@ var replaceFBLoginWithLogout = function() {
 };
 
 var replaceLoginWithFBLogout = function() {
-  $("#login").html("");
   $("#login").html('<div class="fb-login-button" data-scope="email">Login</div>');
+  $("#login").click(onFBLogin);
 };
 
 
@@ -729,6 +725,8 @@ var userKeepAlive = function() {
   userService.alive(user, function(e) {
     if( e.status == "fail") {
       bridgeError("Calling userKeepAlive", e);
+    } else {
+    console.log("Succesffully keep alived");
     }
   });
 };
@@ -740,11 +738,24 @@ var startKeepAlive = function() {
 
 var logout = function() {
   clearInterval(keepAliveId);
+  console.log("Logging out");
+  userService.logoff(user, function(e) {
+    console.log("User log off");
+  });
   user = {};
   replaceLoginWithFBLogout();
 };
 
-
+var login = function() {
+    userService.login(user, function(response) {
+      if( response.status != "success" && response.code == 100 || response.status) {
+        replaceFBLoginWithLogout();
+      } else {
+        bridgeError("user.login", response);
+      }
+    });
+    startKeepAlive();
+};
 
 
 

@@ -8,9 +8,10 @@ var Dao = function(host, user, password, database){
   client.password = password;
   client.database = database;
   this.tossup = {}; 
+  tossup = this.tossup;
   this.user = {};
   this.rating = {};
-  this.single= {};
+  this.reader= {};
   this.tossup.get = function(pKey, callback){
     client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
         if (!err) {
@@ -21,93 +22,97 @@ var Dao = function(host, user, password, database){
         });
   }
   this.tossup.search = function(temp, callback) {
-    obj = temp.params;
-    console.log(obj);
-    if (cache[JSON.stringify(obj)] === undefined){
-    var query = "";
-    if (obj['condition']!==undefined && obj['answer']!==undefined){
-      if (obj['condition']=="all"){
-        query += "(t.answer like '%" + util.escapeSql(obj['answer']).replace(/ /g,'%') +"%' or t.question like '%" + obj['answer'].replace(/ /g,'%')+"%')";	
-      } else if (obj['condition']=="question") {
-        query +="(t.question like '%"+util.escapeSql(obj['answer']).replace(/ /g,'%') + "%')";
-      } else if (obj['condition']=="answer") {
-        query += "(t.answer like '%"+util.escapeSql(obj['answer']).replace(/ /g,'%')+"%')";
-      }
+    if (temp.params) {
+      obj = temp.params;
     } else {
-      if (obj['answer']!==undefined){
-        query += "(t.answer like '%" + util.escapeSql(obj['answer']).replace(/ /g,'%')+"%')";
+      obj = {};
+    }
+    console.log(obj);
+    if (obj['random']=='true' || cache[JSON.stringify(obj)] === undefined){
+      var query = "";
+      if (obj['condition']!==undefined && obj['answer']!==undefined){
+        if (obj['condition']=="all"){
+          query += "(t.answer like '%" + util.escapeSql(obj['answer']).replace(/ /g,'%') +"%' or t.question like '%" + obj['answer'].replace(/ /g,'%')+"%')";	
+        } else if (obj['condition']=="question") {
+          query +="(t.question like '%"+util.escapeSql(obj['answer']).replace(/ /g,'%') + "%')";
+        } else if (obj['condition']=="answer") {
+          query += "(t.answer like '%"+util.escapeSql(obj['answer']).replace(/ /g,'%')+"%')";
+        }
       } else {
-        query += "(t.answer like '%%')";
-      }
-      if (obj['question'] !== undefined){
-        query += " and (t.question like '%" + util.escapeSql(obj['question']).replace(/ /g,'%') + "%')";
-      }
-    }
-    if (obj['tournament']!==undefined){
-      query = util.addQueryTerm(query,'t.tournament',obj['tournament'],'like');
-    }
-    if (obj['round']!==undefined){
-      query = util.addQueryTerm(query,'t.round',obj['round'],'like');
-    }
-    if (obj['year']!==undefined){
-      query = util.addQueryTerm(query,'t.year',obj['year'],'=');
-    }
-    if (obj['category']!==undefined){
-      query = util.addQueryTerm(query,'t.category',obj['category'],'like');
-    }
-    if (obj['questionNum']!==undefined){
-      query = util.addQueryTerm(query,'t.question_num',obj['questionNum'],'like');
-    }
-    if (obj['difficulty']!==undefined){
-      query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
-    }
-    query += " group by t.pKey";
-    limitstring = "";
-    if (obj['random']!==undefined){
-      if (obj['random']=='true'){
-        if (obj['limit']!==undefined){
-          limitstring+= " order by rand()";
+        if (obj['answer']!==undefined){
+          query += "(t.answer like '%" + util.escapeSql(obj['answer']).replace(/ /g,'%')+"%')";
         } else {
-          limitstring+= " order by rand() limit 1";
+          query += "(t.answer like '%%')";
+        }
+        if (obj['question'] !== undefined){
+          query += " and (t.question like '%" + util.escapeSql(obj['question']).replace(/ /g,'%') + "%')";
         }
       }
-    } else {	
-      if (obj['sort'] == undefined || obj['sort'] == 'date') {
-        query += " order by year desc, tournament asc, round asc,question_num asc";
-      } else if (obj['sort'] == 'rating') {
-        query += " order by sum(r.rating) desc";
+      if (obj['tournament']!==undefined){
+        query = util.addQueryTerm(query,'t.tournament',obj['tournament'],'like');
       }
-      if (obj['offset']!==undefined) {
-        limitstring += " limit "+pageLength+" offset "+obj['offset'];
+      if (obj['round']!==undefined){
+        query = util.addQueryTerm(query,'t.round',obj['round'],'like');
+      }
+      if (obj['year']!==undefined){
+        query = util.addQueryTerm(query,'t.year',obj['year'],'=');
+      }
+      if (obj['category']!==undefined){
+        query = util.addQueryTerm(query,'t.category',obj['category'],'like');
+      }
+      if (obj['questionNum']!==undefined){
+        query = util.addQueryTerm(query,'t.question_num',obj['questionNum'],'like');
+      }
+      if (obj['difficulty']!==undefined){
+        query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
+      }
+      query += " group by t.pKey";
+      limitstring = "";
+      if (obj['random']!==undefined){
+        if (obj['random']=='true'){
+          if (obj['limit']!==undefined){
+            limitstring+= " order by rand()";
+          } else {
+            limitstring+= " order by rand() limit 1";
+          }
+        }
+      } else {	
+        if (obj['sort'] == undefined || obj['sort'] == 'date') {
+          query += " order by year desc, tournament asc, round asc,question_num asc";
+        } else if (obj['sort'] == 'rating') {
+          query += " order by sum(r.rating) desc";
+        }
+        if (obj['offset']!==undefined) {
+          limitstring += " limit "+pageLength+" offset "+obj['offset'];
+        } else {
+          limitstring += " limit "+pageLength;
+        }
+      }
+      if (obj['username']!==undefined){
+        querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating,(select rating from ratings where user="'+obj['username']+'" and question=t.pKey) user_rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
       } else {
-        limitstring += " limit "+pageLength;
+        querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
       }
-    }
-    if (obj['username']!==undefined){
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating,(select rating from ratings where user="'+obj['username']+'" and question=t.pKey) user_rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
-    } else {
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
-    }
-    countstring = 'select count(*),sum(r.rating) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
-    client.query(countstring,function(err,results,fields){
-        if (!err) {
-        count = results.length;
-        client.query(querystring,function selectCb(err,results,fields){
+      countstring = 'select count(*),sum(r.rating) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
+      client.query(countstring,function(err,results,fields){
           if (!err) {
-          cache[JSON.stringify(obj)]={'count':count,'offset':obj['offset'],'results':results};
-          if (!obj['offset'])
-          obj['offset']=0; 
-          callback({'count':count,'offset':obj['offset'],'results':results});
-          } else{ 
+          count = results.length;
+          client.query(querystring,function selectCb(err,results,fields){
+            if (!err) {
+            cache[JSON.stringify(obj)]={'count':count,'offset':obj['offset'],'results':results};
+            if (!obj['offset'])
+            obj['offset']=0; 
+            callback({'count':count,'offset':obj['offset'],'results':results});
+            } else{ 
+            console.log(err);
+            callback({offset:0,results:[]});
+            }
+            });
+          } else {
           console.log(err);
           callback({offset:0,results:[]});
           }
           });
-        } else {
-        console.log(err);
-        callback({offset:0,results:[]});
-        }
-        });
     } else {
       callback(cache[JSON.stringify(obj)]);
     }
@@ -145,13 +150,13 @@ var Dao = function(host, user, password, database){
         });
     });
   }
-  this.single.answer = function(obj, callback) {
-    client.query("insert into single (user,score,correct,answer,question) values (?,?,?,?,?)",[obj.username,obj.score,obj.correct,obj.answer,obj.pKey], function(err, info){
+  this.reader.answer = function(user, obj, callback) {
+    client.query("insert into single (user,score,correct,answer,pKey) values (?,?,?,?,?)",[user.fbId,obj.score,obj.correct,obj.answer,obj.pKey], function(err, info){
         if (err){
         console.log(err);
         } else {
-        this.get(obj.pKey, function(question) {
-          callback({name:username,action:{'correct':correct,'score':score, 'answer':question.answer}});
+        tossup.get(obj.pKey, function(question) {
+          callback({user:user,action:{'correct':obj.correct,'score':obj.score, 'answer':question.answer}});
           });
         }
         });
@@ -183,13 +188,12 @@ var Dao = function(host, user, password, database){
         });
   }
   this.user.create = function(user, callback){
-    console.log("CREATING: "+JSON.stringify(user));
     client.query("insert into user(name, email, fb_id) values('"+user.username+"','"+user.email+"','"+user.fbId+"')", function(err, result, info){
         if (!err){
-        callback({message:"success"});
+        callback({status:"success",message:null,code:1337});
         }
         else {
-        callback({message:"failure",error:err});
+        callback({status:"failure",message:err,code:100});
         }
         });
   }

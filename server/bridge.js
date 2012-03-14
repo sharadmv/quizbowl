@@ -16,11 +16,13 @@ var userTimeout = {};
 var rooms = {};
 var roomnames=[];
 var LOGOFF_TIME = 10000;
+var Message = Model.Message;
+var SUCCESS_MESSAGE = new Message("success",null,1337);
 bridge.ready(function(){
   console.log("Connected to Bridge");
   tickerHandler = {
     push:function(ticker){
-      console.log(ticker.name+" "+ticker.text);
+      console.log(ticker.user.username+" "+ticker.text);
     }
   }
   bDao = {
@@ -49,7 +51,7 @@ bridge.ready(function(){
         });
       } else {
         dao.user.create(user,function(result){
-          if (result.message = "success") {
+          if (result.status = "success") {
             console.log(result);
             login(user, true, function(obj) {
               if (callback) {
@@ -66,29 +68,35 @@ bridge.ready(function(){
     logoff:function(user, callback){
       logoff(user,function(obj) {
           if (callback){
+          clearTimeout(userTimeout[user.fbId]);
         callback(obj);
         }
       });
     },
     alive:function(user, callback){
+            console.log(user,userTimeout);
       clearTimeout(userTimeout[user.fbId]);
+      delete userTimeout[user.fbId];
       userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
+      if (callback) {
+        callback(SUCCESS_MESSAGE);
+      }
     }
   }
   var reader = {
-    "single_answer":function(score, callback) {
-
-      dao.single.answer(score, function(obj){
-          if (obj.correct){
-          answer(req.query.username, obj.answer, req.query.score);
+    answer:function(user, score, callback) {
+      dao.reader.answer(user,score, function(obj){
+          if (obj.action.correct){
+          console.log("answering");
+          answer(user, score.answer, score.score);
           }
-          callback({message:"success"});
+          callback(SUCCESS_MESSAGE);
           });
     }
   }
   multi = {
 join:function(user,room,handler,callback){
-       if (users.user !== undefined) {
+       if (users[user.fbId] !== undefined) {
        if (roomnames.indexOf(room)!=-1){
        } else {
          roomnames.push(room);
@@ -101,33 +109,30 @@ join:function(user,room,handler,callback){
              }
          );
        }
-       rooms.room.join(users.user,room.password,function(obj){
-          if (obj.joined) {
-            bridge.joinChannel(room,handler,callback);
-            users.user.handler = handler;
-            console.log(users.user.name+" joined ["+room+"]");
-          }  
+       rooms.room.join(users[user.fbId],room.password,function(obj){
+         if (obj.joined) {
+           bridge.joinChannel(room, handler, callback);
+           users[user.fbId].handler = handler;
+           console.log(users[user.fbId].name+" joined ["+room+"]");
+         }  
        });
        } else {
-         callback({message:"user must be logged in"});
+         callback(new Message("failure","user must be logged in",200));
        }
      },
-leave:function(user){
-        console.log(users.user);
-        room = users.user.room.name;
+    leave:function(user){
+        room = users[user.fbId].room.name;
         if (roomnames.indexOf(room)==-1){
         } else {
-          rooms.room.leave(users.user,function(){});
+          rooms.room.leave(users[user.fbId],function(){});
           if (rooms.room.users.length ==0){
             delete rooms.room;
             roomnames.pop(room); 
           }
-          console.log(rooms.room);
         }
-        bridge.leaveChannel(room,users.user.handler);
-        console.log("HI");
-        users.user.handler=null;
-        console.log(roomnames,rooms);
+        bridge.leaveChannel(room,users[user.fbId].handler,function(){
+            });
+        users[user.fbId].handler=null;
       },
 getRooms:function(callback){
            callback(rooms);
@@ -136,28 +141,39 @@ getRooms:function(callback){
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);
   bridge.publishService("user",user);
+  bridge.publishService("reader",reader);
   bridge.publishService("multi",multi);
   console.log("published dao");
 });
 answer = function(user, answer, score) {
-  ticker.push(new Ticker(user, "answered "+answer+" correctly with a score of "+score));
+  console.log(arguments);
+  ticker.push(new Ticker(user, "answered correctly with "+answer+" and a score of "+score));
 }
 login = function(user, loggedIn, callback) {
   if (loggedIn) {
-    users[user.fbId] = new User(user.username,user.email,user.fbId);
-    ticker.push(new Ticker(user.username, "logged in"));
-    userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
-    console.log(userTimeout);
-    callback({message:"success"});
+    console.log(users);
+    if (!users[user.fbId]) {
+      users[user.fbId] = new User(user.username,user.email,user.fbId);
+      ticker.push(new Ticker(user, "logged in"));
+      userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
+      callback(SUCCESS_MESSAGE);
+    } else {
+      callback(new Message("failure","already logged in",100));
+    }
   } else {
-    callback({message:"failed"});
+    callback(new Message("failure",null,201));
   }
 }
 logoff = function(user, callback) {
-  console.log("LOGGING OFF: "+user.username);
+  if (users[user.fbId]){
   delete users[user.fbId];
-  ticker.push(new Ticker(user.username, "logged off"));
+  ticker.push(new Ticker(user, "logged off"));
   if (callback) {
-    callback({"message":"success"});
+    callback(SUCCESS_MESSAGE);
+  }
+  } else{ 
+    if (callback) {
+      callback(new Message("success","already logged out",100));
+    }
   }
 }

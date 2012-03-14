@@ -3,13 +3,18 @@ var xml = require('node-xml');
 var natural= require('natural');
 natural.PorterStemmer.attach();
 var Model = {
+Message:function(status, message, code){
+       this.status = status;
+       this.message = message;
+       this.code = code;
+        },
 User:function(name,email,fbId) {
        this.name = name;
        this.email = email;
        this.fbId = fbId;
      },
-Ticker:function(name, text){
-         this.name = name;
+Ticker:function(user, text){
+         this.user = user;
          this.text = text;
        },
 Room:function(name,password,handler) {
@@ -61,7 +66,6 @@ tidy:function(str){
         return r.trim();
 },
 checkAnswer:function(answer,canon,callback){
-              console.log(answer,canon);
               answer = this.tidy(answer);
               canon = this.tidy(canon);
               this.spellcheck(answer,function(ans){
