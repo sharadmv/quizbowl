@@ -693,7 +693,9 @@ var onLogin = function(response) {
   });
 };
 
-
+var onUnload = function() {
+  console.log("Unloading");
+};
 
 
 
