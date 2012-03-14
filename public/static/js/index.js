@@ -29,15 +29,21 @@ bridge.ready(function(){
       onFBInit();
     }
   });
+  bridge.getService('reader',function(obj){
+    window.readerService  = obj;
+  });
   bridge.joinChannel('ticker',{push:function(ticker) {
-    $("#tickerBox").append("<div class='ticker'><b>"+ticker.name+"</b> "+ticker.text+"</div>"); 
+    $("#tickerBox").append("<div class='ticker'><b>"+ticker.user.name+"</b> "+ticker.text+"</div>"); 
   }
   }, function(obj){
     ticker = obj;
   });
 });
 
-
+var bridgeError = function(message, e) {
+  console.log("ERROR: " + message);
+  console.log(JSON.stringify(e));
+}
 
 
 $(function() {
@@ -276,7 +282,7 @@ var openAdvancedSearch = function() {
   $("#home-advance-search").off('click');
   $("#home-advance").css("visibility", "visible");
   $("#home-advance").css("margin-bottom", "20px");
-  $("#home-advance").animate({"height": "80px", "opacity": 1}, 300, function() {
+  $("#home-advance").animate({"height": "80px", "opacity": 1}, 200, function() {
     $("#home-advance-search").click(closeAdvancedSearch);
     $("#home-advance-search").html("<a>Hide Advanced Search</a>");
   });
@@ -285,7 +291,7 @@ var openAdvancedSearch = function() {
 var closeAdvancedSearch = function() {
   $("#home-advance-search").off('click');
   $("#home-advance").css("margin-bottom", "0px");
-  $("#home-advance").animate({"height": "0px", "opacity": 0}, 300, function() {
+  $("#home-advance").animate({"height": "0px", "opacity": 0}, 200, function() {
     $("#home-advance-search").click(openAdvancedSearch);
     $("#home-advance-search").html("<a>Advanced Search</a>");
   });
@@ -551,6 +557,7 @@ var onSubmitInput = function() {
   $("#reader-input-submit").unbind('click');
   $(document).unbind('keypress');
   var answer = $("#reader-input").val();
+
   checkAnswer(answer, function() {
     setScore(curWord);
     $("#reader-input").remove();
@@ -582,7 +589,9 @@ var addStartQuestion = function() {
   });
 };
 
+score = 0;
 var setScore = function(score) {
+  window.score = score;
   $("#reader-score").html(score);
 }
 
@@ -637,6 +646,7 @@ var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
   var params = {canon: curQuestion.answer, answer: answer};
   jQuery.getJSON(baseURL + "/answer.check?callback=?", params,
       function(response) {
+        readerService.answer(user, {score: score, correct: response.value, answer: answer, pKey: curQuestion.pKey}, function(e) {console.log(e)});
         if( response.value) {
           rightAnswerCallback();
         } else {
@@ -666,10 +676,10 @@ var updateReaderSpeed = function() {
 
 
 var onFBInit = function() {
-  FB.Event.subscribe('auth.login', onLogin);
+  FB.Event.subscribe('auth.login', onFBLogin);
   FB.getLoginStatus( function() {
     if( response.status === "connected") {
-      onLogin();
+      onFBLogin();
       console.log("You are loggedin already");
     } else if( response.status === "not_authorized" ) {
       // they have not authed 
@@ -684,29 +694,54 @@ var onFBInit = function() {
 }
 
 
-var onLogin = function(response) {
+var onFBLogin = function(response) {
   FB.api('/me', function(userData) {
     FB.user = userData;   
     user = {username: userData.name, email: userData.email, fbId: userData.id};
     userService.login(user, function(response) {
-      if( response.message != "success") {
-        console.log("Error when dao login: ");
-        console.log(response);
+      if( response.status != "success" && response.code == 100 || response.status) {
+        replaceFBLoginWithLogout();
+      } else {
+        bridgeError("user.login", response);
       }
     });
     startKeepAlive();
   });
 };
 
+var replaceFBLoginWithLogout = function() {
+  $("#login").html("Logout");
+  $("#login").click(function() {
+    $("#login").unbind('click');
+    logout();
+  });
+};
+
+var replaceLoginWithFBLogout = function() {
+  $("#login").html("");
+  $("#login").html('<div class="fb-login-button" data-scope="email">Login</div>');
+};
+
+
 var keepAliveDelay = 9000; // 9 seconds
 var keepAliveId; // interval id
 var userKeepAlive = function() {
-  console.log(user);
-  userService.alive(user, function(e) {console.log("Response from keepalive: " + e)});
+  userService.alive(user, function(e) {
+    if( e.status == "fail") {
+      bridgeError("Calling userKeepAlive", e);
+    }
+  });
 };
 
 var startKeepAlive = function() {
+  userKeepAlive();
   keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
+};
+
+var logout = function() {
+  clearInterval(keepAliveId);
+  user = {};
+  replaceLoginWithFBLogout();
 };
 
 
