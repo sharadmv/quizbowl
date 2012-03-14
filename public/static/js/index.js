@@ -685,7 +685,7 @@ var onLogin = function(response) {
   FB.api('/me', function(userData) {
     FB.user = userData;   
     user = {username: userData.name, email: userData.email, fbId: userData.id};
-    user.login(user, function(response) {
+    userService.login(user, function(response) {
       if( response.message != "success") {
         console.log("Error when dao login");
       }
