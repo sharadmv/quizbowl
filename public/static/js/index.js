@@ -19,12 +19,12 @@ var loginToggled = false;
 bridge = new Bridge({apiKey:"R+DPnfAq"});
 bridge.ready(function(){
   bridge.getService('dao',function(obj){
-    window.dao = obj;
-    dao = obj;
+    window.daoService = obj;
+    daoService = obj;
   });
   bridge.getService('user',function(obj){
-    window.user = obj;
-    user = obj;
+    window.userService = obj;
+    userService = obj;
     if( typeof(FB) != "undefined") {
       onFBInit();
     }
@@ -693,11 +693,6 @@ var onLogin = function(response) {
   });
 };
 
-
-
-var userKeepAlive = function() {
-  setInterval(
-};
 
 
 
