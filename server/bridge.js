@@ -74,7 +74,7 @@ bridge.ready(function(){
       });
     },
     alive:function(user, callback){
-            console.log(user,userTimeout);
+            console.log(userTimeout[user.fbId]);
       clearTimeout(userTimeout[user.fbId]);
       delete userTimeout[user.fbId];
       userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
@@ -147,14 +147,14 @@ getRooms:function(callback){
 });
 answer = function(user, answer, score) {
   console.log(arguments);
-  ticker.push(new Ticker(user, "answered correctly with "+answer+" and a score of "+score));
+  ticker.push(new Ticker(user, "answered <i>"+answer+"</i> with a score of "+score));
 }
 login = function(user, loggedIn, callback) {
   if (loggedIn) {
     console.log(users);
     if (!users[user.fbId]) {
       users[user.fbId] = new User(user.username,user.email,user.fbId);
-      ticker.push(new Ticker(user, "logged in"));
+      ticker.push(new Ticker(user, "<br/>logged in"));
       userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
       callback(SUCCESS_MESSAGE);
     } else {
@@ -167,7 +167,7 @@ login = function(user, loggedIn, callback) {
 logoff = function(user, callback) {
   if (users[user.fbId]){
   delete users[user.fbId];
-  ticker.push(new Ticker(user, "logged off"));
+  ticker.push(new Ticker(user, "<br/>logged off"));
   if (callback) {
     callback(SUCCESS_MESSAGE);
   }

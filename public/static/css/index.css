@@ -24,7 +24,7 @@ a {
 
 #nav-title {
   color: white;
-  font-family: 'Cabin Condensed', 'Helvetica Neue', Arial;
+  font-family: 'Helvetica Neue', Arial;
   font-size: 18px;
 }
 
@@ -59,6 +59,65 @@ a {
 .nav-ele:hover {
   color: rgba(255, 255, 255, 1) !important;
 }
+
+
+/* Ticker */
+.ticker {
+  height:50px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  background-color:rgba(0,0,0,0.0);
+  -webkit-transition: background-color 125ms linear;
+  -moz-transition: background-color 125ms linear;
+}
+.ticker:hover {
+  background-color:rgba(0,0,0,0.15);
+  -webkit-transition: background-color 125ms linear;
+  -moz-transition: background-color 125ms linear;
+}
+.tickerText {
+  vertical-align:middle;
+  font-size:0.9em;
+}
+.tickerImage {
+  width: 50px;
+  float: left;
+}
+#tickerWrapper{
+  position:fixed;
+  border-left:#ccc solid;
+  background-color:white;
+  right:0px;
+  top:40px;
+  width: 200px;
+  bottom:0px;
+  border-radius:2px;
+}
+#tickerBox{
+  width:100%;
+  height:100%;
+  position: absolute;
+  top: 0px;
+}
+#tickerHide {
+  background-color:#DBDBDB;
+  border-top-left-radius:5px;
+  border-bottom-left-radius:5px;
+  position:relative;
+  padding-top:20px;
+  top:100px;
+  height:40px;
+  left:-20px;
+  width:20px;
+  text-align:center;
+  vertical-align:middle;
+}
+#tickerHide:hover{
+  background-color:#ccc;
+  cursor:pointer;
+}
+
 
 #home-title {
   text-align: center;
@@ -232,6 +291,7 @@ a {
 }
 
 #footer {
+  clear: both;
   background: white;
   height: 40px;
   line-height: 40px;
