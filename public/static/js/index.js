@@ -573,9 +573,10 @@ var loadAnswer = function() {
 }
 
 var onSubmitInput = function() {
+  console.log("Submiting");
   clearTimeout(buzzTimeout);
   $("#reader-input-submit").unbind('click');
-  $(document).unbind('keypress');
+  $("#reader-input").unbind('keypress');
   var answer = $("#reader-input").val();
 
   checkAnswer(answer, function() {
