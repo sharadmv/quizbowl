@@ -167,6 +167,8 @@ login = function(user, loggedIn, callback) {
 logoff = function(user, callback) {
   if (users[user.fbId]){
   delete users[user.fbId];
+  clearTimeout(users[user.fbId]);
+  delete userTimeout[user.fbId];
   ticker.push(new Ticker(user, "<br/>logged off"));
   if (callback) {
     callback(SUCCESS_MESSAGE);
