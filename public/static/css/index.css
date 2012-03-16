@@ -87,6 +87,7 @@ a {
 #tickerWrapper{
   position:fixed;
   border-left:#ccc solid;
+  border-top:#ccc solid;
   background-color:white;
   right:0px;
   top:40px;
@@ -395,4 +396,20 @@ input {
   visibility: hidden;
   position: absolute;
   margin-left: 6px;
+}
+
+#reader-speed-input {
+  margin-top: 5px;
+}
+
+#home-advance-category {
+  height: 74px;
+}
+
+#home-advance-year {
+  height: 74px;
+}
+
+#home-advance-tournament {
+  height: 74px;
 }

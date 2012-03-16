@@ -1,4 +1,4 @@
-var baseURL = "http://ec2-50-19-22-175.compute-1.amazonaws.com:80/api";
+var baseURL = "http://ec2-107-20-11-96.compute-1.amazonaws.com:80/api";
 
 
 var pageSpecificStyles = function() {
@@ -418,7 +418,7 @@ var curQuestion = {};
 var curWord = 0;
 var readerScore = 0;
 var startSpeed = 350;
-var speedPerIncrement = 15;
+var speedPerIncrement = 5;
 var speedIncrement = 50;
 var buzzTimeout;
 var hideDifficulty = false;
