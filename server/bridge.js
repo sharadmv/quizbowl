@@ -15,7 +15,7 @@ var users = {};
 var userTimeout = {};
 var rooms = {};
 var roomnames=[];
-var LOGOFF_TIME = 10000;
+var LOGOFF_TIME = 60000;
 var Message = Model.Message;
 var SUCCESS_MESSAGE = new Message("success",null,1337);
 bridge.ready(function(){

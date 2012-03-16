@@ -36,25 +36,25 @@
 </form>
 </div>
 
-<div class="row">
-<div class="span4">
+<div id="reader-mass" class="row">
+<div id="reader-controls-wrapper" class="span4">
 <div id="reader-controls">
 <div id="reader-score-wrapper" class="reader-control">Score: <span id="reader-score">0</span></div>
 <div id="reader-speed" class="reader-control">Reader Text Speed: <input id="reader-speed-input" type="range" min="0" max="100" value="50"/></div>
-<div id="reader-toggle-difficulty" class="btn reader-control">Hide Difficulty</div>
-<div id="reader-toggle-category" class="btn reader-control">Show Category</div>
+<div id="reader-toggle-difficulty" class="btn btn-info reader-control">Hide Difficulty</div>
+<div id="reader-toggle-category" class="btn btn-info reader-control">Show Category</div>
 </div>
 
 </div>
 
-<div class="span12">
+<div class="span11" id="reader-right-wrapper">
 <div class="well" id="reader-text-wrapper">
 Get started by pressing the "Start Question" button.
 </div>
 <div id="reader-bottom-wrapper">
 <div id="reader-feedback-text"></div>
 <div id="reader-bottom">
-<button id="reader-start-question" class="btn-primary btn">Start Question</button>
+<button id="reader-start-question" class="btn-primary btn">Start Question (Space)</button>
 <img id="reader-question-loading" src="/img/ajax-loader.gif"/>
 </div>
 </div>

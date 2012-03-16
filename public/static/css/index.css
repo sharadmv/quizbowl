@@ -1,3 +1,6 @@
+html, body {
+  height: 100%;
+}
 a {
   cursor:pointer;
 }
@@ -25,7 +28,6 @@ a {
 #nav-title {
   color: white;
   font-family: 'Helvetica Neue', Arial;
-  font-size: 18px;
 }
 
 #login {
@@ -48,7 +50,7 @@ a {
   padding: 0 30px;
   color: rgba(255, 255, 255, 0.7);
   line-height: 40px;
-  font-size: 16px;
+  font-size: 1.1em;
   font-family: 'Helvetica Neue' Helvetica, Arial;
 }
 
@@ -308,22 +310,21 @@ input {
 
 #reader-text-wrapper {
   background: #fff;
-  width: 900px;
+  width: 800px;
   margin: 16px auto;
   height: 300px;
-  border: 3px solid rgb(230, 230, 230);
-  padding: 14px;
+  border: 1px solid rgb(230, 230, 230);
 
 }
 
 #reader-start-question {
-  width: 110px;
+  width: 160px;
   text-align: center;
 }
 
 #reader-bottom {
   margin: 20px auto 5px auto;
-  width: 115px;
+  width: 165px;
   height: 40px;
 }
 
@@ -337,7 +338,7 @@ input {
 
 #reader-question {
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-  font-size: 1.3em;
+  font-size: 1.1em;
   line-height: 1.4em;
 
 }
@@ -369,7 +370,7 @@ input {
 #reader-answer {
   font-style: italic;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-  font-size: 1.2em;
+  font-size: 1.1em;
   margin-top: 10px;
 }
 
@@ -412,4 +413,9 @@ input {
 
 #home-advance-tournament {
   height: 74px;
+}
+
+#reader-mass {
+  width: 1230px;
+  margin: 0 auto;
 }

@@ -188,7 +188,7 @@ var Dao = function(host, user, password, database){
         });
   }
   this.user.create = function(user, callback){
-    client.query("insert into user(name, email, fb_id) values('"+user.username+"','"+user.email+"','"+user.fbId+"')", function(err, result, info){
+    client.query("insert into user(username, email, fb_id) values('"+user.username+"','"+user.email+"','"+user.fbId+"')", function(err, result, info){
         if (!err){
         callback({status:"success",message:null,code:1337});
         }

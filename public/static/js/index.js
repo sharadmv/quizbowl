@@ -597,8 +597,8 @@ var onSubmitInput = function() {
 }
 
 var addStartQuestion = function() {
-  $("#reader-bottom").append('<button id="reader-start-question" class="btn-primary btn">Start Question</button>');
-  $("#reader-bottom").css('width', '110px');
+  $("#reader-bottom").append('<button id="reader-start-question" class="btn-primary btn">Start Question (Space)</button>');
+  $("#reader-bottom").css('width', '165px');
   $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif"/>');
   $("#reader-start-question").click(onReaderStart);
   $(document).keypress( function(event) {
@@ -619,9 +619,9 @@ var setScore = function(score) {
 var controlDown = false;
 var addReaderBuzz = function() {
   $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
-  $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip</div>');
+  $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip (Control Space)</div>');
   $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif">');
-  $("#reader-bottom").css("width", "170px");
+  $("#reader-bottom").css("width", "260px");
   $("#reader-buzz").unbind('click');
   $("#reader-buzz").click(buzzClick);
   $("#reader-skip").click(skipQuestion);
