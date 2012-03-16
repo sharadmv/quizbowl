@@ -586,7 +586,7 @@ var onSubmitInput = function() {
       $("#reader-question-loading").remove();
       correctAnswer();
       }, function() {
-      setScore(0);
+      setScore(curWord);
       readerService.answer(user, {score: score, correct: false, answer: answer, pKey: curQuestion.pKey}, function(e) {console.log(e)});
       $("#reader-input").remove();
       $("#reader-input-submit").remove();
@@ -619,7 +619,7 @@ var setScore = function(score) {
 var controlDown = false;
 var addReaderBuzz = function() {
   $("#reader-bottom").append('<div id="reader-buzz" class="btn btn-primary">Buzz (Space)</div>');
-  $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip (Control Space)</div>');
+  $("#reader-bottom").append('<div id="reader-skip" class="btn btn-warning">Skip (Shift Space)</div>');
   $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif">');
   $("#reader-bottom").css("width", "260px");
   $("#reader-buzz").unbind('click');
@@ -645,11 +645,13 @@ var skipQuestion = function() {
 };
 
 var spacebarBind = function() {
+  console.log("Spacebar bind");
   $(document).keypress(function(e) {
-      if( e.which == 32 && !e.ctrlKey) {
+      console.log(e);
+      if( e.keyCode == 32 && !e.shiftKey) {
       $(document).unbind('keypress');
       buzzClick();
-      } else if( e.which == 0 || e.keyCode == 32 && e.ctrlKey) {
+      } else if( e.keyCode == 32 && e.shiftKey) {
       $(document).unbind('keypress');
       skipQuestion();
       }

@@ -12,7 +12,6 @@ var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
 var ticker;
 var users = {};
-var userTimeout = {};
 var rooms = {};
 var roomnames=[];
 var LOGOFF_TIME = 60000;
@@ -68,16 +67,12 @@ bridge.ready(function(){
     logoff:function(user, callback){
       logoff(user,function(obj) {
           if (callback){
-          clearTimeout(userTimeout[user.fbId]);
         callback(obj);
         }
       });
     },
     alive:function(user, callback){
-            console.log(userTimeout[user.fbId]);
-      clearTimeout(userTimeout[user.fbId]);
-      delete userTimeout[user.fbId];
-      userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
+      users[user.fbId].alive = true;
       if (callback) {
         callback(SUCCESS_MESSAGE);
       }
@@ -144,6 +139,18 @@ getRooms:function(callback){
   bridge.publishService("reader",reader);
   bridge.publishService("multi",multi);
   console.log("published dao");
+    setInterval(function(){
+        console.log("Garbage collection of users:");
+        //looping backwards to avoid shifting list
+        for (var i in users){
+          console.log("Checking if alive still: "+users[i]);
+          if (users[i].alive){
+            users[i].alive = false;
+          } else {
+            logoff(users[i]);
+          }
+        }
+    },LOGOFF_TIME);
 });
 answer = function(user, answer, score) {
   console.log(arguments);
@@ -155,7 +162,6 @@ login = function(user, loggedIn, callback) {
     if (!users[user.fbId]) {
       users[user.fbId] = new User(user.username,user.email,user.fbId);
       ticker.push(new Ticker(user, "<br/>logged in"));
-      userTimeout[user.fbId] = setTimeout(function(){logoff(user)},LOGOFF_TIME);
       callback(SUCCESS_MESSAGE);
     } else {
       callback(new Message("failure","already logged in",100));
@@ -167,8 +173,6 @@ login = function(user, loggedIn, callback) {
 logoff = function(user, callback) {
   if (users[user.fbId]){
   delete users[user.fbId];
-  clearTimeout(users[user.fbId]);
-  delete userTimeout[user.fbId];
   ticker.push(new Ticker(user, "<br/>logged off"));
   if (callback) {
     callback(SUCCESS_MESSAGE);

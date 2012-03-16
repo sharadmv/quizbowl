@@ -12,6 +12,7 @@ User:function(name,email,fbId) {
        this.name = name;
        this.email = email;
        this.fbId = fbId;
+       this.alive = true;
      },
 Ticker:function(user, text){
          this.user = user;
