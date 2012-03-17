@@ -115,12 +115,17 @@ a {
   text-align:center;
   vertical-align:middle;
 }
+
 #tickerHide:hover{
-  background-color:#ccc;
-  cursor:pointer;
+  background-color: #ccc;
+  cursor: pointer;
 }
 #userBox{
   height:50%;
+  background: blue;
+  position: absolute;
+  width: 100%;
+  top: 50%
 }
 
 #home-title {
