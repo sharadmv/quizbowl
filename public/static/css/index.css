@@ -84,6 +84,7 @@ pre::-webkit-scrollbar-thumb {
   height:50px;
   padding-top: 3px;
   padding-bottom: 3px;
+  width: 195px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   background-color:rgba(0,0,0,0.0);
   -webkit-transition: background-color 125ms linear;
@@ -189,7 +190,7 @@ pre::-webkit-scrollbar-thumb {
   margin-top:1px;
   border-top:1px #EEE;
   min-height:35px;
-  width:100%;
+  width: 195px;
 }
 
 .pfImage {
