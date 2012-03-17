@@ -125,14 +125,18 @@ var pageSpecificStyles = function() {
       });
     };
     var show = true;
+    var fullBodyContentWidth = $("#body-content").width();
     $("#tickerHide").click(function(){
 
       if (!show) {
         $("#tickerWrapper").animate({right:"-200px"});
         $("#tickerHide").html("<");
+        $("#body-content").animate({width: fullBodyContentWidth+"px"});
+        
       } else { 
       $("#tickerWrapper").animate({right:"0px"});
       $("#tickerHide").html(">");
+        $("#body-content").animate({width: fullBodyContentWidth-200+"px"});
       }
       show = !show;
 
