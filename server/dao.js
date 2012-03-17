@@ -10,8 +10,11 @@ var Dao = function(host, user, password, database){
   client.database = database;
   this.tossup = {}; 
   client.query("select count(*) from tossups",function(err,results,fields){
-	console.log(results);
+      if (!err){
       totalcount = results[0]['count(*)'];
+      } else {
+              console.log(err);
+      }
   });
   tossup = this.tossup;
   this.user = {};
