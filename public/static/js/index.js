@@ -1,5 +1,10 @@
 var baseURL = "http://ec2-107-20-11-96.compute-1.amazonaws.com:80/api";
 
+if (navigator.appVersion.indexOf("10_7") != -1) {
+        
+    jQuery('.showScroll').addClass('lion');
+        
+}
 
 var pageSpecificStyles = function() {
   if( page == "reader") {
