@@ -205,7 +205,7 @@ var homeMoveSearchToTop = function() {
     .css('margin', '0 5px 0 10px');
   $("#home-search-button").css('float', 'left')
     .css('margin', '3px 0');
-  $("#home-form").css('width', '950px');
+  $("#home-form").css('width', '900px');
   searchInMiddle = false;
 };
 
