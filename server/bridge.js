@@ -16,12 +16,14 @@ var rooms = {};
 var roomnames={};
 var LOGOFF_TIME = 30000;
 var Message = Model.Message;
+var curTicker = []
 var SUCCESS_MESSAGE = new Message("success",null,1337);
 bridge.ready(function(){
   console.log("Connected to Bridge");
   ticker= {
-    join:function(handler){
+    join:function(handler,callback){
       bridge.joinChannel('ticker',handler);
+      callback(curTicker);
     },
   }
   bDao = {
@@ -144,6 +146,10 @@ getRooms:function(callback){
   }
   tickerHandler = {
 push:function(ticker){
+       if (curTicker.length > 10){
+         curTicker.pop();
+       }
+       curTicker.unshift(ticker);
        console.log(ticker.user.username+" "+ticker.text);
      },
 users:function(users){
