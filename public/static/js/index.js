@@ -803,6 +803,9 @@ var login = function() {
     userService.login(user, function(response) {
               if( response.status != "success" && response.code == 100 || response.status) {
               joinChat();
+              for (var i in response.chats){
+                  onChat(response.chats[i].user,response.chats[i].message);
+              }
               replaceFBLoginWithLogout();
               } else {
               bridgeError("user.login", response);
