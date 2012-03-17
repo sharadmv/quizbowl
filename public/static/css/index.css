@@ -12,8 +12,6 @@ a {
   display: inline-block;
 }
 
-#loginBox {
-}
 #nav {
   background-color: rgb(25, 104, 151);
   height: 40px;
@@ -99,9 +97,10 @@ a {
 }
 #tickerBox{
   width:100%;
-  height:100%;
+  height:50%;
   position: absolute;
   top: 0px;
+  overflow:scroll;
 }
 #tickerHide {
   background-color:#DBDBDB;
@@ -120,7 +119,9 @@ a {
   background-color:#ccc;
   cursor:pointer;
 }
-
+#userBox{
+  height:50%;
+}
 
 #home-title {
   text-align: center;

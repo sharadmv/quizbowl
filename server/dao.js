@@ -2,18 +2,26 @@ var Client = require('mysql').Client;
 var client = new Client();
 var pageLength = 10;
 var cache={};
+var totalcount = 0;
 var Dao = function(host, user, password, database){
   client.host = host;
   client.user = user;
   client.password = password;
   client.database = database;
   this.tossup = {}; 
+  client.query("select count(*) from tossups",function(err,results,fields){
+      if (!err){
+      totalcount = results[0]['count(*)'];
+      } else {
+              console.log(err);
+      }
+  });
   tossup = this.tossup;
   this.user = {};
   this.rating = {};
   this.reader= {};
   this.tossup.get = function(pKey, callback){
-    client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
+    client.query("select * from tossups where pKey='"+util.escapeSql(pKey)+"'", function(err, result, field){
         if (!err) {
         callback(result[0]);
         } else {
@@ -66,17 +74,23 @@ var Dao = function(host, user, password, database){
       if (obj['difficulty']!==undefined){
         query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
       }
-      query += " group by t.pKey";
       limitstring = "";
       if (obj['random']!==undefined){
         if (obj['random']=='true'){
           if (obj['limit']!==undefined){
             limitstring+= " order by rand()";
           } else {
-            limitstring+= " order by rand() limit 1";
+            var num = Math.floor(Math.random()*totalcount);
+if (!(obj['answer']=="" && !(obj['difficulty']||obj['tournament']||obj['category']||obj['year']))){
+              limitstring +=" order by rand() limit 1"; 
+            } else {
+              query+=" and t.id="+num;
+            }
           }
         }
+        query += " group by t.pKey";
       } else {	
+        query += " group by t.pKey";
         if (obj['sort'] == undefined || obj['sort'] == 'date') {
           query += " order by year desc, tournament asc, round asc,question_num asc";
         } else if (obj['sort'] == 'rating') {
@@ -94,6 +108,7 @@ var Dao = function(host, user, password, database){
         querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
       }
       countstring = 'select count(*),sum(r.rating) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
+      console.log(querystring);
       client.query(countstring,function(err,results,fields){
           if (!err) {
           count = results.length;
