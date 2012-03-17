@@ -772,7 +772,16 @@ var startKeepAlive = function() {
   userKeepAlive();
   keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
 };
-
+var login = function() {
+    userService.login(user, function(response) {
+              if( response.status != "success" && response.code == 100 || response.status) {
+                    replaceFBLoginWithLogout();
+                          } else {
+                                bridgeError("user.login", response);
+                                      }
+                                            });
+      startKeepAlive();
+};
 var logout = function() {
   clearInterval(keepAliveId);
   console.log("Logging out");
