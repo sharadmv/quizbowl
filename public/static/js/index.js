@@ -495,6 +495,7 @@ var replaceStartWithBuzz = function() {
 };
 
 var buzzClick = function() {
+  $(document).unbind('keypress');
   $("#reader-buzz, #reader-skip").unbind('click');
   clearTimeout(buzzTimeout);
   $("#reader-buzz, #reader-skip").remove();
