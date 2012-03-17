@@ -791,13 +791,13 @@ var joinChat = function() {
 
 var onChat = function(user, message) {
   var chat = $("<div></div>").addClass("chat");
-  var pfImage = $("<span><img src='https://graph.facebook.com/"+user.fbId+"/picture'/><span>").addClass("pfImage");
-  var chatText = $("<span></span>").addClass("chat-text");
-  var chatUser = $("<span>"+user.username+"</span>").addClass("chat-user");
+  var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
+  pfImage.tooltip({title: user.username});
+  var chatText = $("<div></div>").addClass("chat-text");
   var chatContents = $("<span>"+message+"</span>").addClass("chat-contents");
-  chatText.append(chatUser).append(chatContents);
+  chatText.append(chatContents);
   chat.append(pfImage).append(chatText);
-  chat.hide().prependTo("#chatBox").slideDown(); 
+  chat.appendTo("#chatBox"); 
 };
 
 
