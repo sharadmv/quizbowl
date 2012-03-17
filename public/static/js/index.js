@@ -826,13 +826,13 @@ var onChat = function(user, message) {
     var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
     pfImage.tooltip({title: user.username});
     var chatText = $("<div id='chat"+chatID+"'></div>").addClass("chat-text");
-    var chatContents = $("<span>"+message+"</span>").addClass("chat-contents");
+    var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
     chatText.append(chatContents);
     chat.append(pfImage).append(chatText);
     chat.appendTo("#chatBox"); 
     prevChat = user;
   } else {
-    var chatContents = $("<br/><span>"+message+"</span>").addClass("chat-contents");
+    var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
     $("#chat"+chatID).append(chatContents);
   }
   $("#chatBox").animate({scrollTop:$("#chatBox").height()},"0ms");

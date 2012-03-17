@@ -175,7 +175,12 @@ pre::-webkit-scrollbar-thumb {
   width: 100%;
   top: 50%
 }
+.chat-contents {
+  margin-bottom:5px;
+  line-height:15px;
+}
 .chat {
+  word-wrap:break-word;
   clear:both;
   margin-left:5px;
   margin-right:5px;
