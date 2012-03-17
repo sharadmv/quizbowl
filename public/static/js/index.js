@@ -83,7 +83,7 @@ var pageSpecificStyles = function() {
         }
       });
       $("#home-search-input").keypress( function(event) {
-        if (event.which == 13) {
+        if (event.which == 13 && chatNotFocused()) {
           homeSearch({'offset':0,answer: $("#home-search-input").val()});
         }
       });
@@ -98,7 +98,7 @@ var pageSpecificStyles = function() {
       $("#reader-start-question").click(onReaderStart);
       $(document).keypress( function(event) {
         console.log(event);
-        if (event.which == 32) {
+        if (event.which == 32 && chatNotFocused()) {
           $(document).unbind('keypress');
           onReaderStart();
         }
@@ -537,7 +537,8 @@ var searchRandomQuestion = function(callback) {
           clearInterval(curQuestion.intervalId);
           curQuestion.intervalId = undefined;
           $("#reader-input").keypress( function(event) {
-            if (event.which == 13) {
+            console.log("About to submit answer");
+            if (event.which == 13 && chatNotFocused()) {
               onSubmitInput();
             }
           });
@@ -631,7 +632,7 @@ var searchRandomQuestion = function(callback) {
             $("#reader-bottom").append('<img id="reader-question-loading" src="/img/ajax-loader.gif"/>');
             $("#reader-start-question").click(onReaderStart);
             $(document).keypress( function(event) {
-              if (event.which == 32) {
+              if (event.which == 32 && chatNotFocused()) {
                 $(document).unbind('keypress');
                 onReaderStart();
               }
@@ -679,10 +680,10 @@ var searchRandomQuestion = function(callback) {
                 console.log("Spacebar bind");
                 $(document).keypress(function(e) {
                   console.log(e);
-                  if( e.keyCode == 32 && !e.shiftKey) {
+                  if( e.keyCode == 32 && !e.shiftKey && chatNotFocused()) {
                     $(document).unbind('keypress');
                     buzzClick();
-                  } else if( e.keyCode == 32 && e.shiftKey) {
+                  } else if( e.keyCode == 32 && e.shiftKey && chatNotFocused()) {
                     $(document).unbind('keypress');
                     skipQuestion();
                   }
@@ -831,6 +832,11 @@ var onChat = function(user, message) {
 var tickerChat = function() {
   var message = $("#chat-input").val();
   multiService.chat(user,{name:'lobby',password:''}, message);
+}
+
+
+var chatNotFocused = function() {
+  return !$("#chat-input").is(":focus");
 }
 
 
