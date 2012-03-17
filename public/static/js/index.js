@@ -49,12 +49,6 @@ var pageSpecificStyles = function() {
     });
     bridge.getService('multi',function(multi){
       window.multiService = multi;
-      multi.join(user,'lobby',{chat:function(user,message){
-          //what to do when receiving chat message from User and message
-      }},function(room){
-        lobby = room; 
-        lobby.chat(user,"BLAHBLAHLALA");
-      });
     });
   });
   var bridgeError = function(message, e) {
@@ -762,77 +756,91 @@ var onFBInit = function() {
       };
 
 
-      var keepAliveDelay = 9000; // 9 seconds
-      var keepAliveId; // interval id
-      var userKeepAlive = function() {
-        userService.alive(user, function(e) {
-          if( e.status == "fail") {
-            bridgeError("Calling userKeepAlive", e);
-          } else {
-            console.log("Succesffully keep alived");
-          }
-        });
-        };
+var keepAliveDelay = 9000; // 9 seconds
+var keepAliveId; // interval id
+var userKeepAlive = function() {
+  userService.alive(user, function(e) {
+    if( e.status == "fail") {
+      bridgeError("Calling userKeepAlive", e);
+    } else {
+      console.log("Succesffully keep alived");
+    }
+  });
+};
 
-        var startKeepAlive = function() {
-          userKeepAlive();
-          keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
-        };
+var startKeepAlive = function() {
+  userKeepAlive();
+  keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
+};
 
-        var logout = function() {
-          clearInterval(keepAliveId);
-          console.log("Logging out");
-          userService.logoff(user, function(e) {
-            console.log("User log off");
-          });
-          user = {};
-          replaceLoginWithFBLogout();
-        };
-
-        var login = function() {
-          userService.login(user, function(response) {
-            if( response.status != "success" && response.code == 100 || response.status) {
-              replaceFBLoginWithLogout();
-            } else {
-              bridgeError("user.login", response);
-            }
-          });
-          startKeepAlive();
-        };
+var logout = function() {
+  clearInterval(keepAliveId);
+  console.log("Logging out");
+  userService.logoff(user, function(e) {
+    console.log("User log off");
+  });
+  user = {};
+  replaceLoginWithFBLogout();
+};
 
 
 
-        /* Multiplayer using Bridge and Backbone */
+
+/* Chat Code */
+
+var joinChat = function() {
+  multiService.join(user,'lobby',{chat: onChat},function(room){
+    window.lobby = room; 
+  });
+};
+
+var onChat = function(user, message) {
+  var chat = $("<div></div>").addClass("chat");
+  var pfImage = $("<span><img src='https://graph.facebook.com/"+user.fbId+"/picture'/><span>").addClass("pfImage");
+  var chatText = $("<span></span>").addClass("chat-text");
+  var chatUser = $("<span>"+user.username+"</span>").addClass("chat-user");
+  var chatContents = $("<span>"+message+"</span>").addClass("chat-contents");
+  chatText.append(chatUser).append(chatContents);
+  chat.append(pfImage).append(chatText);
+  chat.hide().prependTo("#chatBox").slideDown(); 
+};
+
+
+
+/* Multiplayer using Bridge and Backbone */
+
+
+
 
 $(function() {
 
 
   _.templateSettings = {
     interpolate: /\<\@\=(.+?)\@\>/g,
-    evluate: /\<\@(.+?)\@\>/g
+  evluate: /\<\@(.+?)\@\>/g
   }
 
   Person = Backbone.Model.extend( {
-      validate: function(attr) {
-        if( attr.name == "Gerald" || attr.age < 10) {
-          console.log("Incorrect user");
-        }
+    validate: function(attr) {
+                if( attr.name == "Gerald" || attr.age < 10) {
+                  console.log("Incorrect user");
+                }
 
-      },
-      default: {
-          name: 'Fetus',
-          age: 0,
-          children: []
-      },
-      initialize: function() {
-        this.bind("change:name", function() {
-          var name = this.get("name");
-          console.log("My new name is: " + name);
-        });
-        this.validate(this.attributes);
+              },
+    default: {
+               name: 'Fetus',
+  age: 0,
+  children: []
+             },
+  initialize: function() {
+                this.bind("change:name", function() {
+                  var name = this.get("name");
+                  console.log("My new name is: " + name);
+                });
+                this.validate(this.attributes);
 
 
-      }
+              }
   });
   var person = new Person({name: "Thomas", age: 67, children: ['Ryan']});
   var age = person.get('age');
@@ -840,21 +848,21 @@ $(function() {
   var children = person.get('children');
 
   SearchView = Backbone.View.extend({
-      initialize: function() {
-        this.render();
-      },
-      render: function() {
-        var variables = {search_label: "My Search"};
-        //var template = _.template( $("#search_template").html(), {blah: "la"});
-        //this.$el.html(template);
-      },
-      events: {
-        "click input[type=button]": "doSearch"
+    initialize: function() {
+                  this.render();
+                },
+             render: function() {
+                       var variables = {search_label: "My Search"};
+                       //var template = _.template( $("#search_template").html(), {blah: "la"});
+                       //this.$el.html(template);
+                     },
+             events: {
+                       "click input[type=button]": "doSearch"
 
-      },
-      doSearch: function(event) {
-        console.log("Search for: " + $("#search_input").val());
-      }
+                     },
+             doSearch: function(event) {
+                         console.log("Search for: " + $("#search_input").val());
+                       }
   });
 
 

@@ -131,6 +131,9 @@ bridge.ready(function(){
             });
         users[user.fbId].handler=null;
       },
+chat:function(user,message,callback){
+       users[user.fbId].handler.chat(user,message);
+     },
 getRooms:function(callback){
            callback(rooms);
          }
