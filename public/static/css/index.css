@@ -170,10 +170,13 @@ pre::-webkit-scrollbar-thumb {
 #chatBox{
   height:50%;
   position: absolute;
+  overflow-y:scroll;
+  overflow-x:visible;
   width: 100%;
   top: 50%
 }
 .chat {
+  clear:both;
   margin-left:5px;
   margin-right:5px;
   margin-bottom:5px;
@@ -335,7 +338,7 @@ pre::-webkit-scrollbar-thumb {
 
 #home-advance-loc {
   width: 100px;
-  height: 40px;
+  height: 41px;
 }
 
 .home-advance-param {
