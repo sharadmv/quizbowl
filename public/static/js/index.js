@@ -1,5 +1,10 @@
 var baseURL = "http://ec2-107-20-11-96.compute-1.amazonaws.com:80/api";
 
+if (navigator.appVersion.indexOf("10_7") != -1) {
+        
+    jQuery('.showScroll').addClass('lion');
+        
+}
 
 var pageSpecificStyles = function() {
   if( page == "reader") {
@@ -34,8 +39,8 @@ var pageSpecificStyles = function() {
     });
     bridge.getService('ticker',function(ticker){
       ticker.join({push:function(ticker) {
-          var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> "+ticker.text+"</div></div>");
-          j.hide().prependTo("#tickerBox").slideDown(); 
+          var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
+          j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
       },
       users:function(users){
         console.log(users);
@@ -55,7 +60,11 @@ var pageSpecificStyles = function() {
   $(function() {
     pageSpecificStyles();
 
-
+    $("#contentWrapper").splitter({
+          type: "h", 
+              sizeTop: true,  /* use height set in stylesheet */
+                  accessKey: "P"
+                    });
     if (page == "home" ) {
       $("#loginBox").hide();
       $("#login").click(function(){
@@ -767,7 +776,16 @@ var startKeepAlive = function() {
   userKeepAlive();
   keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
 };
-
+var login = function() {
+    userService.login(user, function(response) {
+              if( response.status != "success" && response.code == 100 || response.status) {
+                    replaceFBLoginWithLogout();
+                          } else {
+                                bridgeError("user.login", response);
+                                      }
+                                            });
+      startKeepAlive();
+};
 var logout = function() {
   clearInterval(keepAliveId);
   console.log("Logging out");

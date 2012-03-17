@@ -13,7 +13,7 @@ var bDao;
 var ticker;
 var users = {};
 var rooms = {};
-var roomnames=[];
+var roomnames={};
 var LOGOFF_TIME = 30000;
 var Message = Model.Message;
 var SUCCESS_MESSAGE = new Message("success",null,1337);
@@ -94,45 +94,49 @@ bridge.ready(function(){
   var multi = {
     join:function(user,room,handler,callback){
        if (users[user.fbId] !== undefined) {
-       if (roomnames.indexOf(room)!=-1){
+       if (roomnames[room.name]!==undefined){
        } else {
-         roomnames.push(room);
-         rooms.room = new Room(room,room.password,handler);
-         bridge.joinChannel(room,
+         roomnames[room.name]=new Room(room.name,room.password);
+
+           bridge.joinChannel(room.name,
              {
-              chat:function(name,message){
-                console.log("["+room+"] "+name+": "+message);
+              chat:function(user,message){
+                console.log("["+room.name+"] "+user.username+": "+message);
               } 
+             },function(channel){
+             console.log(room,channel);
+              roomnames[room.name].channel = channel;
              }
          );
        }
-       rooms.room.join(users[user.fbId],room.password,function(obj){
+       roomnames[room.name].join(users[user.fbId],room.password,function(obj){
          if (obj.joined) {
-           bridge.joinChannel(room, handler, callback);
-           users[user.fbId].handler = handler;
-           console.log(users[user.fbId].username+" joined ["+room+"]");
+           users[user.fbId].rooms[room.name]= {room:roomnames[room.name],handler:handler};
+           bridge.joinChannel(room.name,handler);
+           console.log(users[user.fbId].username+" joined ["+room.name+"]");
+           console.log(roomnames);
          }  
        });
        } else {
          callback(new Message("failure","user must be logged in",200));
        }
      },
-    leave:function(user){
-        room = users[user.fbId].room.name;
-        if (roomnames.indexOf(room)==-1){
+    leave:function(user,room){
+        if (roomnames[room.name]!==undefined){
         } else {
-          rooms.room.leave(users[user.fbId],function(){});
-          if (rooms.room.users.length ==0){
-            delete rooms.room;
-            roomnames.pop(room); 
+          roomnames[room.name].leave(users[user.fbId],function(){});
+          if (roomnames[room.name].users.length ==0){
+            delete roomnames[room.name];
           }
         }
-        bridge.leaveChannel(room,users[user.fbId].handler,function(){
+        bridge.leaveChannel(room.name,users[user.fbId].rooms[room.name].handler,function(){
             });
-        users[user.fbId].handler=null;
+        delete users[user.fbId].rooms[room.name];
       },
-chat:function(user,message,callback){
-       users[user.fbId].handler.chat(user,message);
+chat:function(user,room,message,callback){
+       if (users[user.fbId].rooms[room.name]){
+         roomnames[room.name].channel.chat(user,message);
+       }
      },
 getRooms:function(callback){
            callback(rooms);
