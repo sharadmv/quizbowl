@@ -39,12 +39,15 @@ bridge.ready(function(){
   });
   bridge.getService('ticker',function(ticker){
     ticker.join({push:function(ticker) {
-      var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
-      j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
+      appendToTicker(ticker,true);
     },
       users:function(users){
               console.log(users);
             }
+    },function(curTicker){
+      for (var i in curTicker){
+        appendToTicker(curTicker[i],false);
+      }
     });
   });
   bridge.getService('multi',function(multi){
@@ -56,6 +59,15 @@ var bridgeError = function(message, e) {
   console.log(JSON.stringify(e));
 }
 
+var appendToTicker = function(ticker, animation){
+  var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
+  if (animation){
+    j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
+  } else {
+    j.prependTo("#tickerBox");
+  }
+
+}
 
 $(function() {
   pageSpecificStyles();
@@ -791,6 +803,9 @@ var login = function() {
   userService.login(user, function(response) {
     if( response.status != "success" && response.code == 100 || response.status) {
       joinChat();
+      for (var i in response.chats){
+        onChat(response.chats[response.chats.length-1-i].user,response.chats[response.chats.length-1-i].message);
+      }
       replaceFBLoginWithLogout();
     } else {
       bridgeError("user.login", response);
@@ -821,13 +836,15 @@ var joinChat = function() {
 var prevChat = null;
 var chatID = 0;
 var onChat = function(user, message) {
+  console.log("On chat");
   if (prevChat == null || !(prevChat.fbId == user.fbId)) {
     chatID++;
     var chat = $("<div></div>").addClass("chat");
     var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
     pfImage.tooltip({title: user.username});
     var chatText = $("<div id='chat"+chatID+"'></div>").addClass("chat-text");
-    var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
+    var chatContents = $("<div>"+message+"</div>").addClass("chat-contents");
+
     chatText.append(chatContents);
     chat.append(pfImage).append(chatText);
     chat.appendTo("#chatBox"); 
@@ -841,7 +858,8 @@ var onChat = function(user, message) {
 
 var tickerChat = function() {
   if ($("#chat-input").val().trim()!=""){
-    var message = $("#chat-input").val();
+    var message = $("#chat-input").val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     multiService.chat(user,{name:'lobby',password:''}, message);
     $("#chat-input").val("");
   }
