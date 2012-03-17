@@ -120,13 +120,16 @@ a {
   background-color: #ccc;
   cursor: pointer;
 }
-#userBox{
+#chatBox{
   height:50%;
-  background: blue;
   position: absolute;
   width: 100%;
   top: 50%
 }
+
+#pfImage {
+}
+
 
 #home-title {
   text-align: center;
