@@ -91,8 +91,8 @@ bridge.ready(function(){
       }
     }
   }
-  multi = {
-join:function(user,room,handler,callback){
+  var multi = {
+    join:function(user,room,handler,callback){
        if (users[user.fbId] !== undefined) {
        if (roomnames.indexOf(room)!=-1){
        } else {
