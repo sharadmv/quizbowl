@@ -828,7 +828,8 @@ var onChat = function(user, message) {
     var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
     pfImage.tooltip({title: user.username});
     var chatText = $("<div id='chat"+chatID+"'></div>").addClass("chat-text");
-    var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
+    var chatContents = $("<div>"+message+"</div>").addClass("chat-contents");
+
     chatText.append(chatContents);
     chat.append(pfImage).append(chatText);
     chat.appendTo("#chatBox"); 
@@ -842,8 +843,9 @@ var onChat = function(user, message) {
 
 var tickerChat = function() {
   if ($("#chat-input").val().trim()!=""){
-  var message = $("#chat-input").val();
-  multiService.chat(user,{name:'lobby',password:''}, message);
+  var message = $("#chat-input").val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      multiService.chat(user,{name:'lobby',password:''}, message);
   $("#chat-input").val("");
   }
 }
