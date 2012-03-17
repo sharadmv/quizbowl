@@ -13,6 +13,7 @@ User:function(name,email,fbId) {
        this.email = email;
        this.fbId = fbId;
        this.alive = true;
+       this.rooms = {}; 
      },
 Ticker:function(user, text){
          this.user = user;
@@ -26,7 +27,6 @@ Room:function(name,password,handler) {
          if (this.users.indexOf(user)==-1) {
            if (password==this.password){
             this.users.push(user);
-            user.room = this;
             callback({joined:true,'user':user.name,message:"joined ["+this.name+"] successfully"});
            } else {
              callback({joined:false,'user':user.name,message:"incorrect password"});
@@ -44,7 +44,6 @@ Room:function(name,password,handler) {
            callback({'user':user,message:"is not part of the room"});
          }
        }
-       this.handler = handler;
      },
 Game:function(room) {
        this.start = function(questions) {
