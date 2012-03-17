@@ -124,7 +124,7 @@ var pageSpecificStyles = function() {
         }
       });
     };
-    var show = true;
+    var show = false;
     var fullBodyContentWidth = $("#body-content").width();
     $("#tickerHide").click(function(){
 
@@ -142,11 +142,12 @@ var pageSpecificStyles = function() {
 
     });
 
-    $("#tickerWrapper").css({right:"-200px"});
     if (show) {
       $("#tickerHide").html("<");
+        $("#body-content").css({width: fullBodyContentWidth+"px"});
     } else { 
     $("#tickerHide").html(">");
+        $("#body-content").css({width: fullBodyContentWidth-200+"px"});
     }
   });
 
@@ -836,13 +837,15 @@ var onChat = function(user, message) {
     var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
     $("#chat"+chatID).append(chatContents);
   }
-  $("#chatBox").animate({scrollTop:$("#chatBox").height()},"0ms");
+  $("#chatBox").animate({scrollTop:$("#chatBox")[0].scrollHeight},"0ms");
 };
 
 var tickerChat = function() {
+  if ($("#chat-input").val().trim()!=""){
   var message = $("#chat-input").val();
   multiService.chat(user,{name:'lobby',password:''}, message);
   $("#chat-input").val("");
+  }
 }
 
 
