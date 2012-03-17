@@ -42,7 +42,8 @@ console.log(users);
 }
 });
                 });
-                        bridge.getService('multi',function(multi){
+                        bridge.getService('multi',function(obj){
+                                multi = obj;
                                 multi.join(user,'lobby',{chat:function(user,message){
                                         //what to do when receiving chat message from User and message
                                         }},function(room){
