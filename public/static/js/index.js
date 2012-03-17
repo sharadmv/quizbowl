@@ -44,7 +44,7 @@ bridge.ready(function(){
     bridge.getService('multi',function(multi){
       multi.join(user,'lobby',{chat:function(user,message){
         //what to do when receiving chat message from User and message
-      },function(room){
+      }},function(room){
         lobby = room; 
       });
     });
