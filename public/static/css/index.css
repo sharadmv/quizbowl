@@ -76,6 +76,9 @@ body {
   color: rgba(255, 255, 255, 1) !important;
 }
 
+.content {
+  padding-bottom: 60px;
+}
 
 /* Ticker */
 #tickerDisplay .hsplitbar {
@@ -114,13 +117,11 @@ body {
 #tickerWrapper{
   position:fixed;
   border-left:#ccc solid;
-  border-top:#ccc solid;
   background-color:white;
   right:0px;
-  top:40px;
+  top:0px;
   width: 200px;
   bottom:0px;
-  border-radius:2px;
 }
 
 #tickerDisplay {
