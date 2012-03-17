@@ -73,18 +73,11 @@ pre::-webkit-scrollbar-thumb {
 
 
 /* Ticker */
-#contentWrapper {
-  position:absolute !important;
-  top:0px;
-  left:0px;
-  width:100%;
-  height:100%;
-}
-#contentWrapper .hsplitbar {
+#tickerDisplay .hsplitbar {
   height: 6px;
   background: #cca url(hgrabber.gif) no-repeat center;
 }
-#contentWrapper.hsplitbar.active, #MySplitter .hsplitbar:hover {
+#tickerDisplay .hsplitbar.active, #tickerDisplay .hsplitbar:hover {
   background: #e88 url(hgrabber.gif) no-repeat center;
 }
 .ticker {
@@ -125,11 +118,10 @@ pre::-webkit-scrollbar-thumb {
 }
 
 #tickerDisplay {
-
-  position: absolute;
+  position: absolute !important;
   right: 0px;
   top: 0px;
-  width: 200px;
+  width: 100%;
   bottom: 30px;
 }
 
@@ -138,8 +130,14 @@ pre::-webkit-scrollbar-thumb {
   bottom: 0px;
 }
 
+#chat-icon {
+  position: absolute;
+  top: 10px;
+  left: 5px;
+}
 
 #chat-input {
+  padding-left: 20px;
   width: 200px;
   margin-bottom: 0;
 }

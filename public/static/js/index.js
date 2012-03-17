@@ -60,7 +60,13 @@ var pageSpecificStyles = function() {
   $(function() {
     pageSpecificStyles();
 
-    $("#contentWrapper").splitter({
+    $("#chat-input").keypress( function(e) {
+      if(e.keyCode == 13) {
+        tickerChat();
+      }
+    });
+
+    $("#tickerDisplay").splitter({
           type: "h", 
               sizeTop: true,  /* use height set in stylesheet */
                   accessKey: "P"
@@ -802,7 +808,7 @@ var logout = function() {
 /* Chat Code */
 
 var joinChat = function() {
-  multiService.join(user,'lobby',{chat: onChat},function(room){
+  multiService.join(user,{name:'lobby',password:''},{chat: onChat},function(room){
     window.lobby = room; 
   });
 };
@@ -817,6 +823,11 @@ var onChat = function(user, message) {
   chat.append(pfImage).append(chatText);
   chat.appendTo("#chatBox"); 
 };
+
+var tickerChat = function() {
+  var message = $("#chat-input").val();
+  multiService.chat(user,{name:'lobby',password:''}, message);
+}
 
 
 
