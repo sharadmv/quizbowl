@@ -841,9 +841,11 @@ var onChat = function(user, message) {
 };
 
 var tickerChat = function() {
+  if ($("#chat-input").val().trim()!=""){
   var message = $("#chat-input").val();
   multiService.chat(user,{name:'lobby',password:''}, message);
   $("#chat-input").val("");
+  }
 }
 
 
