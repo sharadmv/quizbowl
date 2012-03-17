@@ -78,10 +78,10 @@ var Dao = function(host, user, password, database){
             limitstring+= " order by rand()";
           } else {
             var num = Math.floor(Math.random()*totalcount);
-            if (query!=""){
+if (!(obj['answer']=="" && !(obj['difficulty']||obj['tournament']||obj['category']||obj['year']))){
               limitstring +=" order by rand() limit 1"; 
             } else {
-              query+=" t.id="+num;
+              query+=" and t.id="+num;
             }
           }
         }

@@ -9,7 +9,7 @@ Message:function(status, message, code){
        this.code = code;
         },
 User:function(name,email,fbId) {
-       this.name = name;
+       this.username = name;
        this.email = email;
        this.fbId = fbId;
        this.alive = true;
