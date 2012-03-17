@@ -39,8 +39,8 @@ var pageSpecificStyles = function() {
     });
     bridge.getService('ticker',function(ticker){
       ticker.join({push:function(ticker) {
-          var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> "+ticker.text+"</div></div>");
-          j.hide().prependTo("#tickerBox").slideDown(); 
+          var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
+          j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
       },
       users:function(users){
         console.log(users);
