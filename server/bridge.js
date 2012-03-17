@@ -19,9 +19,9 @@ var Message = Model.Message;
 var SUCCESS_MESSAGE = new Message("success",null,1337);
 bridge.ready(function(){
   console.log("Connected to Bridge");
-  tickerHandler = {
-    push:function(ticker){
-      console.log(ticker.user.username+" "+ticker.text);
+  ticker= {
+    join:function(handler){
+      bridge.joinChannel('ticker',handler);
     }
   }
   bDao = {
@@ -133,24 +133,30 @@ getRooms:function(callback){
            callback(rooms);
          }
   }
+  tickerHandler = {
+push:function(ticker){
+       console.log(ticker.user.username+" "+ticker.text);
+     }
+  }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);
   bridge.publishService("user",user);
   bridge.publishService("reader",reader);
   bridge.publishService("multi",multi);
+  bridge.publishService("ticker",ticker);
   console.log("published dao");
-    setInterval(function(){
-        console.log("Garbage collection of users:");
-        //looping backwards to avoid shifting list
-        for (var i in users){
-          console.log("Checking if alive still: "+users[i]);
-          if (users[i].alive){
-            users[i].alive = false;
-          } else {
-            logoff(users[i]);
-          }
-        }
-    },LOGOFF_TIME);
+  setInterval(function(){
+      console.log("Garbage collection of users:");
+      //looping backwards to avoid shifting list
+      for (var i=users.length-1;i>=0;i--){
+      console.log("Checking if alive still: "+users[i]);
+      if (users[i].alive){
+      users[i].alive = false;
+      } else {
+      logoff(users[i]);
+      }
+      }
+      },LOGOFF_TIME);
 });
 answer = function(user, answer, score) {
   console.log(arguments);
@@ -172,11 +178,11 @@ login = function(user, loggedIn, callback) {
 }
 logoff = function(user, callback) {
   if (users[user.fbId]){
-  delete users[user.fbId];
-  ticker.push(new Ticker(user, "<br/>logged off"));
-  if (callback) {
-    callback(SUCCESS_MESSAGE);
-  }
+    delete users[user.fbId];
+    ticker.push(new Ticker(user, "<br/>logged off"));
+    if (callback) {
+      callback(SUCCESS_MESSAGE);
+    }
   } else{ 
     if (callback) {
       callback(new Message("success","already logged out",100));
