@@ -120,12 +120,23 @@ a {
   background-color: #ccc;
   cursor: pointer;
 }
+//Chatroom
 #userBox{
   height:50%;
   background: blue;
   position: absolute;
   width: 100%;
   top: 50%
+}
+.chat {
+  margin-left:5px;
+  margin-right:5px;
+  margin-bottom:5px;
+  padding-top:5px;
+  margin-top:1px;
+  border-top:1px #EEE;
+  min-height:35px;
+  width:100%;
 }
 
 #home-title {
