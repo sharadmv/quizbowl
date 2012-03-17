@@ -276,7 +276,7 @@ pre::-webkit-scrollbar-thumb {
 
 .home-result-question {
   margin: 6px 0;
-  line-height: 1.6em;
+  line-height: 1.4em;
 }
 
 .home-result-answer {
@@ -362,7 +362,7 @@ pre::-webkit-scrollbar-thumb {
   cursor: pointer;
   display: inline;
   float: right;
-  font-size: 1.4em;
+  font-size: 1.1em;
   margin-right: 100px;
 }
 
@@ -393,7 +393,7 @@ input {
 
 #reader-text-wrapper {
   background: #fff;
-  width: 800px;
+  width: 750px;
   margin: 16px auto;
   height: 300px;
   border: 1px solid rgb(230, 230, 230);
@@ -437,13 +437,22 @@ input {
 
 #reader-controls {
   margin: 16px;
-  padding: 16px 30px 8px 30px;
+  padding: 16px 15px 8px 18px;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   font-size: 1.2em;
   background: white;
   border-radius: 5px;
   border: 1px solid #E6E6E6;
+  margin-right: 0;
 
+}
+
+#reader-controls-wrapper {
+  width: 283px;
+}
+
+#reader-right-wrapper {
+  width: 840px;
 }
 
 .reader-control {
@@ -499,6 +508,10 @@ input {
 }
 
 #reader-mass {
-  width: 1230px;
+  width: 1151px;
   margin: 0 auto;
+}
+
+#reader-right-wrapper {
+  margin-left: 0;
 }
