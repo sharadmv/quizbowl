@@ -787,11 +787,16 @@ var login = function() {
   userService.login(user, function(response) {
     if( response.status != "success" && response.code == 100 || response.status) {
       replaceFBLoginWithLogout();
+      joinChat();
     } else {
       bridgeError("user.login", response);
     }
   });
   startKeepAlive();
+};
+
+var joinChat = function() {
+
 };
 
 
