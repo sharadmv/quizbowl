@@ -63,8 +63,9 @@ var pageSpecificStyles = function() {
           var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
           if (animation){
           j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
-          } else P
+          } else {
           j.prependTo("#tickerBox");
+          }
 
   }
 
