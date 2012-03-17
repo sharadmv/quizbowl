@@ -804,8 +804,9 @@ var login = function() {
     userService.login(user, function(response) {
               if( response.status != "success" && response.code == 100 || response.status) {
               joinChat();
-              for (var i in response.chats){
-                  onChat(response.chats[i].user,response.chats[i].message);
+              console.log(response.chats);
+              for (var i=response.chats.length-1;i>=0;i--){
+              onChat(response.chats[i].user,response.chats[i].message);
               }
               replaceFBLoginWithLogout();
               } else {
@@ -858,10 +859,10 @@ var onChat = function(user, message) {
 
 var tickerChat = function() {
   if ($("#chat-input").val().trim()!=""){
-  var message = $("#chat-input").val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var message = $("#chat-input").val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-      multiService.chat(user,{name:'lobby',password:''}, message);
-  $("#chat-input").val("");
+    multiService.chat(user,{name:'lobby',password:''}, message);
+    $("#chat-input").val("");
   }
 }
 
