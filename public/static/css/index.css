@@ -12,8 +12,6 @@ a {
   display: inline-block;
 }
 
-#loginBox {
-}
 #nav {
   background-color: rgb(25, 104, 151);
   height: 40px;
@@ -99,9 +97,10 @@ a {
 }
 #tickerBox{
   width:100%;
-  height:100%;
+  height:50%;
   position: absolute;
   top: 0px;
+  overflow:scroll;
 }
 #tickerHide {
   background-color:#DBDBDB;
@@ -116,11 +115,29 @@ a {
   text-align:center;
   vertical-align:middle;
 }
-#tickerHide:hover{
-  background-color:#ccc;
-  cursor:pointer;
-}
 
+#tickerHide:hover{
+  background-color: #ccc;
+  cursor: pointer;
+}
+//Chatroom
+#userBox{
+  height:50%;
+  background: blue;
+  position: absolute;
+  width: 100%;
+  top: 50%
+}
+.chat {
+  margin-left:5px;
+  margin-right:5px;
+  margin-bottom:5px;
+  padding-top:5px;
+  margin-top:1px;
+  border-top:1px #EEE;
+  min-height:35px;
+  width:100%;
+}
 
 #home-title {
   text-align: center;
