@@ -495,6 +495,7 @@ var replaceStartWithBuzz = function() {
 };
 
 var buzzClick = function() {
+  $(document).unbind('keypress');
   $("#reader-buzz, #reader-skip").unbind('click');
   clearTimeout(buzzTimeout);
   $("#reader-buzz, #reader-skip").remove();
@@ -647,6 +648,7 @@ var skipQuestion = function() {
 
 var spacebarBind = function() {
   $(document).keypress(function(e) {
+    console.log("Spacebar pressed");
       if( e.which == 32 && !e.ctrlKey) {
       $(document).unbind('keypress');
       buzzClick();
