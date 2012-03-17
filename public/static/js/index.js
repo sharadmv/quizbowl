@@ -790,19 +790,20 @@ var startKeepAlive = function() {
 var login = function() {
     userService.login(user, function(response) {
               if( response.status != "success" && response.code == 100 || response.status) {
-                    replaceFBLoginWithLogout();
-                          } else {
-                                bridgeError("user.login", response);
-                                      }
-                                            });
-      startKeepAlive();
+              joinChat();
+              replaceFBLoginWithLogout();
+              } else {
+              bridgeError("user.login", response);
+              }
+              });
+    startKeepAlive();
 };
 var logout = function() {
   clearInterval(keepAliveId);
   console.log("Logging out");
   userService.logoff(user, function(e) {
-    console.log("User log off");
-  });
+      console.log("User log off");
+      });
   user = {};
   replaceLoginWithFBLogout();
 };
@@ -814,24 +815,34 @@ var logout = function() {
 
 var joinChat = function() {
   multiService.join(user,{name:'lobby',password:''},{chat: onChat},function(room){
-    window.lobby = room; 
-  });
+      window.lobby = room; 
+      });
 };
-
+var prevChat = null;
+var chatID = 0;
 var onChat = function(user, message) {
-  var chat = $("<div></div>").addClass("chat");
-  var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
-  pfImage.tooltip({title: user.username});
-  var chatText = $("<div></div>").addClass("chat-text");
-  var chatContents = $("<span>"+message+"</span>").addClass("chat-contents");
-  chatText.append(chatContents);
-  chat.append(pfImage).append(chatText);
-  chat.appendTo("#chatBox"); 
+  if (prevChat == null || !(prevChat.fbId == user.fbId)) {
+    chatID++;
+    var chat = $("<div></div>").addClass("chat");
+    var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
+    pfImage.tooltip({title: user.username});
+    var chatText = $("<div id='chat"+chatID+"'></div>").addClass("chat-text");
+    var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
+    chatText.append(chatContents);
+    chat.append(pfImage).append(chatText);
+    chat.appendTo("#chatBox"); 
+    prevChat = user;
+  } else {
+    var chatContents = $("<div>"+message+"</span>").addClass("chat-contents");
+    $("#chat"+chatID).append(chatContents);
+  }
+  $("#chatBox").animate({scrollTop:$("#chatBox").height()},"0ms");
 };
 
 var tickerChat = function() {
   var message = $("#chat-input").val();
   multiService.chat(user,{name:'lobby',password:''}, message);
+  $("#chat-input").val("");
 }
 
 
@@ -849,56 +860,56 @@ var chatNotFocused = function() {
 $(function() {
 
 
-  _.templateSettings = {
-    interpolate: /\<\@\=(.+?)\@\>/g,
-  evluate: /\<\@(.+?)\@\>/g
-  }
+    _.templateSettings = {
+interpolate: /\<\@\=(.+?)\@\>/g,
+evluate: /\<\@(.+?)\@\>/g
+}
 
-  Person = Backbone.Model.extend( {
-    validate: function(attr) {
-                if( attr.name == "Gerald" || attr.age < 10) {
-                  console.log("Incorrect user");
-                }
+Person = Backbone.Model.extend( {
+validate: function(attr) {
+if( attr.name == "Gerald" || attr.age < 10) {
+console.log("Incorrect user");
+}
 
-              },
-    default: {
-               name: 'Fetus',
-  age: 0,
-  children: []
-             },
-  initialize: function() {
-                this.bind("change:name", function() {
-                  var name = this.get("name");
-                  console.log("My new name is: " + name);
-                });
-                this.validate(this.attributes);
-
-
-              }
+},
+default: {
+name: 'Fetus',
+age: 0,
+children: []
+},
+initialize: function() {
+this.bind("change:name", function() {
+  var name = this.get("name");
+  console.log("My new name is: " + name);
   });
-  var person = new Person({name: "Thomas", age: 67, children: ['Ryan']});
-  var age = person.get('age');
-  var name = person.get('name');
-  var children = person.get('children');
-
-  SearchView = Backbone.View.extend({
-    initialize: function() {
-                  this.render();
-                },
-             render: function() {
-                       var variables = {search_label: "My Search"};
-                       //var template = _.template( $("#search_template").html(), {blah: "la"});
-                       //this.$el.html(template);
-                     },
-             events: {
-                       "click input[type=button]": "doSearch"
-
-                     },
-             doSearch: function(event) {
-                         console.log("Search for: " + $("#search_input").val());
-                       }
-  });
+this.validate(this.attributes);
 
 
-  searchView = new SearchView( {el: $("#search_container")});
+}
+});
+var person = new Person({name: "Thomas", age: 67, children: ['Ryan']});
+var age = person.get('age');
+var name = person.get('name');
+var children = person.get('children');
+
+SearchView = Backbone.View.extend({
+initialize: function() {
+this.render();
+},
+render: function() {
+var variables = {search_label: "My Search"};
+//var template = _.template( $("#search_template").html(), {blah: "la"});
+//this.$el.html(template);
+},
+events: {
+"click input[type=button]": "doSearch"
+
+},
+doSearch: function(event) {
+console.log("Search for: " + $("#search_input").val());
+}
+});
+
+
+searchView = new SearchView( {el: $("#search_container")});
 });
