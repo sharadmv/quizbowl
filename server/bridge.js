@@ -131,6 +131,9 @@ join:function(user,room,handler,callback){
             });
         users[user.fbId].handler=null;
       },
+chat:function(user,message,callback){
+       users[user.fbId].handler.chat(user,message);
+     },
 getRooms:function(callback){
            callback(rooms);
          }
