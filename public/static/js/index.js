@@ -60,7 +60,11 @@ var pageSpecificStyles = function() {
   $(function() {
     pageSpecificStyles();
 
-
+    $("#contentWrapper").splitter({
+          type: "h", 
+              sizeTop: true,  /* use height set in stylesheet */
+                  accessKey: "P"
+                    });
     if (page == "home" ) {
       $("#loginBox").hide();
       $("#login").click(function(){
