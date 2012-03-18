@@ -56,7 +56,6 @@ bridge.ready(function(){
               }
               $("#usersOnlineText").tooltip();
               $("#usersOnlineText").attr("data-original-title", userString);
-              console.log(userString);
             }
     },function(curTicker){
       for (var i in curTicker){
