@@ -49,6 +49,7 @@ bridge.ready(function(){
         login(user, true, function(obj) {
           if (callback) {
             obj.chats = curChats;
+            ticker.push(users);
             callback(obj);
           }
         });
@@ -205,7 +206,6 @@ login = function(user, loggedIn, callback) {
       console.log(user);
       delete users[user.fbId];
       ticker.push(new Ticker(user, "<br/>logged off"));
-      ticker.users(users);
       if (callback) {
         callback(SUCCESS_MESSAGE);
       }
