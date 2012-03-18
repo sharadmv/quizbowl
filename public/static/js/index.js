@@ -122,7 +122,6 @@ $(function() {
 
     $("#reader-start-question").click(onReaderStart);
     $(document).keypress( function(event) {
-      console.log(event);
       if (event.which == 32 && chatNotFocused()) {
         $(document).unbind('keypress');
         onReaderStart();
@@ -186,7 +185,6 @@ var homeSearch = function(obj) {
 var search = function(params) {
   var request = {};
   request.params = params;
-  console.log(request);
   jQuery.getJSON(baseURL + "/tossup.search?callback=?",request ,
       function(response) {
         $("#home-search-loading").css("visibility", "hidden");
@@ -563,7 +561,6 @@ var addSubmitAnswer = function() {
   clearInterval(curQuestion.intervalId);
   curQuestion.intervalId = undefined;
   $("#reader-input").keypress( function(event) {
-    console.log("About to submit answer");
     if (event.which == 13 && chatNotFocused()) {
       onSubmitInput();
     }
@@ -628,7 +625,6 @@ var loadAnswer = function() {
 }
 
 var onSubmitInput = function() {
-  console.log("Submiting");
   clearTimeout(buzzTimeout);
   $("#reader-input-submit").unbind('click');
   $("#reader-input").unbind('keypress');
@@ -704,7 +700,6 @@ var skipQuestion = function() {
 
 var spacebarBind = function() {
   $(document).keypress(function(e) {
-    console.log(e);
     if( e.keyCode == 32 && !e.shiftKey && chatNotFocused()) {
       $(document).unbind('keypress');
       buzzClick();
@@ -726,7 +721,6 @@ var checkAnswer = function(answer, rightAnswerCallback, wrongAnswerCallback) {
 
   jQuery.getJSON(baseURL + "/answer.check?callback=?", params,
       function(response) {
-        console.log("Score to send: " + score);
         if( response.value) {
           rightAnswerCallback();
         } else {
@@ -851,7 +845,6 @@ var joinChat = function() {
 var prevChat = null;
 var chatID = 0;
 var onChat = function(user, message) {
-  console.log("On chat");
   if (prevChat == null || !(prevChat.fbId == user.fbId)) {
     chatID++;
     var chat = $("<div></div>").addClass("chat");
@@ -892,6 +885,7 @@ var chatNotFocused = function() {
 
 
 
+/*
 $(function() {
 
 
@@ -948,3 +942,4 @@ evluate: /\<\@(.+?)\@\>/g
 
   searchView = new SearchView( {el: $("#search_container")});
 });
+*/
