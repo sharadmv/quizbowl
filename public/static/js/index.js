@@ -54,11 +54,8 @@ bridge.ready(function(){
                 userString += delimiter+users[i].username;
                 delimiter = "<br/>";
               }
-                
-              $("#usersOnlineText").tooltip();
-              $("#usersOnlineText").attr("title",userString);
               console.log(users);
-            }
+              }
     },function(curTicker){
       for (var i in curTicker){
         appendToTicker(curTicker[curTicker.length-1-i],false);
