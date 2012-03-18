@@ -55,7 +55,8 @@ bridge.ready(function(){
                 delimiter = "<br/>";
               }
                 
-              $("#usersOnlineText").tooltip({title: userString});
+              $("#usersOnlineText").tooltip();
+              $("#usersOnlineText").attr("title",userString);
               console.log(users);
             }
     },function(curTicker){
