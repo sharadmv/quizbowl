@@ -176,14 +176,24 @@ body {
   background-color: #ccc;
   cursor: pointer;
 }
-#chatBox{
-  height:50%;
+
+#usersOnline {
   position: absolute;
+  height: 25px;
+  width: 100%;
+  line-height: 25px;
+  padding: 0 10px;
+  font-family: "Helvetica Neue", Arial;
+}
+#chatBox{
   overflow-y:scroll;
   overflow-x:hidden;
+  position: absolute;
+  top: 25px;
   width: 100%;
-  top: 50%
+  bottom: 0;
 }
+
 .chat-contents {
   margin-bottom:5px;
   line-height:15px;

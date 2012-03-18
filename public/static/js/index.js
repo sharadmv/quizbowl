@@ -42,7 +42,7 @@ bridge.ready(function(){
       appendToTicker(ticker,true);
     },
       users:function(users){
-      
+              $("#usersOnline").html("Users Online"+ "(" +users.length+")");
               console.log(users);
             }
     },function(curTicker){
