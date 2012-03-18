@@ -42,11 +42,12 @@ bridge.ready(function(){
       appendToTicker(ticker,true);
     },
       users:function(users){
+      
               console.log(users);
             }
     },function(curTicker){
       for (var i in curTicker){
-        appendToTicker(curTicker[i],false);
+        appendToTicker(curTicker[curTicker.length-1-i],false);
       }
     });
   });
@@ -800,18 +801,19 @@ var startKeepAlive = function() {
   keepAliveId = setInterval(userKeepAlive, keepAliveDelay);
 };
 var login = function() {
-  userService.login(user, function(response) {
-    if( response.status != "success" && response.code == 100 || response.status) {
-      joinChat();
-      for (var i in response.chats){
-        onChat(response.chats[response.chats.length-1-i].user,response.chats[response.chats.length-1-i].message);
-      }
-      replaceFBLoginWithLogout();
-    } else {
-      bridgeError("user.login", response);
-    }
-  });
-  startKeepAlive();
+    userService.login(user, function(response) {
+              if( response.status != "success" && response.code == 100 || response.status) {
+              joinChat();
+              console.log(response.chats);
+              for (var i=response.chats.length-1;i>=0;i--){
+              onChat(response.chats[i].user,response.chats[i].message);
+              }
+              replaceFBLoginWithLogout();
+              } else {
+              bridgeError("user.login", response);
+              }
+              });
+    startKeepAlive();
 };
 var logout = function() {
   clearInterval(keepAliveId);
@@ -840,7 +842,7 @@ var onChat = function(user, message) {
   if (prevChat == null || !(prevChat.fbId == user.fbId)) {
     chatID++;
     var chat = $("<div></div>").addClass("chat");
-    var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
+    var pfImage = $("<div class='pf-image-wrapper'><img class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
     pfImage.tooltip({title: user.username});
     var chatText = $("<div id='chat"+chatID+"'></div>").addClass("chat-text");
     var chatContents = $("<div>"+message+"</div>").addClass("chat-contents");
