@@ -47,7 +47,15 @@ bridge.ready(function(){
                 count++;
               }
               window.users = users;
-              $("#usersOnline").html("Users Online"+ "(" +count+")");
+              $("#usersOnlineText").html("Users Online (" +count+")");
+              var userString = "";
+              var delimiter = "";
+              for( var i in users) {
+                userString += delimiter+users[i].username;
+                delimiter = "<br/>";
+              }
+                
+              $("#usersOnlineText").tooltip({title: userString});
               console.log(users);
             }
     },function(curTicker){
