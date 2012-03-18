@@ -192,11 +192,11 @@ login = function(user, loggedIn, callback) {
     if (!users[user.fbId]) {
       users[user.fbId] = new User(user.username,user.email,user.fbId);
       ticker.push(new Ticker(user, "<br/>logged in"));
-      ticker.users(users);
       callback(SUCCESS_MESSAGE);
     } else {
       callback(new Message("failure","already logged in",100));
     }
+    ticker.users(users);
   } else {
     callback(new Message("failure",null,201));
   }
@@ -206,6 +206,7 @@ login = function(user, loggedIn, callback) {
       console.log(user);
       delete users[user.fbId];
       ticker.push(new Ticker(user, "<br/>logged off"));
+    ticker.users(users);
       if (callback) {
         callback(SUCCESS_MESSAGE);
       }
