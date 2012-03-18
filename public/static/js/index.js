@@ -42,6 +42,7 @@ bridge.ready(function(){
       appendToTicker(ticker,true);
     },
       users:function(users){
+      
               console.log(users);
             }
     },function(curTicker){
@@ -841,7 +842,7 @@ var onChat = function(user, message) {
   if (prevChat == null || !(prevChat.fbId == user.fbId)) {
     chatID++;
     var chat = $("<div></div>").addClass("chat");
-    var pfImage = $("<div class='pf-image-wrapper'><img tooltip='blah' class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
+    var pfImage = $("<div class='pf-image-wrapper'><img class='pfImage'  src='https://graph.facebook.com/"+user.fbId+"/picture'/></div>");
     pfImage.tooltip({title: user.username});
     var chatText = $("<div id='chat"+chatID+"'></div>").addClass("chat-text");
     var chatContents = $("<div>"+message+"</div>").addClass("chat-contents");
