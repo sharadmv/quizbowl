@@ -106,6 +106,7 @@ body {
 .tickerText {
   vertical-align:middle;
   font-size:0.9em;
+  margin-right: 6px;
 }
 .tickerDescription{
   font-size:0.8em;
