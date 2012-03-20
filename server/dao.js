@@ -30,7 +30,6 @@ var Dao = function(host, user, password, database){
     });
   }
   this.tossup.search = function(temp, callback) {
-    console.log(temp);
 
     if (temp.params) {
       obj = temp.params;
@@ -57,30 +56,30 @@ var Dao = function(host, user, password, database){
       }
     }
     if (obj['tournament']!==undefined){
-      query = util.addQueryTerm(query,'t.tournament',obj['tournament'],'like');
+      query = util.addQueryTerm(query,'t.tournament',obj['tournament'],'=',true);
     }
     if (obj['round']!==undefined){
-      query = util.addQueryTerm(query,'t.round',obj['round'],'like');
+      query = util.addQueryTerm(query,'t.round',obj['round'],'=',true);
     }
     if (obj['year']!==undefined){
-      query = util.addQueryTerm(query,'t.year',obj['year'],'=');
+      query = util.addQueryTerm(query,'t.year',obj['year'],'=',false);
     }
     if (obj['category']!==undefined){
-      query = util.addQueryTerm(query,'t.category',obj['category'],'like');
+      query = util.addQueryTerm(query,'t.category',obj['category'],'=',true);
     }
     if (obj['questionNum']!==undefined){
-      query = util.addQueryTerm(query,'t.question_num',obj['questionNum'],'like');
+      query = util.addQueryTerm(query,'t.question_num',obj['questionNum'],'=',false);
     }
     if (obj['difficulty']!==undefined){
-      query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'like');
+      query = util.addQueryTerm(query,'t.difficulty',obj['difficulty'],'=',true);
     }
     limitstring = "";
     console.log(obj['random']);
     if (obj['random']=='true'){
       countstring = 'select count(id) from tossups t where '+query;
-      console.log(countstring);
       client.query(countstring, function(err, results, fields){
-        c = results[0]['count(*)'];
+        if (!err){
+        c = results[0]['count(id)'];
         var offset = Math.floor(Math.random()*c);
         var limit = '1';
         if (obj['limit']){
@@ -95,6 +94,9 @@ var Dao = function(host, user, password, database){
           callback({offset:0,results:[]});
           }
         });
+        } else {
+        console.log(err);
+        }
       });
     } else {	
     query += " group by t.pKey";
@@ -108,9 +110,8 @@ var Dao = function(host, user, password, database){
     } else {
       limitstring += " limit "+pageLength;
     }
-    querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept, sum(r.rating) as rating from tossups t left outer join ratings r on t.pKey = r.question where '+query+limitstring;
-    countstring = 'select count(*),sum(r.rating) from tossups t left outer join ratings r on t.pKey = r.question where '+query;
-    console.log(querystring);
+    querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept from tossups t where '+query+limitstring;
+    countstring = 'select count(*) from tossups t where '+query;
     client.query(countstring,function(err,results,fields){
       if (!err) {
         count = results.length;
@@ -342,7 +343,7 @@ var util = {
   escapeSql:function(str) {
     return str.replace(/'/g,"''").replace(/\\/g,'\\\\');
   },
-  addQueryTerm:function(str,param,value,comp){
+  addQueryTerm:function(str,param,value,comp,quotes){
     values = value.split("|");
     str += " and (";
     delimiter = "";
@@ -352,12 +353,12 @@ var util = {
         str+="((t.year = "+values[i].substring(0, 4).trim()+") and ";
         str+="(t.tournament like '%"+values[i].substring(5).trim().replace(/ /g,'%')+"%'))";
       } else {
-        if (comp=="="){
+        if (!quotes){
           separator = "";
         } else {
           separator = "'";
         }
-        str+="("+param+" "+comp+" "+separator+values[i].replace(/ /g,"%")+separator+")";
+        str+="("+param+" "+comp+" "+separator+values[i]+separator+")";
       }
       delimiter = " or ";
     }

@@ -19,9 +19,12 @@ app.enable('jsonp callback');
 app.set('view engine', 'ejs');
 app.set('views','../public/views/');
 app.listen(80);
+console.log("Server listening");
 app.get('/api/tossup.search', function (req,res){
     req.query = sanitize(req.query,["params"]);
+    var s = (new Date()).getTime();
     dao.tossup.search(req.query, function(result){
+      result.response = {time:-(s-(new Date()).getTime())};
       res.json(result);
       });
     });
