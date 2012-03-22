@@ -5,8 +5,6 @@ var Room = Model.Room;
 var Util = Model.Util;
 var Bridge = require('../bridge/lib/bridge.js').Bridge;
 var bridge = new Bridge({apiKey:"R+DPnfAq"});
-//var bridge=new Bridge({apiKey:"abcdefgh"});
-//var bridge = {ready:function(){}}
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
@@ -200,19 +198,19 @@ login = function(user, loggedIn, callback) {
   } else {
     callback(new Message("failure",null,201));
   }
-  }
-  logoff = function(user, callback) {
-    if (users[user.fbId]){
-      console.log(user);
-      delete users[user.fbId];
-      ticker.push(new Ticker(user, "<br/>logged off"));
+}
+logoff = function(user, callback) {
+  if (users[user.fbId]){
+    console.log(user);
+    delete users[user.fbId];
+    ticker.push(new Ticker(user, "<br/>logged off"));
     ticker.users(users);
-      if (callback) {
-        callback(SUCCESS_MESSAGE);
-      }
-    } else{ 
     if (callback) {
-      callback(new Message("success","already logged out",100));
+      callback(SUCCESS_MESSAGE);
     }
-    }
-    }
+  } else{ 
+  if (callback) {
+    callback(new Message("success","already logged out",100));
+  }
+  }
+}
