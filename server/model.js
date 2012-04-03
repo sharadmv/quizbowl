@@ -4,9 +4,9 @@ var natural= require('natural');
 natural.PorterStemmer.attach();
 var Model = {
 Message:function(status, message, code){
-       this.status = status;
-       this.message = message;
-       this.code = code;
+          this.status = status;
+          this.message = message;
+          this.code = code;
         },
 User:function(name,email,fbId) {
        this.username = name;
@@ -19,15 +19,25 @@ Ticker:function(user, text){
          this.user = user;
          this.text = text;
        },
-Room:function(name,password,handler) {
+Room:function(name,password,capacity) {
+       this.capacity = capacity;
        this.users = [];
        this.password=password;
        this.name = name;
-       this.join = function(user,password, callback) {
-         if (this.users.indexOf(user)==-1) {
-           if (password==this.password){
-            this.users.push(user);
-            callback({joined:true,'user':user.name,message:"joined ["+this.name+"] successfully"});
+       this.join = function(user,p, callback) {
+         var users = this.users;
+         var capacity = this.capacity;
+         if (users.indexOf(user)==-1) {
+           console.log('password');
+           if (p==password){
+             console.log(users,capacity);
+             if (Object.keys(users).length<capacity) {
+               console.log("joined");
+               users.push(user);
+               callback({joined:true,'user':user.name,message:"joined ["+this.name+"] successfully"});
+             } else {
+               callback({joined:false,'user':user.name,message:"room is full"});
+             }
            } else {
              callback({joined:false,'user':user.name,message:"incorrect password"});
            }
@@ -36,13 +46,23 @@ Room:function(name,password,handler) {
          }
        }
        this.leave = function(user, callback) {
-         if (this.users.indexOf(user)!=-1){
-           this.users.pop(user);
+         var inRoom = false;
+         var index = -1;
+         for (var i in users){
+           if (users[i].fbId == user.fbId) {
+             inRoom = true;
+             index = i;
+           }
+         }
+         if (inRoom) {
+           this.users.pop(index);
            user.room = null;
            callback({'user':user,message:"left ["+this.name+"] successfully"});
          } else {
            callback({'user':user,message:"is not part of the room"});
          }
+       }
+       this.start = function(difficulty, category, length) { 
        }
      },
 Game:function(room) {
@@ -51,20 +71,20 @@ Game:function(room) {
      },
 Util:{
 tidy:function(str){
-	var r = str.toLowerCase();
-	r = r.replace(new RegExp(/\r\t\n/g),"");
-        r = r.replace(new RegExp(/[àáâãäå]/g),"a");
-        r = r.replace(new RegExp(/æ/g),"ae");
-        r = r.replace(new RegExp(/ç/g),"c");
-        r = r.replace(new RegExp(/[èéêë]/g),"e");
-        r = r.replace(new RegExp(/[ìíîï]/g),"i");
-        r = r.replace(new RegExp(/ñ/g),"n");                
-        r = r.replace(new RegExp(/[òóôõö]/g),"o");
-        r = r.replace(new RegExp(/œ/g),"oe");
-        r = r.replace(new RegExp(/[ùúûü]/g),"u");
-        r = r.replace(new RegExp(/[ýÿ]/g),"y");
-        return r.trim();
-},
+       var r = str.toLowerCase();
+       r = r.replace(new RegExp(/\r\t\n/g),"");
+       r = r.replace(new RegExp(/[àáâãäå]/g),"a");
+       r = r.replace(new RegExp(/æ/g),"ae");
+       r = r.replace(new RegExp(/ç/g),"c");
+       r = r.replace(new RegExp(/[èéêë]/g),"e");
+       r = r.replace(new RegExp(/[ìíîï]/g),"i");
+       r = r.replace(new RegExp(/ñ/g),"n");                
+       r = r.replace(new RegExp(/[òóôõö]/g),"o");
+       r = r.replace(new RegExp(/œ/g),"oe");
+       r = r.replace(new RegExp(/[ùúûü]/g),"u");
+       r = r.replace(new RegExp(/[ýÿ]/g),"y");
+       return r.trim();
+     },
 checkAnswer:function(answer,canon,callback){
               answer = this.tidy(answer);
               canon = this.tidy(canon);

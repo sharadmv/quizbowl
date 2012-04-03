@@ -22,6 +22,7 @@ var dao, ticker;
 var user;
 var loginToggled = false;
 bridge = new Bridge({apiKey:"YkYztDEV"});
+bridge.connect();
 bridge.ready(function(){
   bridge.getService('dao',function(obj){
     window.daoService = obj;
@@ -838,7 +839,7 @@ var logout = function() {
 /* Chat Code */
 
 var joinChat = function() {
-  multiService.join(user,{name:'lobby',password:''},{chat: onChat},function(room){
+  multiService.join(user,{name:'lobby',password:'',capacity:9999999999},{chat: onChat},function(room){
     window.lobby = room; 
   });
 };

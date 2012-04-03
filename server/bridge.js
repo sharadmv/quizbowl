@@ -3,7 +3,8 @@ var Ticker = Model.Ticker;
 var User = Model.User;
 var Room = Model.Room;
 var Util = Model.Util;
-var Bridge = require('../bridge/lib/bridge.js').Bridge;
+var Bridge = require('../bridge-js/lib/bridge.js');
+console.log(Bridge);
 var bridge = new Bridge({apiKey:"R+DPnfAq"});
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
@@ -17,6 +18,7 @@ var Message = Model.Message;
 var curTicker = []
 var curChats = []
 var SUCCESS_MESSAGE = new Message("success",null,1337);
+bridge.connect();
 bridge.ready(function(){
   console.log("Connected to Bridge");
   ticker= {
@@ -99,11 +101,11 @@ bridge.ready(function(){
        if (users[user.fbId] !== undefined) {
        if (roomnames[room.name]!==undefined){
        } else {
-         roomnames[room.name]=new Room(room.name,room.password);
-
+         roomnames[room.name]=new Room(room.name,room.password,room.capacity);
            bridge.joinChannel(room.name,
              {
                chat:function(user,message){
+                console.log(user,message);
                  if (curChats.length > 10){
                    curChats.pop();
                  }
@@ -111,7 +113,7 @@ bridge.ready(function(){
                  console.log("["+room.name+"] "+user.username+": "+message);
                } 
              },function(channel){
-               console.log(room,channel);
+               console.log("I JOINED CHAT");
                roomnames[room.name].channel = channel;
              }
            );
@@ -141,12 +143,14 @@ bridge.ready(function(){
       delete users[user.fbId].rooms[room.name];
     },
     chat:function(user,room,message,callback){
+      console.log(user,room,message);
+      console.log(users);
       if (users[user.fbId].rooms[room.name]){
         roomnames[room.name].channel.chat(user,message);
       }
     },
     getRooms:function(callback){
-      callback(rooms);
+      callback(roomnames);
     }
   }
   tickerHandler = {
