@@ -21,90 +21,90 @@ app.set('views','../public/views/');
 app.listen(80);
 console.log("Server listening");
 app.get('/api/tossup.search', function (req,res){
-    req.query = sanitize(req.query,["params"]);
-    var s = (new Date()).getTime();
-    dao.tossup.search(req.query, function(result){
-      result.response = {time:-(s-(new Date()).getTime())};
-      res.json(result);
-      });
-    });
+  req.query = sanitize(req.query,["params"]);
+  var s = (new Date()).getTime();
+  dao.tossup.search(req.query, function(result){
+    result.response = {time:-(s-(new Date()).getTime())};
+    res.json(result);
+  });
+});
 app.get('/api/data', function(req,res){
-    req.query = sanitize(req.query,[]);
-    dao.data(function(result){
-      res.json(result);
-      });
-    });
+  req.query = sanitize(req.query,[]);
+  dao.data(function(result){
+    res.json(result);
+  });
+});
 app.get('/api/user.login', function(req,res) {
-    req.query = sanitize(req.query, ["username","password"]);
-    dao.user.login(req.query, function(result){
-      login(user, result, function(obj) {
-        res.json(obj);
-        }
-        );
-      });
-    });
-app.get('/api/user.logoff',function(req,res) {
-    req.query = sanitize(req.query,["username","password"]);
-    logoff(req.query,function(obj) {
+  req.query = sanitize(req.query, ["username","password"]);
+  dao.user.login(req.query, function(result){
+    login(user, result, function(obj) {
       res.json(obj);
-      });
-    });
+    }
+    );
+  });
+});
+app.get('/api/user.logoff',function(req,res) {
+  req.query = sanitize(req.query,["username","password"]);
+  logoff(req.query,function(obj) {
+    res.json(obj);
+  });
+});
 app.get('/api/user.create', function(req,res){
-    req.query = sanitize(req.query,["username","password"]);
-    dao.user.create(req.query, function(result){
-      if (result){
+  req.query = sanitize(req.query,["username","password"]);
+  dao.user.create(req.query, function(result){
+    if (result){
       res.json({message:"success"});
-      } else {
+    } else {
       res.json({message:"fail"});
-      }
-      });
-    });
+    }
+  });
+});
 app.get('/api/rating.add', function(req,res){
-    req.query = sanitize(req.query, ["username","question","value"]);
-    dao.rating.add(req.query, function(result){
-      if (result){
+  req.query = sanitize(req.query, ["username","question","value"]);
+  dao.rating.add(req.query, function(result){
+    if (result){
       res.json({message:"success"});
-      } else {
+    } else {
       res.json({message:"fail"});
-      }
-      }); 
-    });
+    }
+  }); 
+});
 app.get('/api/answer.spell', function(req,res) {
-    req.query = sanitize(req.query, ["text"]);
-    Util.spellcheck(req.query['text'],function(text) {
-      res.json({value:text});
-      });    
-    });
+  req.query = sanitize(req.query, ["text"]);
+  Util.spellcheck(req.query['text'],function(text) {
+    res.json({value:text});
+  });    
+});
 app.get('/api/answer.check', function(req,res){
-    req.query = sanitize(req.query, ["answer","canon"]);
-    Util.checkAnswer(req.query['answer'],req.query['canon'],function(obj){
-      res.json({value:obj});
-      });
-    });
+  req.query = sanitize(req.query, ["answer","canon"]);
+  Util.checkAnswer(req.query['answer'],req.query['canon'],function(obj){
+    res.json({value:obj});
+  });
+});
 app.get('/api/single.answer', function(req,res){
-    req.query = sanitize(req.query, ["username","answer","score","correct","pKey"]);
-    dao.single.answer(req.query, function(obj){
-      if (obj.correct){
+  req.query = sanitize(req.query, ["username","answer","score","correct","pKey"]);
+  dao.single.answer(req.query, function(obj){
+    if (obj.correct){
       answer(req.query.username, obj.answer, req.query.score);
-      }
-      res.json({message:"success"});
-      });
-    });
+    }
+    res.json({message:"success"});
+  });
+});
 app.get('/',function(req,res){
-    res.render('home', {
-current: 'home'
+  res.render('home', {
+    current: 'home'
+  });
 });
-    });
 app.get('/reader', function(req, res) {
-    res.render('reader', {
-current: 'reader'
+  res.render('reader', {
+    current: 'reader'
+  });
 });
-    });
 app.get('/multiplayer', function(req, res) {
-    res.render('multiplayer', {
-current: 'multiplayer'
+  res.render('multiplayer', {
+    current: 'multiplayer'
+  });
 });
-    });
 //Server Util Functions
 sanitize = function(obj, strings) {
   temp = {};

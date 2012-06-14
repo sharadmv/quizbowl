@@ -23,147 +23,147 @@ bridge.ready(function(){
   console.log("Connected to Bridge");
   ticker= {
     join:function(handler,callback){
-      bridge.joinChannel('ticker',handler);
-      callback(curTicker);
-    },
+           bridge.joinChannel('ticker',handler);
+           callback(curTicker);
+         },
   }
   bDao = {
     "tossup_get":function(pKey, callback) {
       dao.tossup.get(pKey, callback);
     },
-    "tossup_search":function(obj, callback){
-      dao.tossup.search(obj, function(result){
-        callback(result);
-      });
-    },
-    "tossup_search_java":function(obj,callback){
-      dao.tossup.search(obj,function(result){
-        callback.callback(result);
-      });
-    }
+  "tossup_search":function(obj, callback){
+    dao.tossup.search(obj, function(result){
+      callback(result);
+    });
+  },
+  "tossup_search_java":function(obj,callback){
+    dao.tossup.search(obj,function(result){
+      callback.callback(result);
+    });
+  }
   }
   var user = {
     login:function(user,callback){
-      dao.user.get(user.fbId,function(result) {
-      if (result.length == 1){
-        login(user, true, function(obj) {
-          if (callback) {
-            obj.chats = curChats;
-            ticker.push(users);
-            callback(obj);
-          }
-        });
-      } else {
-        dao.user.create(user,function(result){
-          if (result.status = "success") {
-            console.log(result);
-            login(user, true, function(obj) {
-              if (callback) {
-                callback(obj);
+            dao.user.get(user.fbId,function(result) {
+              if (result.length == 1){
+                login(user, true, function(obj) {
+                  if (callback) {
+                    obj.chats = curChats;
+                    ticker.push(users);
+                    callback(obj);
+                  }
+                });
+              } else {
+                dao.user.create(user,function(result){
+                  if (result.status = "success") {
+                    console.log(result);
+                    login(user, true, function(obj) {
+                      if (callback) {
+                        callback(obj);
+                      }
+                    });
+                  } else {
+
+                  }
+                });
               }
             });
-          } else {
-
-          }
-        });
-      }
-      });
-    },
+          },
     logoff:function(user, callback){
-      logoff(user,function(obj) {
-          if (callback){
-        callback(obj);
-        }
-      });
-    },
+             logoff(user,function(obj) {
+               if (callback){
+                 callback(obj);
+               }
+             });
+           },
     alive:function(user, callback){
-      users[user.fbId].alive = true;
-      if (callback) {
-        callback(SUCCESS_MESSAGE);
-      }
-    }
+            users[user.fbId].alive = true;
+            if (callback) {
+              callback(SUCCESS_MESSAGE);
+            }
+          }
   }
   var reader = {
     answer:function(user, score, callback) {
-      console.log("ANSWERING: "+user);
-      if (user.fbId!=null) {
-      dao.reader.answer(user,score, function(obj){
-          if (obj.action.correct){
-          answer(user, score.answer, score.score);
-          }
-          callback(SUCCESS_MESSAGE);
-          });
-      }
-    }
+             console.log("ANSWERING: "+user);
+             if (user.fbId!=null) {
+               dao.reader.answer(user,score, function(obj){
+                 if (obj.action.correct){
+                   answer(user, score.answer, score.score);
+                 }
+                 callback(SUCCESS_MESSAGE);
+               });
+             }
+           }
   }
   var multi = {
     join:function(user,room,handler,callback){
-       if (users[user.fbId] !== undefined) {
-       if (roomnames[room.name]!==undefined){
-       } else {
-         roomnames[room.name]=new Room(room.name,room.password,room.capacity);
-           bridge.joinChannel(room.name,
-             {
-               chat:function(user,message){
-                console.log(user,message);
-                 if (curChats.length > 10){
-                   curChats.pop();
-                 }
-                 curChats.unshift({user:user,message:message});
-                 console.log("["+room.name+"] "+user.username+": "+message);
-               } 
-             },function(channel){
-               console.log("I JOINED CHAT");
-               roomnames[room.name].channel = channel;
+           if (users[user.fbId] !== undefined) {
+             if (roomnames[room.name]!==undefined){
+             } else {
+               roomnames[room.name]=new Room(room.name,room.password,room.capacity);
+               bridge.joinChannel(room.name,
+                   {
+                     chat:function(user,message){
+                            console.log(user,message);
+                            if (curChats.length > 10){
+                              curChats.pop();
+                            }
+                            curChats.unshift({user:user,message:message});
+                            console.log("["+room.name+"] "+user.username+": "+message);
+                          } 
+                   },function(channel){
+                     console.log("I JOINED CHAT");
+                     roomnames[room.name].channel = channel;
+                   }
+                   );
              }
-           );
-       }
-       roomnames[room.name].join(users[user.fbId],room.password,function(obj){
-         if (obj.joined) {
-           users[user.fbId].rooms[room.name]= {room:roomnames[room.name],handler:handler};
-           bridge.joinChannel(room.name,handler);
-           console.log(users[user.fbId].username+" joined ["+room.name+"]");
-           console.log(roomnames);
-         }  
-       });
-       } else {
-         callback(new Message("failure","user must be logged in",200));
-       }
-    },
+             roomnames[room.name].join(users[user.fbId],room.password,function(obj){
+               if (obj.joined) {
+                 users[user.fbId].rooms[room.name]= {room:roomnames[room.name],handler:handler};
+                 bridge.joinChannel(room.name,handler);
+                 console.log(users[user.fbId].username+" joined ["+room.name+"]");
+                 console.log(roomnames);
+               }  
+             });
+           } else {
+             callback(new Message("failure","user must be logged in",200));
+           }
+         },
     leave:function(user,room){
-      if (roomnames[room.name]!==undefined){
-      } else {
-        roomnames[room.name].leave(users[user.fbId],function(){});
-        if (roomnames[room.name].users.length ==0){
-          delete roomnames[room.name];
-        }
-      }
-      bridge.leaveChannel(room.name,users[user.fbId].rooms[room.name].handler,function(){
-      });
-      delete users[user.fbId].rooms[room.name];
-    },
+            if (roomnames[room.name]!==undefined){
+            } else {
+              roomnames[room.name].leave(users[user.fbId],function(){});
+              if (roomnames[room.name].users.length ==0){
+                delete roomnames[room.name];
+              }
+            }
+            bridge.leaveChannel(room.name,users[user.fbId].rooms[room.name].handler,function(){
+            });
+            delete users[user.fbId].rooms[room.name];
+          },
     chat:function(user,room,message,callback){
-      console.log(user,room,message);
-      console.log(users);
-      if (users[user.fbId].rooms[room.name]){
-        roomnames[room.name].channel.chat(user,message);
-      }
-    },
+           console.log(user,room,message);
+           console.log(users);
+           if (users[user.fbId].rooms[room.name]){
+             roomnames[room.name].channel.chat(user,message);
+           }
+         },
     getRooms:function(callback){
-      callback(roomnames);
-    }
+               callback(roomnames);
+             }
   }
   tickerHandler = {
     push:function(ticker){
-      if (curTicker.length > 10){
-        curTicker.pop();
-      }
-      curTicker.unshift(ticker);
-      console.log(ticker.user.username+" "+ticker.text);
-    },
+           if (curTicker.length > 10){
+             curTicker.pop();
+           }
+           curTicker.unshift(ticker);
+           console.log(ticker.user.username+" "+ticker.text);
+         },
     users:function(users){
-      console.log(users);
-    }
+            console.log(users);
+          }
   }
   bridge.joinChannel("ticker", tickerHandler, function(channel){ticker = channel;console.log("joined ticker");});
   bridge.publishService("dao",bDao);
@@ -213,8 +213,8 @@ logoff = function(user, callback) {
       callback(SUCCESS_MESSAGE);
     }
   } else{ 
-  if (callback) {
-    callback(new Message("success","already logged out",100));
-  }
+    if (callback) {
+      callback(new Message("success","already logged out",100));
+    }
   }
 }
