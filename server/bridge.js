@@ -3,7 +3,7 @@ var Ticker = Model.Ticker;
 var User = Model.User;
 var Room = Model.Room;
 var Util = Model.Util;
-var Bridge = require('../bridge-js/lib/bridge.js');
+var Bridge = require('../bridge/lib/bridge.js');
 console.log(Bridge);
 var bridge = new Bridge({apiKey:"R+DPnfAq"});
 var Dao = require('./dao.js').Dao;
