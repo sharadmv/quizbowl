@@ -21,7 +21,7 @@ var curOffset;
 var dao, ticker;
 var user;
 var loginToggled = false;
-bridge = new Bridge({apiKey:"YkYztDEV"});
+bridge = new Bridge({apiKey:"40d13d4a"});
 bridge.connect();
 bridge.ready(function(){
   bridge.getService('dao',function(obj){
@@ -60,7 +60,7 @@ bridge.ready(function(){
             }
     },function(curTicker){
       for (var i in curTicker){
-        appendToTicker(curTicker[curTicker.length-1-i],false);
+        append(curTicker[curTicker.length-1-i],false);
       }
     });
   });
@@ -73,7 +73,18 @@ var bridgeError = function(message, e) {
   console.log(JSON.stringify(e));
 }
 
+var append = function(ticker, animation){
+  var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
+  if (animation){
+    j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
+  } else {
+    j.prependTo("#tickerBox");
+  }
+
+}
 var appendToTicker = function(ticker, animation){
+  console.log(ticker);
+  console.log("TICKER",ticker);
   var j = $("<div class='ticker'><div style=\"width:50px;height:50px;float:left;margin-right:5px;background-image:url('https://graph.facebook.com/"+ticker.user.fbId+"/picture')\"></div><div class='tickerText'><b>"+ticker.user.username+"</b> <span class='tickerDescription'>"+ticker.text+"</span></div></div>");
   if (animation){
     j.hide().prependTo("#tickerBox").slideDown({animate:"20000ms"}); 
@@ -752,7 +763,7 @@ var updateReaderSpeed = function() {
 
 var onFBInit = function() {
   FB.Event.subscribe('auth.login', onFBLogin);
-  FB.getLoginStatus( function() {
+  FB.getLoginStatus( function(response) {
     if( response.status === "connected") {
       onFBLogin();
     } else if( response.status === "not_authorized" ) {

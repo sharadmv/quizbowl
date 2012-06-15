@@ -3,9 +3,9 @@ var Ticker = Model.Ticker;
 var User = Model.User;
 var Room = Model.Room;
 var Util = Model.Util;
-var Bridge = require('../bridge/lib/bridge.js');
+var Bridge = require('bridge');
 console.log(Bridge);
-var bridge = new Bridge({apiKey:"R+DPnfAq"});
+var bridge = new Bridge({apiKey:"3083805b"});
 var Dao = require('./dao.js').Dao;
 var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
@@ -49,7 +49,7 @@ bridge.ready(function(){
                 login(user, true, function(obj) {
                   if (callback) {
                     obj.chats = curChats;
-                    ticker.push(users);
+                    ticker.users(users);
                     callback(obj);
                   }
                 });
