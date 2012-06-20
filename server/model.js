@@ -10,6 +10,12 @@ var init = function(app) {
           TOSSUP:"tossups",
           USER:"user"
         }
+      },
+      TAG:{
+        CHAT_SENT:"CHAT SENT",
+        ROOM_JOINED:"ROOM JOINED",
+        ROOM_CREATED:"ROOM CREATED",
+        SERVER_STARTED:"SERVER START"
       }
     },
     Dao : {
@@ -44,7 +50,7 @@ var init = function(app) {
             channelName,
             handler,
             function(cn, c){
-              console.log("Room Joined: ",channelName, user.name);
+              app.log(app.Constants.TAG.ROOM_JOINED, user.name,channelName);
               callback(cn, c);
             }
           );
@@ -60,7 +66,7 @@ var init = function(app) {
         }
         app.bridge.publishService(serviceName, this);
         app.bridge.getService(serviceName, callback);
-        console.log("Room Created: ",serviceName);
+        app.log(app.Constants.TAG.ROOM_CREATED, host.name, serviceName);
       }
     }
   }

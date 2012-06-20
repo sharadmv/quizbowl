@@ -1,22 +1,23 @@
 var init = function(app) {
   var express = require('express');
-  var app = express.createServer();
+  var application = express.createServer();
 
   var DEPLOY = {
+    crap:1357,
     test:1337,
     beta:8080,
     release:80
   }
 
-  app.get('/', function (req, res){
+  application.get('/', function (req, res){
     res.send('Hello World');
   });
 
   var server = {
     listen:function(deploy){
       var port = DEPLOY[deploy];
-      app.listen(DEPLOY[deploy]);
-      console.log("Server[",deploy,"] listening on: ",port);
+      application.listen(DEPLOY[deploy]);
+      app.log(app.Constants.TAG.SERVER_STARTED, "Listening", port+"");
     }
   }
   return server;
