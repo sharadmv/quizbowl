@@ -1,0 +1,60 @@
+<script>
+  page="home";
+</script>
+
+
+<div id="home-title-search">
+<div id="home-title">
+  Quizbowl DB
+</div>
+
+<div id="home-form"> 
+  <div id="home-search-field">
+    <input id="home-search-input" type="text" class="span8" placeholder="ex. Dickens"> 
+    <img id="home-search-loading" src="/img/ajax-loader.gif"/>
+  </div>
+  <div id="home-search-button" class="btn btn-large">Search</div>
+</div>
+</div>
+<div id="home-advance">
+<form class="form-inline" class="display-inline-block">
+  <div id="home-category" class="home-advance-param">
+  <label>Category</label>
+  <select multiple="multiple" id="home-advance-category">
+  </select>
+  </div> 
+
+  <div id="home-difficulty" class="home-advance-param">
+  <label>Difficulty</label>
+  <select multiple="multiple" id="home-advance-difficulty">
+  </select>
+  </div>
+
+  <div id="home-loc" class="home-advance-param">
+  <label>Keyword Location</label> 
+  <select multiple="multiple" id="home-advance-loc">
+  </select>
+  </div>
+
+
+  <div id="home-year"class="home-advance-param">
+  <label> Year </label>
+  <select multiple="multiple" id="home-advance-year">
+  </select>
+  </div>
+
+  <div id="home-tournament" class="home-advance-param">
+  <label>Tournament</label>
+  <select multiple="multiple" id="home-advance-tournament">
+  </select>
+  </div>
+</form>
+</div>
+<div id="home-result-wrapper">
+  <div class="row-fluid">
+      <div id="home-results-wrapper" class="span12">
+        <div id="home-results">
+        </div>
+      </div>
+  </div>
+</div>

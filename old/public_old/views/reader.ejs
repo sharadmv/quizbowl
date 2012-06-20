@@ -1,0 +1,62 @@
+<script>
+  page = "reader";
+</script>
+<div id="home-advance">
+<form class="form-inline" class="display-inline-block">
+  <div id="home-category" class="home-advance-param">
+  <label>Category</label>
+  <select multiple="multiple" id="home-advance-category">
+  </select>
+  </div> 
+
+  <div id="home-difficulty" class="home-advance-param">
+  <label>Difficulty</label>
+  <select multiple="multiple" id="home-advance-difficulty">
+  </select>
+  </div>
+
+  <div id="home-loc" class="home-advance-param">
+  <label>Keyword Location</label> 
+  <select multiple="multiple" id="home-advance-loc">
+  </select>
+  </div>
+
+
+  <div id="home-year"class="home-advance-param">
+  <label> Year </label>
+  <select multiple="multiple" id="home-advance-year">
+  </select>
+  </div>
+
+  <div id="home-tournament" class="home-advance-param">
+  <label>Tournament</label>
+  <select multiple="multiple" id="home-advance-tournament">
+  </select>
+  </div>
+</form>
+</div>
+
+<div id="reader-mass" class="row">
+<div id="reader-controls-wrapper" class="span4">
+<div id="reader-controls">
+<div id="reader-score-wrapper" class="reader-control">Score: <span id="reader-score">0</span></div>
+<div id="reader-speed" class="reader-control">Reader Text Speed: <input id="reader-speed-input" type="range" min="0" max="100" value="50"/></div>
+<button id="reader-toggle-difficulty" class="btn btn-info reader-control">Hide Difficulty</button>
+<button id="reader-toggle-category" class="btn btn-info reader-control">Show Category</button>
+</div>
+
+</div>
+
+<div class="span11" id="reader-right-wrapper">
+<div class="well" id="reader-text-wrapper">
+Get started by pressing the "Start Question" button.
+</div>
+<div id="reader-bottom-wrapper">
+<div id="reader-feedback-text"></div>
+<div id="reader-bottom">
+<button id="reader-start-question" class="btn-primary btn">Start Question (Space)</button>
+<img id="reader-question-loading" src="/img/ajax-loader.gif"/>
+</div>
+</div>
+</div>
+</div>
