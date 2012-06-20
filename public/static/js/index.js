@@ -21,7 +21,7 @@ var curOffset;
 var dao, ticker;
 var user;
 var loginToggled = false;
-bridge = new Bridge({apiKey:"40d13d4a"});
+bridge = new Bridge({apiKey:"08c83c72"});
 bridge.connect();
 bridge.ready(function(){
   bridge.getService('dao',function(obj){

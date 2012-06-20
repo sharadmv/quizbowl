@@ -21,7 +21,7 @@ var Dao = function(host, user, password, database){
   this.rating = {};
   this.reader= {};
   this.tossup.get = function(pKey, callback){
-    client.query("select * from tossups where pKey='"+util.escapeSql(pKey)+"'", function(err, result, field){
+    client.query("select * from tossups where pKey='"+pKey+"'", function(err, result, field){
       if (!err) {
         callback(result[0]);
       } else {
@@ -76,16 +76,16 @@ var Dao = function(host, user, password, database){
     limitstring = "";
     console.log(obj['random']);
     if (obj['random']=='true'){
-      countstring = 'select count(id) from tossups t where '+query;
+      countstring = 'select count(*) from tossups t where '+query;
       client.query(countstring, function(err, results, fields){
         if (!err){
-          c = results[0]['count(id)'];
+          c = results[0]['count(*)'];
           var offset = Math.floor(Math.random()*c);
           var limit = '1';
           if (obj['limit']){
             limit = obj['limit'];
           }
-          querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept from tossups t where '+query+' limit '+limit+' offset '+offset;
+          querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category from tossups t where '+query+' limit '+limit+' offset '+offset;
           client.query(querystring,function selectCb(err,results,fields){
             if (!err) {
               callback({'count':limit,'offset':offset,'results':results});
@@ -110,7 +110,7 @@ var Dao = function(host, user, password, database){
       } else {
         limitstring += " limit "+pageLength;
       }
-      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category, t.accept from tossups t where '+query+limitstring;
+      querystring = 'select t.tournament,t.year,t.question, t.answer, t.round, t.question_num, t.difficulty, t.pKey,t.category from tossups t where '+query+limitstring;
       countstring = 'select count(*) from tossups t where '+query;
       client.query(countstring,function(err,results,fields){
         if (!err) {
@@ -240,6 +240,7 @@ var Dao = function(host, user, password, database){
 }
 var util = {
   escapeSql:function(str) {
+              console.log(str);
               return str.replace(/'/g,"''").replace(/\\/g,'\\\\');
             },
   addQueryTerm:function(str,param,value,comp,quotes){
