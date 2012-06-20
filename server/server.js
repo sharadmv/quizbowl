@@ -13,7 +13,9 @@ app.get('/', function (req, res){
 
 var server = {
   listen:function(deploy){
+    var port = DEPLOY[deploy];
     app.listen(DEPLOY[deploy]);
+    console.log("Server[",deploy,"] listening on: ",port);
   }
 }
 
