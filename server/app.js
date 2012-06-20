@@ -1,8 +1,11 @@
 var bridge = require('./bridge.js');
 var Model = require('./model.js');
-var model = new Model(bridge);
 var server = require('./server.js');
+var Dao = require('./dao.js');
 
+
+var model = new Model(bridge);
+var dao = new Dao(
 
 //temporary stuff
 var user = new Model.Dao.User(1, "Sharad Vikram", "4", "bousheesnaw@gmail.com", new Date());
