@@ -11,4 +11,10 @@ app.get('/', function (req, res){
 	res.send('Hello World');
 });
 
-app.listen(DEPLOY[process.argv[2]]);
+var server = {
+  listen:function(deploy){
+    app.listen(DEPLOY[deploy]);
+  }
+}
+
+module.exports = server;
