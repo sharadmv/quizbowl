@@ -9,7 +9,8 @@ var init = function(app) {
     release:80
   }
 
-  application.get('/', function (req, res){
+  application.get('/*', function (req, res){
+    app.log(app.Constants.Tag.SERVER, ["GET", req.url, JSON.stringify(req.query)]);
     res.send('Hello World');
   });
 
@@ -17,7 +18,7 @@ var init = function(app) {
     listen:function(deploy){
       var port = DEPLOY[deploy];
       application.listen(DEPLOY[deploy]);
-      app.log(app.Constants.TAG.SERVER_STARTED, "Listening", port+"");
+      app.log(app.Constants.Tag.SERVER, ["Listening on", port]);
     }
   }
   return server;

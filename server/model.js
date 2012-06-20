@@ -7,15 +7,16 @@ var init = function(app) {
       },
       Dao:{
         Table:{
-          TOSSUP:"tossups",
+          TOSSUP:"tossup",
+          TOURNAMENT:"tournament",
           USER:"user"
         }
       },
-      TAG:{
-        CHAT_SENT:"CHAT SENT",
-        ROOM_JOINED:"ROOM JOINED",
-        ROOM_CREATED:"ROOM CREATED",
-        SERVER_STARTED:"SERVER START"
+      Tag:{
+        DAO:"DAO",
+        MULTIPLAYER:"MULTIPLAYER",
+        BRIDGE:"BRIDGE",
+        SERVER:"SERVER"
       }
     },
     Dao : {
@@ -25,6 +26,16 @@ var init = function(app) {
         this.fbId = fbId;
         this.email = email;
         this.created = created;
+      },
+      Tossup:function(id, year, tournament, round, difficulty, category, question, answer) {
+        this.id = id;
+        this.year = year;
+        this.tournament = tournament;
+        this.round = round;
+        this.difficulty = difficulty;
+        this.category = category;
+        this.question = question;
+        this.answer = answer;
       }
     },
     Multiplayer : {
@@ -50,7 +61,7 @@ var init = function(app) {
             channelName,
             handler,
             function(cn, c){
-              app.log(app.Constants.TAG.ROOM_JOINED, user.name,channelName);
+              app.log(app.Constants.Tag.MULTIPLAYER, [user.name,"joined",channelName]);
               callback(cn, c);
             }
           );
@@ -66,7 +77,7 @@ var init = function(app) {
         }
         app.bridge.publishService(serviceName, this);
         app.bridge.getService(serviceName, callback);
-        app.log(app.Constants.TAG.ROOM_CREATED, host.name, serviceName);
+        app.log(app.Constants.Tag.MULTIPLAYER, [host.name,"created",serviceName]);
       }
     }
   }

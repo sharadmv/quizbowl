@@ -3,18 +3,27 @@ var server = require('./server.js')(this);
 var model = require('./model.js')(this);
 var Dao = require('./dao.js')(this);
 
-var app = this;
+app = this;
 app.model = model;
 app.bridge = bridge;
-
-app.log = function(tag, name, value) {
-  console.log("["+tag+"]","\t",name,"\t",":", "\t",value);
-}
 app.Constants = model.Constants;
+
+app.log = function(tag, message) {
+  console.log("["+tag+"]","\t\t",message.join(" "));
+}
 
 var dao = new Dao("localhost", "quizbowl", "", "quizbowl");
 
 //start temporary
+dao.tossup.get(5, function(tossup){
+});
+dao.tossup.search({
+  condition:"answer",
+  value:"dickens",
+  params:{
+  }
+}, function(tossups) {
+});
 dao.user.get(5,function(user){
   var Room = model.Multiplayer.Room;
   var room;
@@ -22,7 +31,7 @@ dao.user.get(5,function(user){
     room.join(
       user, 
       new Room.Handler(function(user, message) {
-        app.log(app.Constants.TAG.CHAT_SENT,user.name,message);
+        app.log(app.Constants.Tag.MULTIPLAYER, [user.name, ":", message]);
       }),
       function(channel,name) {
         channel.chat(user, "Hello World");
