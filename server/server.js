@@ -11,7 +11,10 @@ var init = function(app) {
 
   application.get('/*', function (req, res){
     app.log(app.Constants.Tag.SERVER, ["GET", req.url, JSON.stringify(req.query)]);
-    res.send('Hello World');
+    app.util.remote.get("https://graph.facebook.com/sharadmv", function(result){
+      app.log(app.Constants.Tag.SERVER, result);
+      res.send(result);
+    });
   });
 
   var server = {

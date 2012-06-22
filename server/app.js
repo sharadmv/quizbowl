@@ -8,6 +8,7 @@ app.model = require('./model.js')(this);
 app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox");
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
+app.util = require('./util.js')(this);
 
 app.Constants = app.model.Constants;
 
