@@ -11,8 +11,8 @@ var init = function(app) {
 
   application.get('/*', function (req, res){
     app.log(app.Constants.Tag.SERVER, ["GET", req.url, JSON.stringify(req.query)]);
-    app.util.remote.get("https://graph.facebook.com/sharadmv", function(result){
-      app.log(app.Constants.Tag.SERVER, result);
+    app.util.remote.get("https://graph.facebook.com/sharadmv?access_token="+req.query.access_token, function(result){
+      res.contentType('text/json');
       res.send(result);
     });
   });
