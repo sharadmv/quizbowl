@@ -1,31 +1,43 @@
-var bridge = require('./bridge.js')(this);
-var server = require('./server.js')(this);
-var model = require('./model.js')(this);
-var Dao = require('./dao.js')(this);
+var app = this;
 
-app = this;
-app.model = model;
-app.bridge = bridge;
-app.Constants = model.Constants;
+var users = {};
+
+app.bridge = require('./bridge.js')(this);
+app.server = require('./server.js')(this);
+app.model = require('./model.js')(this);
+app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "quizbowl");
+
+app.Constants = app.model.Constants;
 
 app.log = function(tag, message) {
   console.log("["+tag+"]","\t\t",message.join(" "));
 }
+app.login = function(userToken) {
+}
+app.logout = function(userToken){
+}
+app.getUsers = function(){
+  return users;
+}
 
-var dao = new Dao("localhost", "quizbowl", "", "quizbowl");
+if (process.argv[2]) {
+  app.server.listen(process.argv[2]);
+} else {
+  app.server.listen("test");
+}
 
-//start temporary
-dao.tossup.get(5, function(tossup){
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+app.dao.tossup.get(5, function(tossup){
 });
-dao.tossup.search({
+app.dao.tossup.search({
   condition:"answer",
   value:"dickens",
   params:{
   }
 }, function(tossups) {
 });
-dao.user.get(5,function(user){
-  var Room = model.Multiplayer.Room;
+app.dao.user.get(5,function(user){
+  var Room = app.model.Multiplayer.Room;
   var room;
   new Room("main",user, function(room) {
     room.join(
@@ -39,10 +51,4 @@ dao.user.get(5,function(user){
     );
   });
 });
-//end temporary
-
-if (process.argv[2]) {
-  server.listen(process.argv[2]);
-} else {
-  server.listen("test");
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
