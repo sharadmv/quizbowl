@@ -9,7 +9,7 @@ app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox"
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
-console.log(app.util);
+console.log(app);
 
 app.Constants = app.model.Constants;
 
@@ -39,7 +39,6 @@ app.dao.tossup.search({
   params:{
   }
 }, function(tossups) {
-  console.log(tossups);
 });
 app.dao.user.get(5,function(user){
   var Room = app.model.Multiplayer.Room;

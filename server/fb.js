@@ -1,5 +1,8 @@
 var init = function(app) {
-  this.me = function(token, callback){
+  var fb = {
+    me : function(token, callback){
+    }
   }
+  return fb;
 }
 module.exports = init;

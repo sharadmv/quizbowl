@@ -1,5 +1,8 @@
 var init = function(app) {
-  this.onAuthentication = function(callback) {
+  var auth = {
+    onAuthentication : function(callback) {
+    }
   }
+  return auth;
 }
 module.exports = init;
