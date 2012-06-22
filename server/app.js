@@ -37,6 +37,7 @@ app.dao.tossup.search({
   params:{
   }
 }, function(tossups) {
+  console.log(tossups);
 });
 app.dao.user.get(5,function(user){
   var Room = app.model.Multiplayer.Room;
