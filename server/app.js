@@ -6,6 +6,8 @@ app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
 app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "quizbowl");
+app.auth = require('./auth.js')(this);
+app.fb= require('./fb.js')(this);
 
 app.Constants = app.model.Constants;
 
