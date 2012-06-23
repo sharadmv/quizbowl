@@ -1,11 +1,13 @@
-var express = require('express');
-var app = express.createServer();
+var init = function(app) {
+  var express = require('express');
+  var application = express.createServer();
 
-var DEPLOY = {
-  test:1337,
-  beta:8080,
-  release:80
-}
+  var DEPLOY = {
+    crap:1357,
+    test:1337,
+    beta:8080,
+    release:80
+  }
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
@@ -29,8 +31,11 @@ app.get('/multiplayer', function (req, res) {
 
 var server = {
   listen:function(deploy){
-    app.listen(DEPLOY[deploy]);
+    var port = DEPLOY[deploy];
+    application.listen(DEPLOY[deploy]);
+    app.log(app.Constants.Tag.SERVER, ["Listening on", port]);
   }
 }
-
-module.exports = server;
+return server;
+}
+module.exports = init;

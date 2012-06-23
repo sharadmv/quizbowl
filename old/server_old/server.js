@@ -9,7 +9,6 @@ var Util = Model.Util;
 //var bridge=new Bridge({apiKey:"abcdefgh"});
 //var bridge = {ready:function(){}}
 var Dao = require('./dao.js').Dao;
-var dao = new Dao('localhost','root','narsiodeyar1','quizbowl');
 var bDao;
 var app = express.createServer();
 var ticker;
