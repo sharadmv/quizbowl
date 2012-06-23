@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>Quizbowl DB</title>
+    <script type="text/javascript" src="http://getbridge.com/js/bridge.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+		<meta http-equiv="Content-Language" content="en-us">
+    <script>
+      var bridge = new Bridge({apiKey:"08c83c72"});
+      bridge.connect();
+      console.log(bridge);
+      bridge.getService("quizbowl-getRooms",function(obj){
+        obj.createRoom(5,function(o) {
+          room = o;
+          room.join(5,
+            {
+              onChat:function(user, message) {
+                console.log(user, message);
+              },
+              onNewWord:function(word) {
+                $('#text').append(word+" ");
+              },
+              onSystemBroadcast:function(message){
+                console.log("SYSTEM: "+message);
+              },
+              onBuzz:function(user, message){
+                console.log(user, "BUZZED IN");
+              }
+            },
+            function(handler) {
+              window.handler = handler;
+            }
+          );
+        });
+      });
+      $(document).ready(function(){
+        $("#buzz").click(function(){
+          console.log("BUZZED");
+          handler.buzz();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="menu">
+      </div>
+      <%-body%>
+    </div>
+  </body>
+
+</html>
