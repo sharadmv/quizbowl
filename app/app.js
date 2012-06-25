@@ -47,8 +47,8 @@ app.bridge.publishService("quizbowl-getRooms", {
   }
 });
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-app.login(5,function(user){
   /*
+app.login(5,function(user){
   var Room = app.model.Multiplayer.Room;
   var room = new Room("main",user.id, {}, function(room) {
     room.join(
@@ -66,6 +66,6 @@ app.login(5,function(user){
     );
     rooms.push(room);
   });
-  */
 });
+  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
