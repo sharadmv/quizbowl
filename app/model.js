@@ -65,7 +65,7 @@ var init = function(app) {
           return false;
         }
         this.sit = function(user, callback) {
-          if (!game.started) {
+          if (!room.game.started) {
             if (players.length < max) {
               if (!this.contains(user)){
                 if (room.getUserToTeam()[user]) {
@@ -131,6 +131,7 @@ var init = function(app) {
         var host = host;
         var created = new Date();
         var game = new Model.Multiplayer.Game(room);
+        this.game = game;
 
         var users = [];
         var userToTeam = {};
@@ -140,7 +141,7 @@ var init = function(app) {
 
         Model.Multiplayer.Room.ChannelHandler = function(properties){
           this.onChat = function(user, message) {
-            properties.onChat(user, message);
+            properties.onChat(app.getUsers()[user], message);
           }
           this.onSystemBroadcast = function(message) {
             properties.onSystemBroadcast(message);
@@ -185,7 +186,6 @@ var init = function(app) {
             channel.onChat(user, message);
           }
           this.buzz = function() {
-            console.log(game);
             game.buzz(user);
           }
           this.answer = function(answer, callback) {
@@ -198,7 +198,7 @@ var init = function(app) {
             if (teams[team]) {
               var sat = teams[team].sit(user, callback);
               if (sat) {
-                channel.onSit(user, team);
+                channel.onSit(app.getUsers()[user], team);
               }
             } else {
               callback(false);
@@ -212,7 +212,7 @@ var init = function(app) {
             channelName,
             handler,
             function(){
-              app.log(app.Constants.Tag.MULTIPLAYER, [user,"joined",channelName]);
+              app.log(app.Constants.Tag.MULTIPLAYER, [app.getUsers()[user].name,"joined",channelName]);
               onJoin(new Model.Multiplayer.Room.ServiceHandler(user));
             }
           );
@@ -224,7 +224,7 @@ var init = function(app) {
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
             } else {
               app.dao.user.get(user, function(u) {
-                app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u]);
+                app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u.name]);
               });
             }
           }
@@ -285,8 +285,7 @@ var init = function(app) {
             onStartQuestion : function() {
             },
             onBuzz : function(user) {
-              app.log(app.Constants.Tag.MULTIPLAYER, [user, "buzzed in"]);
-              channel.onSystemBroadcast(user, "buzzed in");
+              app.log(app.Constants.Tag.MULTIPLAYER, [user.name, "buzzed in"]);
             },
             onNewWord : function(word) {
             },
@@ -299,13 +298,13 @@ var init = function(app) {
             onFinish : function() {
             },
             onSit : function(user, team) {
-              app.log(app.Constants.Tag.MULTIPLAYER, [user, "sat on Team",team]);
+              app.log(app.Constants.Tag.MULTIPLAYER, [user.name, "sat on Team",team]);
             }
           }), function(c) {
             channel = c;
             app.bridge.getService(serviceName, function(obj){
               onCreate(obj);
-              app.log(app.Constants.Tag.MULTIPLAYER, [host,"created",serviceName]);
+              app.log(app.Constants.Tag.MULTIPLAYER, [app.getUsers()[host].name,"created",serviceName]);
             });
           }
         );
@@ -330,7 +329,7 @@ var init = function(app) {
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
             currentUser = user;
-            room.getChannel().onBuzz(user);
+            room.getChannel().onBuzz(app.getUsers()[user]);
             team.buzzed = true;
             pauseReading();
             answerTimeout = setTimeout(answerTimeout, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
@@ -346,9 +345,11 @@ var init = function(app) {
                 callback(obj); 
               }
               if (obj) {
+                room.getChannel().onAnswer(app.getUsers()[user],"answered correctly with "+answer);
                 room.getChannel().onCompleteQuestion(currentTossup);
                 nextQuestion();
               } else {
+                room.getChannel().onAnswer(app.getUsers()[user],"answered incorrectly with "+answer);
                 if (numBuzzes == numTeams) {
                   nextQuestion();
                 } else {
@@ -391,6 +392,7 @@ var init = function(app) {
             console.log(tossupLength, index);
             if (!(tossupLength == index)) {
               index++;
+              numBuzzes = 0;
               currentTossup = curTossups[index];
               curWords = curTossups[index].question.split(" ");
               count = curWords.length;
@@ -421,8 +423,6 @@ var init = function(app) {
           },500);
         }
         var answerTimeout = function(){
-          room.getChannel().onSystemBroadcast("TIMED OUT");
-          console.log(numBuzzes, numTeams);
           if (numBuzzes == numTeams) {
             nextQuestion();
           } else {

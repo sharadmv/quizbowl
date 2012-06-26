@@ -20,45 +20,49 @@
         bridge.connect();
         console.log(bridge);
         var handler = 
-                {
-                  onChat:function(user, message) {
-                    console.log(user, message);
-                  },
-                  onNewWord:function(word) {
-                    $('#text').append(word+" ");
-                  },
-                  onSystemBroadcast:function(message){
-                    console.log("SYSTEM: "+message);
-                  },
-                  onBuzz:function(user, message){
-                    console.log(user, "BUZZED IN");
-                  },
-                  onSit:function(user, team) {
-                    console.log(user+" sat on "+team);
-                  },
-                  onStartQuestion:function(){
-                    $("#text").html("");
-                  },
-                  onCompleteQuestion:function(question) {
-                    $('#text').html(question.question+"<br />ANSWER: "+question.answer);
-                  }
-                };
+          {
+            onChat:function(user, message) {
+              console.log(user, message);
+            },
+            onAnswer:function(user, message){
+              console.log(user, message);
+              console.log(user.name+" "+message);
+            },
+            onNewWord:function(word) {
+              $('#text').append(word+" ");
+            },
+            onSystemBroadcast:function(message){
+              console.log("SYSTEM: "+message);
+            },
+            onBuzz:function(user, message){
+              console.log(user.name, "BUZZED IN");
+            },
+            onSit:function(user, team) {
+              console.log(user.name+" sat on "+team);
+            },
+            onStartQuestion:function(){
+              $("#text").html("");
+            },
+            onCompleteQuestion:function(question) {
+              $('#text').html(question.question+"<br />ANSWER: "+question.answer);
+            }
+        };
         bridge.getService("quizbowl-auth",function(auth){
-          auth.login(FB.getAccessToken(), function(blah){
+          var token = FB.getAccessToken();
+          auth.login(token, function(user){
             bridge.getService('quizbowl-multiplayer', function(obj) {
-            console.log(blah);
             obj.getRooms(function(rooms){
               if (rooms.length > 0) {
-                rooms[0].join(blah.id,
+                rooms[0].join(token,
                   handler,
                   function(handler) {
                     window.handler = handler;
                   }
                 );
               } else {
-                obj.createRoom(blah.id,function(o) {
+                obj.createRoom(token,function(o) {
                   room = o;
-                  o.join(blah.id,
+                  o.join(token,
                     handler,
                     function(handler) {
                       window.handler = handler;
@@ -85,7 +89,6 @@
           window.handler.buzz();
         });
         $("#answer").keypress(function(event) {
-          console.log(event);
           if ( event.which == 13 ) {
             window.handler.answer($("#answer").val(), function(right) {
               $("#response").val(right+"");

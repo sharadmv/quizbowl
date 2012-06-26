@@ -2,20 +2,19 @@ var init = function(app) {
 	var auth = {
 		handler: {
 			login:function(userToken, callback){
-              console.log(userToken);
-              console.log(app.fb);
-
         app.fb.me(userToken, function(fbObject) {
-          console.log(fbObject);
-          var user = app.dao.user.getFromFB(userToken, function(user) {
-            if (user === null) {
-              // id, name, fbId, email, created
-              user = new app.model.Dao.User(null, name, fbId, email, null);
+          if (fbObject.id) {
+            app.dao.user.getFromFB(fbObject.id, function(user) {
+              if (user == null) {
+                user = new app.model.Dao.User(null, fbObject.name, fbObject.id, fbObject.email, null);
+              }
               app.dao.user.save(user);
-            }
-            app.getUsers()[userToken]=user;
-            callback(user);
-          });
+              app.getUsers()[userToken]=user;
+              callback(user);
+            });
+          } else {
+            callback(null);
+          }
         });
       }
     }
