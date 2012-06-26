@@ -1,6 +1,11 @@
 var init = function(app) {
   var auth = {
-    onAuthentication : function(callback) {
+    handler: {
+      login:function(userToken, callback){
+        //do fb query here to get userId; then query DAO for user object
+        app.getUsers()[userToken]=user;
+        callback(user);
+      }
     }
   }
   return auth;

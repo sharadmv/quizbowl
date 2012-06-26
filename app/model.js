@@ -11,11 +11,20 @@ var init = function(app) {
         Table:{
           TOSSUP:"tossup",
           TOURNAMENT:"tournament",
-          USER:"user" } }, Tag:{
-        DAO:"DAO",
-        MULTIPLAYER:"MULTIPLAYER",
-        BRIDGE:"BRIDGE",
+          USER:"user" 
+        } 
+      }, 
+      Tag:{
+        DAO:"DAO", MULTIPLAYER:"MULTIPLAYER", BRIDGE:"BRIDGE",
         SERVER:"SERVER"
+      },
+      Multiplayer:{
+        GAME_TYPE_FFA:"ffa",
+        GAME_TYPE_TEAM:"ffa",
+        Game:{
+          ANSWER_TIMEOUT: 10000,
+          QUESTION_TIMEOUT: 5000
+        }
       }
     },
     Dao : {
@@ -38,16 +47,91 @@ var init = function(app) {
       }
     },
     Multiplayer : {
+      Team:function(id, max, room) {
+        var players = [];
+        this.buzzed = false;
+        this.leave = function(user, callback) {
+          if (room.getUserToTeam()[user] == id) {
+            players.splice(players.indexOf(user), 1);
+            var ret = delete room.getUserToTeam()[user];
+            if (callback) {
+              callback(ret);
+            } 
+            return ret;
+          }
+          if (callback) {
+            callback(false);
+          }
+          return false;
+        }
+        this.sit = function(user, callback) {
+          if (players.length < max) {
+            if (!this.contains(user)){
+              if (room.getUserToTeam()[user]) {
+                room.getTeams()[room.getUserToTeam()[user]].leave(user);
+              }
+              room.getUserToTeam()[user] = id;
+              players.push(user);
+              if (callback) {
+                callback(true);
+              }
+              return true;
+            }
+          }
+          if (callback) {
+            callback(false);
+          }
+          return false;
+        } 
+        this.contains = function(user) {
+          if (players.indexOf(user) != -1) {
+            return true;
+          } else {
+            return false;
+            }
+        }
+        this.getId = function(callback){
+          if (callback) {
+            callback(id);
+          }
+          return id;
+        }
+        this.getPlayers = function(callback) {
+          if (callback) {
+            callback(players);
+          }
+          return players;
+        }
+      },
       Room:function(name, host, properties, onCreate) {
         var room = this; 
 
         var game;
+        var teams = {};
+        
+        //set up properties
+        if (!properties.type) {
+          properties.type = app.Constants.Multiplayer.GAME_TYPE_FFA;
+          properties.maxOccupancy = 10;
+        }
+        if (properties.type == app.Constants.Multiplayer.GAME_TYPE_FFA) {
+          for (var i = 0; i <  properties.maxOccupancy; i++){
+            var team = new Model.Multiplayer.Team(i+1, 1, room);
+            teams[i+1] = team; 
+          }
+        } else if (properties.type == app.Constants.Multiplayer.GAME_TYPE_TEAM) {
+          for (var i = 0; i <  properties.numTeams; i++){
+            var team = new Model.Multiplayer.Team(i+1, properties.teamLimit, room);
+            teams[i+1] = team; 
+          }
+        }
 
         var name = name;
         var host = host;
         var created = new Date();
 
         var users = [];
+        var userToTeam = {};
         var channel;
         var channelName = Model.Constants.Bridge.ROOM_CHANNEL_PREFIX+name;
         var serviceName = Model.Constants.Bridge.ROOM_SERVICE_PREFIX+name;
@@ -86,6 +170,9 @@ var init = function(app) {
           this.onFinish = function() {
             properties.onFinish();
           }
+          this.onSit = function(user, team) {
+            properties.onSit(user, team);
+          }
         }
 
         Model.Multiplayer.Room.ServiceHandler = function(user){
@@ -93,13 +180,23 @@ var init = function(app) {
             channel.onChat(user, message);
           }
           this.buzz = function() {
-            channel.onBuzz(user);
+            game.buzz(user);
           }
-          this.answer = function(answer) {
-            channel.onAnswer(user, answer);
+          this.answer = function(answer, callback) {
+            game.answer(user, answer, callback);
           }
           this.leave = function() {
             channel.onLeave(user);
+          }
+          this.sit = function(team, callback) {
+            if (teams[team]) {
+              var sat = teams[team].sit(user, callback);
+              if (sat) {
+                channel.onSit(user, team);
+              }
+            } else {
+              callback(false);
+            }
           }
         }
 
@@ -148,11 +245,23 @@ var init = function(app) {
           }
           return users;
         }
+        this.getUserToTeam = function(callback){
+          if (callback) {
+            callback(userToTeam);
+          }
+          return userToTeam;
+        }
         this.getChannel = function(callback){
           if (callback) {
             callback(channel);
           }
           return channel;
+        }
+        this.getTeams = function(callback) {
+          if (callback) {
+            callback(teams);
+          }
+          return teams;
         }
         app.bridge.publishService(serviceName, room);
         app.bridge.joinChannel(channelName, 
@@ -170,7 +279,6 @@ var init = function(app) {
             onBuzz : function(user) {
               app.log(app.Constants.Tag.MULTIPLAYER, [user, "buzzed in"]);
               channel.onSystemBroadcast(user, "buzzed in");
-              game.pauseReading();
             },
             onNewWord : function(word) {
             },
@@ -181,6 +289,9 @@ var init = function(app) {
             onQuestionTimeout : function(){
             },
             onFinish : function() {
+            },
+            onSit : function(user, team) {
+              app.log(app.Constants.Tag.MULTIPLAYER, [user, "sat on Team",team]);
             }
           }), function(c) {
             channel = c;
@@ -194,29 +305,66 @@ var init = function(app) {
       Game:function(room, callback) {
         var game = this;
         var gameTimer; 
-
-        this.pauseReading = function(){
+        var currentUser;
+        var currentTossup;
+        var curWords;
+        var answerTimeout;
+        var buzzed = false;
+        var count;
+        this.buzz = function(user){
+          var team = room.getTeams()[room.getUserToTeam()[user]];
+          if (team && !team.buzzed) {
+            currentUser = user;
+            room.getChannel().onBuzz(user);
+            team.buzzed = true;
+            pauseReading();
+            answerTimeout = setTimeout(answerTimeout, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
+            buzzed = true;
+          }
+        }
+        this.answer = function(user, answer, callback) {
+          if (buzzed && user == currentUser) {
+            clearTimeout(answerTimeout);
+            app.util.question.check(answer,currentTossup.answer, function(obj) {
+              callback(obj);
+              resumeReading()
+            });
+          }
+        }
+        var start = function(){
+          app.dao.tossup.search(
+            {
+              value:'dickens',
+              params:{
+              }
+            },
+            function(tossups) {
+              currentTossup = tossups[0];
+              curWords = tossups[0].question.split(" ");
+              count = curWords.length;
+              resumeReading();
+            }
+          );
+        }
+        var pauseReading = function(){
           clearInterval(gameTimer);
         }
-        app.dao.tossup.search(
-          {
-            value:'dickens',
-            params:{
+        var resumeReading = function() {
+          buzzed = false;
+          gameTimer = setInterval(function(){
+            if (count >= 1) {
+              room.getChannel().onNewWord(curWords[curWords.length-count]);
+              count--;
+            } else {
+              clearInterval(gameTimer);
             }
-          },
-          function(tossups) {
-            var tossup = tossups[0].question.split(" ");
-            var count = tossup.length;
-            gameTimer = setInterval(function(){
-              if (count >= 1) {
-                room.getChannel().onNewWord(tossup[tossup.length-count]);
-                count--;
-              } else {
-                clearInterval(gameTimer);
-              }
-            },500);
-          }
-        );
+          },500);
+        }
+        var answerTimeout = function(){
+          room.getChannel().onSystemBroadcast("TIMED OUT");
+          resumeReading();
+        }
+        start();
       }
     }
   }

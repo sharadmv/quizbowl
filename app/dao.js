@@ -30,7 +30,7 @@ var init = function(app) {
         });
       },
       getFromFB:function(fbId, callback) {
-        app.log(app.Constants.Tag.DAO, ["user.getFromFB", id]);
+        app.log(app.Constants.Tag.DAO, ["user.getFromFB", fbId]);
         client.query(""+"SELECT id, username, fb_id, email, timestamp FROM "+Constants.Table.USER+" WHERE fb_id=?",[fbId], function(err, rows, fields) {
           if (err) throw err;
           if (rows.length == 0) {
