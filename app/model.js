@@ -324,7 +324,15 @@ var init = function(app) {
         var tossupLength;
         var index = 0;
         var numBuzzes = 0;
-        var numTeams = 0;
+        var getNumTeams = function(){
+          var c = 0;
+          for (var i in room.getTeams()) {
+            if (room.getTeams()[i].getPlayers().length > 0) {
+              c++;
+            }
+          }
+          return c;
+        }
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
@@ -350,7 +358,7 @@ var init = function(app) {
                 nextQuestion();
               } else {
                 room.getChannel().onAnswer(app.getUsers()[user],"answered incorrectly with "+answer);
-                if (numBuzzes == numTeams) {
+                if (numBuzzes == getNumTeams()) {
                   nextQuestion();
                 } else {
                   resumeReading()
@@ -360,11 +368,6 @@ var init = function(app) {
           }
         }
         this.start = function(){
-          for (var i in room.getTeams()) {
-            if (room.getTeams()[i].getPlayers().length > 0) {
-              numTeams++;
-            }
-          }
           started = true;
           app.dao.tossup.search(
             {
@@ -423,7 +426,7 @@ var init = function(app) {
           },500);
         }
         var answerTimeout = function(){
-          if (numBuzzes == numTeams) {
+          if (numBuzzes == getNumTeams()) {
             nextQuestion();
           } else {
             resumeReading()
