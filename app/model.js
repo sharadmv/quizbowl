@@ -389,7 +389,7 @@ var init = function(app) {
             console.log(tossupLength, index);
             if (!(tossupLength == index)) {
               index++;
-              count = 0;
+              count = 1;
               currentTossup = curTossups[index];
               curWords = curTossups[index].question.split(" ");
               resumeReading();
