@@ -393,7 +393,7 @@ var init = function(app) {
           setTimeout(function(){
             room.getChannel().onStartQuestion();
             console.log(tossupLength, index);
-            if (!(tossupLength == index)) {
+            if (!(tossupLength == index+1)) {
               index++;
               numBuzzes = 0;
               currentTossup = curTossups[index];
@@ -404,7 +404,7 @@ var init = function(app) {
                 room.getTeams()[i].buzzed = false;
               }
             } else {
-
+              app.deleteRoom(room.getName());
             }
           }, 5000);
         }

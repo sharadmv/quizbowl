@@ -12,7 +12,7 @@ app.util = require('./util.js')(this);
 
 app.Constants = app.model.Constants;
 
-var rooms = [];
+var rooms = {};
 app.log = function(tag, message) {
   console.log("["+tag+"]","\t\t",message.join(" "));
 }
@@ -31,7 +31,7 @@ app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user, callback) {
     var Room = app.model.Multiplayer.Room;
     var room = new Room("main",user, {}, function(room) {
-      rooms.push(room);
+      rooms["main"] = room;
       callback(room);
     });
   },
@@ -39,6 +39,9 @@ app.bridge.publishService("quizbowl-multiplayer", {
     callback(rooms);
   }
 });
+app.deleteRoom = function(name) {
+  delete rooms[name];
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /*
 app.login(5,function(user){

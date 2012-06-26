@@ -49,11 +49,19 @@
         };
         bridge.getService("quizbowl-auth",function(auth){
           var token = FB.getAccessToken();
+          window.token = token
           auth.login(token, function(user){
+            window.user = user;
             bridge.getService('quizbowl-multiplayer', function(obj) {
             obj.getRooms(function(rooms){
-              if (rooms.length > 0) {
-                rooms[0].join(token,
+              var length = 0;
+              var name = '';
+              for (var i in rooms){
+                name = i;
+                length++;
+              }
+              if (length > 0) {
+                rooms[name].join(token,
                   handler,
                   function(handler) {
                     window.handler = handler;
@@ -65,6 +73,8 @@
                   o.join(token,
                     handler,
                     function(handler) {
+                      handler.sit(1);
+                      room.start(token);
                       window.handler = handler;
                     }
                   );
@@ -85,7 +95,6 @@
       }(document));
       $(document).ready(function(){
         $("#buzz").click(function(){
-          console.log("BUZZED");
           window.handler.buzz();
         });
         $("#answer").keypress(function(event) {
