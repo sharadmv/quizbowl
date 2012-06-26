@@ -216,7 +216,7 @@ var init = function(app) {
           );
         }
         this.start = function(user) {
-          if (!game) {
+          if (!game.started) {
             if (user == host) {
               game.start();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
