@@ -106,7 +106,6 @@ var init = function(app) {
       Room:function(name, host, properties, onCreate) {
         var room = this; 
 
-        var game;
         var teams = {};
         
         //set up properties
@@ -129,6 +128,7 @@ var init = function(app) {
         var name = name;
         var host = host;
         var created = new Date();
+        var game = new Model.Multiplayer.Game(room);
 
         var users = [];
         var userToTeam = {};
@@ -217,8 +217,8 @@ var init = function(app) {
         this.start = function(user) {
           if (!game) {
             if (user == host) {
+              game.start();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
-              game = new Model.Multiplayer.Game(room);
             } else {
               app.dao.user.get(user, function(u) {
                 app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u]);
@@ -360,7 +360,7 @@ var init = function(app) {
             });
           }
         }
-        var start = function(){
+        this.start = function(){
           started = true;
           app.dao.tossup.search(
             {
@@ -427,7 +427,6 @@ var init = function(app) {
             resumeReading()
           }
         }
-        start();
       }
     }
   }
