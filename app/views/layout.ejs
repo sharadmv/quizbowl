@@ -72,8 +72,9 @@
           window.handler.buzz();
         });
         $("#answer").keypress(function(event) {
+          console.log(event);
           if ( event.which == 13 ) {
-            handler.answer($("#target").val(), function(right) {
+            window.handler.answer($("#answer").val(), function(right) {
               $("#response").val(right+"");
             });
           }
