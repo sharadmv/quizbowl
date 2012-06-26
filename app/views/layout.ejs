@@ -41,6 +41,12 @@
                   },
                   onSit:function(user, team) {
                     console.log(user+" sat on "+team);
+                  },
+                  onStartQuestion:function(){
+                    $("#text").html("");
+                  },
+                  onCompleteQuestion:function(question) {
+                    $('#text').html(question.question+"<br />ANSWER: "+question.answer);
                   }
                 },
                 function(handler) {
@@ -64,6 +70,14 @@
         $("#buzz").click(function(){
           console.log("BUZZED");
           window.handler.buzz();
+        });
+        $("#answer").keypress(function(event) {
+          console.log(event);
+          if ( event.which == 13 ) {
+            window.handler.answer($("#answer").val(), function(right) {
+              $("#response").val(right+"");
+            });
+          }
         });
       });
     </script>

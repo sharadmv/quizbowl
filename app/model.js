@@ -20,7 +20,7 @@ var init = function(app) {
       },
       Multiplayer:{
         GAME_TYPE_FFA:"ffa",
-        GAME_TYPE_TEAM:"ffa",
+        GAME_TYPE_TEAM:"team",
         Game:{
           ANSWER_TIMEOUT: 10000,
           QUESTION_TIMEOUT: 5000
@@ -149,8 +149,8 @@ var init = function(app) {
           this.onLeave = function(user) {
             properties.onLeave(user);
           }
-          this.onStart = function() {
-            properties.onStart();
+          this.onStartQuestion = function() {
+            properties.onStartQuestion();
           }
           this.onBuzz = function(user) {
             properties.onBuzz(user);
@@ -172,6 +172,9 @@ var init = function(app) {
           }
           this.onSit = function(user, team) {
             properties.onSit(user, team);
+          }
+          this.onCompleteQuestion = function(question) {
+            properties.onCompleteQuestion(question);
           }
         }
 
@@ -206,19 +209,21 @@ var init = function(app) {
             channelName,
             handler,
             function(){
-              app.log(app.Constants.Tag.MULTIPLAYER, [user.name,"joined",channelName]);
+              app.log(app.Constants.Tag.MULTIPLAYER, [user,"joined",channelName]);
               onJoin(new Model.Multiplayer.Room.ServiceHandler(user));
             }
           );
         }
         this.start = function(user) {
-          if (user == host) {
-            app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
-            game = new Model.Multiplayer.Game(room);
-          } else {
-            app.dao.user.get(user, function(u) {
-              app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u.name]);
-            });
+          if (!game) {
+            if (user == host) {
+              app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
+              game = new Model.Multiplayer.Game(room);
+            } else {
+              app.dao.user.get(user, function(u) {
+                app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u]);
+              });
+            }
           }
         }
         this.getName = function(callback){
@@ -274,7 +279,7 @@ var init = function(app) {
             },
             onLeave : function(user) {
             },
-            onStart : function() {
+            onStartQuestion : function() {
             },
             onBuzz : function(user) {
               app.log(app.Constants.Tag.MULTIPLAYER, [user, "buzzed in"]);
@@ -297,7 +302,7 @@ var init = function(app) {
             channel = c;
             app.bridge.getService(serviceName, function(obj){
               onCreate(obj);
-              app.log(app.Constants.Tag.MULTIPLAYER, [host.name,"created",serviceName]);
+              app.log(app.Constants.Tag.MULTIPLAYER, [host,"created",serviceName]);
             });
           }
         );
@@ -310,7 +315,19 @@ var init = function(app) {
         var curWords;
         var answerTimeout;
         var buzzed = false;
+        var started = false;
         var count;
+        var curTossups;
+        var tossupNumber;
+        var tossupLength;
+        var index = 0;
+        var numBuzzes = 0;
+        var numTeams = 0;
+        for (var i in room.getTeams()) {
+          if (room.getTeams()[i].getPlayers().length > 0) {
+            numTeams++;
+          }
+        }
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
@@ -320,18 +337,30 @@ var init = function(app) {
             pauseReading();
             answerTimeout = setTimeout(answerTimeout, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
             buzzed = true;
+            numBuzzes++;
           }
         }
         this.answer = function(user, answer, callback) {
           if (buzzed && user == currentUser) {
             clearTimeout(answerTimeout);
             app.util.question.check(answer,currentTossup.answer, function(obj) {
-              callback(obj);
-              resumeReading()
+              if (callback) {
+                callback(obj); 
+              }
+              if (obj) {
+                room.getChannel().onCompleteQuestion(currentTossup);
+              } else {
+                if (numBuzzes == numTeams) {
+                  nextQuestion();
+                } else {
+                  resumeReading()
+                }
+              }
             });
           }
         }
         var start = function(){
+          started = true;
           app.dao.tossup.search(
             {
               value:'dickens',
@@ -339,12 +368,34 @@ var init = function(app) {
               }
             },
             function(tossups) {
-              currentTossup = tossups[0];
-              curWords = tossups[0].question.split(" ");
-              count = curWords.length;
-              resumeReading();
+              if (tossups.length > 0) {
+                curTossups = tossups;
+                tossupLength = tossups.length;
+                currentTossup = tossups[0];
+                curWords = tossups[0].question.split(" ");
+                count = curWords.length;
+                room.getChannel().onStartQuestion();
+                resumeReading();
+              }
             }
           );
+        }
+        var nextQuestion = function(){
+          room.getChannel().onCompleteQuestion(currentTossup);
+          setTimeout(function(){
+            room.getChannel().onStartQuestion();
+            numBuzzes = 0;
+            console.log(tossupLength, index);
+            if (!(tossupLength == index)) {
+              index++;
+              count = 0;
+              currentTossup = curTossups[index];
+              curWords = curTossups[index].question.split(" ");
+              resumeReading();
+            } else {
+
+            }
+          }, 5000);
         }
         var pauseReading = function(){
           clearInterval(gameTimer);
@@ -357,12 +408,20 @@ var init = function(app) {
               count--;
             } else {
               clearInterval(gameTimer);
+              if (index < tossupLength) {
+                nextQuestion();
+              }
             }
           },500);
         }
         var answerTimeout = function(){
           room.getChannel().onSystemBroadcast("TIMED OUT");
-          resumeReading();
+          console.log(numBuzzes, numTeams);
+          if (numBuzzes == numTeams) {
+            nextQuestion();
+          } else {
+            resumeReading()
+          }
         }
         start();
       }
