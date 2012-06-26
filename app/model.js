@@ -349,6 +349,7 @@ var init = function(app) {
               }
               if (obj) {
                 room.getChannel().onCompleteQuestion(currentTossup);
+                nextQuestion();
               } else {
                 if (numBuzzes == numTeams) {
                   nextQuestion();
@@ -388,7 +389,7 @@ var init = function(app) {
             console.log(tossupLength, index);
             if (!(tossupLength == index)) {
               index++;
-              count = 0;
+              count = 1;
               currentTossup = curTossups[index];
               curWords = curTossups[index].question.split(" ");
               resumeReading();
