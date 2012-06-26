@@ -65,17 +65,19 @@ var init = function(app) {
           return false;
         }
         this.sit = function(user, callback) {
-          if (players.length < max) {
-            if (!this.contains(user)){
-              if (room.getUserToTeam()[user]) {
-                room.getTeams()[room.getUserToTeam()[user]].leave(user);
+          if (!game.started) {
+            if (players.length < max) {
+              if (!this.contains(user)){
+                if (room.getUserToTeam()[user]) {
+                  room.getTeams()[room.getUserToTeam()[user]].leave(user);
+                }
+                room.getUserToTeam()[user] = id;
+                players.push(user);
+                if (callback) {
+                  callback(true);
+                }
+                return true;
               }
-              room.getUserToTeam()[user] = id;
-              players.push(user);
-              if (callback) {
-                callback(true);
-              }
-              return true;
             }
           }
           if (callback) {
