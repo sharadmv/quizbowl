@@ -5,10 +5,11 @@ var init = function(app) {
 				// do fb query here to get userId; then query DAO for user object
 
 				app.fb.me(userToken, function(fbObject) {
-					var fBId = // fbObject something;
-					var user = app.dao.user.getFromFb(fbId, function(user) {
+					var fBId = fbObject.id ? fbObject.id : null;
+					app.dao.user.getFromFb(fbId, function(user) {
 						if (user === null) {
-							// id, name, fbId, email, created
+							var name = fbObject.name ? fbObject.name : null,
+								email = fbObject.email ? fbObject.email : null;
 							user = new app.model.Dao.User(null, name, fbId, email, null);
 							app.dao.user.save(user);
 						}
