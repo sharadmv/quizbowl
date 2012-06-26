@@ -31,6 +31,7 @@ app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user, callback) {
     var Room = app.model.Multiplayer.Room;
     var room = new Room("main",user, {}, function(room) {
+      rooms.push(room);
       callback(room);
     });
   },

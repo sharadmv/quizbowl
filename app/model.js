@@ -106,7 +106,6 @@ var init = function(app) {
       Room:function(name, host, properties, onCreate) {
         var room = this; 
 
-        var game;
         var teams = {};
         
         //set up properties
@@ -129,6 +128,7 @@ var init = function(app) {
         var name = name;
         var host = host;
         var created = new Date();
+        var game = new Model.Multiplayer.Game(room);
 
         var users = [];
         var userToTeam = {};
@@ -183,6 +183,7 @@ var init = function(app) {
             channel.onChat(user, message);
           }
           this.buzz = function() {
+            console.log(game);
             game.buzz(user);
           }
           this.answer = function(answer, callback) {
@@ -215,10 +216,10 @@ var init = function(app) {
           );
         }
         this.start = function(user) {
-          if (!game) {
+          if (!game.started) {
             if (user == host) {
+              game.start();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
-              game = new Model.Multiplayer.Game(room);
             } else {
               app.dao.user.get(user, function(u) {
                 app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u]);
@@ -323,11 +324,6 @@ var init = function(app) {
         var index = 0;
         var numBuzzes = 0;
         var numTeams = 0;
-        for (var i in room.getTeams()) {
-          if (room.getTeams()[i].getPlayers().length > 0) {
-            numTeams++;
-          }
-        }
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
@@ -360,7 +356,12 @@ var init = function(app) {
             });
           }
         }
-        var start = function(){
+        this.start = function(){
+          for (var i in room.getTeams()) {
+            if (room.getTeams()[i].getPlayers().length > 0) {
+              numTeams++;
+            }
+          }
           started = true;
           app.dao.tossup.search(
             {
@@ -373,7 +374,7 @@ var init = function(app) {
                 curTossups = tossups;
                 tossupLength = tossups.length;
                 currentTossup = tossups[0];
-                curWords = tossups[0].question.split(" ");
+                curWords = currentTossup.question.split(" ");
                 count = curWords.length;
                 room.getChannel().onStartQuestion();
                 resumeReading();
@@ -389,10 +390,13 @@ var init = function(app) {
             console.log(tossupLength, index);
             if (!(tossupLength == index)) {
               index++;
-              count = 1;
               currentTossup = curTossups[index];
               curWords = curTossups[index].question.split(" ");
+              count = curWords.length;
               resumeReading();
+              for (var i in room.getTeams()) {
+                room.getTeams()[i].buzzed = false;
+              }
             } else {
 
             }
@@ -424,7 +428,6 @@ var init = function(app) {
             resumeReading()
           }
         }
-        start();
       }
     }
   }

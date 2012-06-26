@@ -3,10 +3,10 @@ var init = function(app) {
 		handler: {
 			login:function(userToken, callback){
 				// do fb query here to get userId; then query DAO for user object
-
 				app.fb.me(userToken, function(fbObject) {
 					var fBId = fbObject.id ? fbObject.id : null;
 					app.dao.user.getFromFb(fbId, function(user) {
+					var user = app.dao.user.getFromFB(userToken, function(user) {
 						if (user === null) {
 							var name = fbObject.name ? fbObject.name : null,
 								email = fbObject.email ? fbObject.email : null;
@@ -15,10 +15,10 @@ var init = function(app) {
 						}
 						app.getUsers()[userToken]=user;
 						callback(user);
-					});
-				});
+	//				});
+	//			});
 
-				function 
+            });
 			}
 		}
 	}
