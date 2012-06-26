@@ -324,6 +324,7 @@ var init = function(app) {
         var tossupLength;
         var index = 0;
         var numBuzzes = 0;
+        var answering = false;
         var getNumTeams = function(){
           var c = 0;
           for (var i in room.getTeams()) {
@@ -336,6 +337,7 @@ var init = function(app) {
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
+            answering = true;
             currentUser = user;
             room.getChannel().onBuzz(app.getUsers()[user]);
             team.buzzed = true;
@@ -346,7 +348,8 @@ var init = function(app) {
           }
         }
         this.answer = function(user, answer, callback) {
-          if (buzzed && user == currentUser) {
+          if (answering && buzzed && user == currentUser) {
+            answering = false;
             clearTimeout(answerTimeout);
             app.util.question.check(answer,currentTossup.answer, function(obj) {
               if (callback) {
