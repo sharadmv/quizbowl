@@ -323,11 +323,6 @@ var init = function(app) {
         var index = 0;
         var numBuzzes = 0;
         var numTeams = 0;
-        for (var i in room.getTeams()) {
-          if (room.getTeams()[i].getPlayers().length > 0) {
-            numTeams++;
-          }
-        }
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
@@ -361,6 +356,11 @@ var init = function(app) {
           }
         }
         this.start = function(){
+          for (var i in room.getTeams()) {
+            if (room.getTeams()[i].getPlayers().length > 0) {
+              numTeams++;
+            }
+          }
           started = true;
           app.dao.tossup.search(
             {
