@@ -48,7 +48,6 @@
             bridge.getService('quizbowl-multiplayer', function(obj) {
             console.log(blah);
             obj.getRooms(function(rooms){
-              var room;
               if (rooms.length > 0) {
                 rooms[0].join(blah.id,
                   handler,
@@ -58,6 +57,7 @@
                 );
               } else {
                 obj.createRoom(blah.id,function(o) {
+                  room = o;
                   o.join(blah.id,
                     handler,
                     function(handler) {
