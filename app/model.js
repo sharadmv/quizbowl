@@ -183,6 +183,7 @@ var init = function(app) {
             channel.onChat(user, message);
           }
           this.buzz = function() {
+            console.log(game);
             game.buzz(user);
           }
           this.answer = function(answer, callback) {
