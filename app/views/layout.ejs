@@ -44,7 +44,7 @@
                   }
                 };
         bridge.getService("quizbowl-auth",function(auth){
-          auth.login(FB.getUserID(), function(blah){
+          auth.login(FB.getAccessToken(), function(blah){
             bridge.getService('quizbowl-multiplayer', function(obj) {
             console.log(blah);
             obj.getRooms(function(rooms){

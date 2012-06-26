@@ -41,6 +41,8 @@ var init = function(app) {
           var user = new Model.User(result.id, result.username, result.fb_id, result.email, result.timestamp);
           callback(user);
         });
+      },
+      save:function(user, callback) {
       }
     }
 

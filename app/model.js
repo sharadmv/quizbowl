@@ -388,7 +388,6 @@ var init = function(app) {
           room.getChannel().onCompleteQuestion(currentTossup);
           setTimeout(function(){
             room.getChannel().onStartQuestion();
-            numBuzzes = 0;
             console.log(tossupLength, index);
             if (!(tossupLength == index)) {
               index++;
