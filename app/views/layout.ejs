@@ -19,13 +19,7 @@
         var bridge = new Bridge({apiKey:"08c83c72"});
         bridge.connect();
         console.log(bridge);
-        bridge.getService("quizbowl-auth",function(auth){
-          auth.login(FB.getUserID(), function(blah){
-            bridge.getService('quizbowl-multiplayer', function(obj) {
-            console.log(blah);
-            obj.createRoom(blah.id,function(o) {
-              room = o;
-              room.join(blah.id,
+        var handler = 
                 {
                   onChat:function(user, message) {
                     console.log(user, message);
@@ -48,11 +42,30 @@
                   onCompleteQuestion:function(question) {
                     $('#text').html(question.question+"<br />ANSWER: "+question.answer);
                   }
-                },
-                function(handler) {
-                  window.handler = handler;
-                }
-              );
+                };
+        bridge.getService("quizbowl-auth",function(auth){
+          auth.login(FB.getUserID(), function(blah){
+            bridge.getService('quizbowl-multiplayer', function(obj) {
+            console.log(blah);
+            obj.getRooms(function(rooms){
+              var room;
+              if (rooms.length > 0) {
+                rooms[0]join(blah.id,
+                  handler,
+                  function(handler) {
+                    window.handler = handler;
+                  }
+                );
+              } else {
+                obj.createRoom(blah.id,function(o) {
+                  o.join(blah.id,
+                    handler,
+                    function(handler) {
+                      window.handler = handler;
+                    }
+                  );
+                });
+              }
             });
           });
           });
