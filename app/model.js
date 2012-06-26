@@ -373,7 +373,7 @@ var init = function(app) {
                 curTossups = tossups;
                 tossupLength = tossups.length;
                 currentTossup = tossups[0];
-                curWords = tossups[0].question.split(" ");
+                curWords = currentTossup.question.split(" ");
                 count = curWords.length;
                 room.getChannel().onStartQuestion();
                 resumeReading();
@@ -389,10 +389,13 @@ var init = function(app) {
             console.log(tossupLength, index);
             if (!(tossupLength == index)) {
               index++;
-              count = curWords.length;
               currentTossup = curTossups[index];
               curWords = curTossups[index].question.split(" ");
+              count = curWords.length;
               resumeReading();
+              for (var i in room.getTeams()) {
+                room.getTeams()[i].buzzed = false;
+              }
             } else {
 
             }
