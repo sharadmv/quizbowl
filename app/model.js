@@ -349,6 +349,7 @@ var init = function(app) {
               }
               if (obj) {
                 room.getChannel().onCompleteQuestion(currentTossup);
+                nextQuestion();
               } else {
                 if (numBuzzes == numTeams) {
                   nextQuestion();
