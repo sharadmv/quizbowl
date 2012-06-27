@@ -376,8 +376,11 @@ var init = function(app) {
           started = true;
           app.dao.tossup.search(
             {
-              value:'dickens',
+              random:true,
+              limit:20,
+              value:'',
               params:{
+                difficulty:'hs'
               }
             },
             function(tossups) {

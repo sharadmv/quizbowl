@@ -89,6 +89,15 @@ var init = function(app) {
       }, 
       search:function(query, callback) {
         app.log(app.Constants.Tag.DAO, ["tossup.search", JSON.stringify(query)]);  
+        if (!query.limit) {
+          query.limit = 1;
+        }
+        if (!query.random) {
+          query.random = false;
+        }
+        if (!query.offset) {
+          query.offset = 0;
+        }
         var match = "answer";
         if (query.condition == "all") {
           match = "question, answer";
@@ -111,8 +120,9 @@ var init = function(app) {
           }
         }
         var values = Object.keys(query.params).map(function(param){return query.params[param]});
-        client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND "), values ,function(err, rows, fields) {
-          if (err) throw err;
+        values.push(query.limit);
+        var query;
+        var convertResultToTossups = function(rows, callback) {
           var tossups = [];
           for (var result in rows) {
             result = rows[result];
@@ -120,7 +130,33 @@ var init = function(app) {
             tossups.push(tossup);
           }
           callback(tossups);
-        });
+        }
+        if (query.random) {
+          if (query.limit == 1) {
+            client.query(""+"SELECT COUNT(*) FROM "+Constants.Table.TOSSUP+"", function(err, result, fields) {
+              query = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?";
+              query.offset = Math.floor(Math.random()*results[0]['count(*)']);
+              values.push(query.offset);
+              client.query(query,values, function(err, results, fields) {
+                if (err) throw err;
+                convertResultToTossups(results, callback);
+              });
+            });
+          } else {
+            values.push(query.offset);
+            query = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" ORDER BY RAND() LIMIT ? OFFSET ?";
+            client.query(query,values, function(err, results, fields) {
+              if (err) throw err;
+              convertResultToTossups(results, callback);
+            });
+          }
+        } else {
+          values.push(query.offset);
+          client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?", values ,function(err, results, fields) {
+            if (err) throw err;
+            convertResultToTossups(results, callback);
+          });
+        }
       }
     }
   }
