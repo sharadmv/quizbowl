@@ -6,7 +6,8 @@ var init = function(app) {
     crap:1357,
     test:1337,
     beta:8080,
-    release:80
+    release:80,
+    secure:443
   }
 
   application.set('view engine', 'ejs');
@@ -26,6 +27,10 @@ var init = function(app) {
 
   application.get('/multiplayer', function (req, res) {
     res.render('multiplayer', { page: 'multiplayer' });
+  });
+  
+  application.get('*', function (req, res) {
+    res.send(404);
   });
 
 

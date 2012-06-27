@@ -318,6 +318,7 @@ var init = function(app) {
         var currentTossup;
         var curWords;
         var answerTimeout;
+        var questionTimeout = -1;
         var buzzed = false;
         var started = false;
         var count;
@@ -339,6 +340,7 @@ var init = function(app) {
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
           if (team && !team.buzzed) {
+            clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
             room.getChannel().onBuzz(app.getUsers()[user]);
@@ -371,6 +373,12 @@ var init = function(app) {
               }
             });
           }
+        }
+        var questionTimer = function() {
+          questionTimeout = setTimeout(function(){
+            room.getChannel().onQuestionTimeout();
+            nextQuestion();
+          }, 5000);
         }
         this.start = function(){
           started = true;
@@ -427,10 +435,6 @@ var init = function(app) {
             } else {
               clearInterval(gameTimer);
               if (index < tossupLength) {
-                setTimeout(function(){
-                  room.getChannel().onQuestionTimeout();
-                  nextQuestion();
-                }, 5000);
               }
             }
           },500);
