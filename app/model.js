@@ -299,6 +299,8 @@ var init = function(app) {
             },
             onSit : function(user, team) {
               app.log(app.Constants.Tag.MULTIPLAYER, [user.name, "sat on Team",team]);
+            },
+            onCompleteQuestion : function(question) {
             }
           }), function(c) {
             channel = c;
@@ -392,7 +394,6 @@ var init = function(app) {
           room.getChannel().onCompleteQuestion(currentTossup);
           setTimeout(function(){
             room.getChannel().onStartQuestion();
-            console.log(tossupLength, index);
             if (!(tossupLength == index+1)) {
               index++;
               numBuzzes = 0;
@@ -420,7 +421,10 @@ var init = function(app) {
             } else {
               clearInterval(gameTimer);
               if (index < tossupLength) {
-                nextQuestion();
+                setTimeout(function(){
+                  room.getChannel().onQuestionTimeout();
+                  nextQuestion();
+                }, 5000);
               }
             }
           },500);
