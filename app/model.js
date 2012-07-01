@@ -378,14 +378,14 @@ var init = function(app) {
           questionTimeout = setTimeout(function(){
             room.getChannel().onQuestionTimeout();
             nextQuestion();
-          }, 5000);
+          }, 1);
         }
         this.start = function(){
           started = true;
           app.dao.tossup.search(
             {
               random:true,
-              limit:20,
+              limit:99999999,
               value:'',
               params:{
                 difficulty:'hs'
@@ -421,7 +421,7 @@ var init = function(app) {
             } else {
               app.deleteRoom(room.getName());
             }
-          }, 5000);
+          }, 1);
         }
         var pauseReading = function(){
           clearInterval(gameTimer);
@@ -435,9 +435,10 @@ var init = function(app) {
             } else {
               clearInterval(gameTimer);
               if (index < tossupLength) {
+                questionTimer();
               }
             }
-          },500);
+          },100);
         }
         var answerTimeout = function(){
           if (numBuzzes == getNumTeams()) {

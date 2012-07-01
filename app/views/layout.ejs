@@ -47,12 +47,15 @@
               $('#text').html(question.question+"<br />ANSWER: "+question.answer);
             }
         };
+        window.bridge = bridge;
         bridge.getService("quizbowl-auth",function(auth){
           var token = FB.getAccessToken();
           window.token = token
+          console.log(auth);
           auth.login(token, function(user){
             window.user = user;
             bridge.getService('quizbowl-multiplayer', function(obj) {
+              console.log(obj);
             obj.getRooms(function(rooms){
               var length = 0;
               var name = '';
