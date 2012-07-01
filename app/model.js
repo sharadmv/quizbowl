@@ -136,6 +136,7 @@ var init = function(app) {
 
         var users = [];
         var userToTeam = {};
+        var userToHandler = {};
         var channel;
         var channelName = Model.Constants.Bridge.ROOM_CHANNEL_PREFIX+name;
         var serviceName = Model.Constants.Bridge.ROOM_SERVICE_PREFIX+name;
@@ -152,6 +153,9 @@ var init = function(app) {
           }
           this.onLeave = function(user) {
             properties.onLeave(user);
+          }
+          this.onLeaveTeam = function(user, team) {
+            properties.onLeave(user, team);
           }
           this.onStartQuestion = function() {
             properties.onStartQuestion();
@@ -192,8 +196,17 @@ var init = function(app) {
           this.answer = function(answer, callback) {
             game.answer(user, answer, callback);
           }
-          this.leave = function() {
-            channel.onLeave(user);
+          this.leave = function(callback) {
+            var team = userToTeam[user];
+            if (team) {
+              team.leave(user, function(left) {
+                if (left) {
+                  channel.onLeave(user);
+                  bridge.leaveChannel(channelName, userToHandler[user]);
+                  callback(left);
+                }
+              });
+            }
           }
           this.sit = function(team, callback) {
             if (teams[team]) {
@@ -209,6 +222,7 @@ var init = function(app) {
 
         this.join = function(user, handler, onJoin) {
           users.push(user);
+          userToHandler[user] = handler;
           app.bridge.joinChannel(
             channelName,
             handler,
