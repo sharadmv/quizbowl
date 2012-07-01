@@ -28,9 +28,9 @@ if (process.argv[2]) {
 
 app.bridge.publishService("quizbowl-auth", app.auth.handler);
 app.bridge.publishService("quizbowl-multiplayer", {
-  createRoom:function(user, callback) {
+  createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
-    var room = new Room("main",user, {}, function(room) {
+    var room = new Room("main", user, properties, function(room) {
       rooms["main"] = room;
       callback(room);
     });

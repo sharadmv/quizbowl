@@ -106,6 +106,7 @@ var init = function(app) {
         }
       },
       Room:function(name, host, properties, onCreate) {
+             console.log(properties);
         var room = this; 
 
         var teams = {};
@@ -352,7 +353,8 @@ var init = function(app) {
             room.getChannel().onBuzz(app.getUsers()[user]);
             team.buzzed = true;
             pauseReading();
-            answerTimeout = setTimeout(answerTimeout, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
+            console.log(answerTimeout);
+            answerTimeout = setTimeout(answerTimer, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
             buzzed = true;
             numBuzzes++;
           }
@@ -384,18 +386,18 @@ var init = function(app) {
           questionTimeout = setTimeout(function(){
             room.getChannel().onQuestionTimeout();
             nextQuestion();
-          }, 1);
+          }, 5000);
         }
         this.start = function(){
           started = true;
           app.dao.tossup.search(
             {
               random:true,
-              limit:room.properties.numQuestions,
+              limit:room.getProperties().numQuestions,
               value:'',
               params:{
-                difficulty:room.properties.difficulty,
-                category:room.properties.category
+                difficulty:room.getProperties().difficulty,
+                category:room.getProperties().category
               }
             },
             function(tossups) {
@@ -428,7 +430,7 @@ var init = function(app) {
             } else {
               app.deleteRoom(room.getName());
             }
-          }, 1);
+          }, 5000);
         }
         var pauseReading = function(){
           clearInterval(gameTimer);
@@ -445,9 +447,9 @@ var init = function(app) {
                 questionTimer();
               }
             }
-          },100);
+          },250);
         }
-        var answerTimeout = function(){
+        var answerTimer = function(){
           if (numBuzzes == getNumTeams()) {
             nextQuestion();
           } else {

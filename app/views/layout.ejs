@@ -71,7 +71,7 @@
                   }
                 );
               } else {
-                obj.createRoom(token,function(o) {
+              obj.createRoom(token,{difficulty:'HS',category:'Literature',numQuestions:20},function(o) {
                   room = o;
                   o.join(token,
                     handler,
