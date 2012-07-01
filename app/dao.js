@@ -98,6 +98,12 @@ var init = function(app) {
         if (!query.offset) {
           query.offset = 0;
         }
+        if (!query.params.category) {
+          delete query.params.category;
+        }
+        if (!query.params.difficulty) {
+          delete query.params.difficulty;
+        }
         var match = "answer";
         if (query.condition == "all") {
           match = "question, answer";

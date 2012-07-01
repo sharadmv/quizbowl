@@ -271,6 +271,12 @@ var init = function(app) {
           }
           return teams;
         }
+        this.getProperties = function(callback) {
+          if (callback) {
+            callback(properties);
+          }
+          return properties;
+        }
         app.bridge.publishService(serviceName, room);
         app.bridge.joinChannel(channelName, 
           new Model.Multiplayer.Room.ChannelHandler({
@@ -385,10 +391,11 @@ var init = function(app) {
           app.dao.tossup.search(
             {
               random:true,
-              limit:99999999,
+              limit:room.properties.numQuestions,
               value:'',
               params:{
-                difficulty:'hs'
+                difficulty:room.properties.difficulty,
+                category:room.properties.category
               }
             },
             function(tossups) {
