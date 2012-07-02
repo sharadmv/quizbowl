@@ -10,6 +10,8 @@ var init = function(app) {
     secure:443
   }
 
+  application.use(express.static("../public/"));
+
   application.set('view engine', 'ejs');
   application.set('views', __dirname + '/views');
 

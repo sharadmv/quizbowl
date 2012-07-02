@@ -2,8 +2,10 @@
 <html lang="en">
 	<head>
 		<title>Quizbowl DB</title>
-    <script type="text/javascript" src="http://www.getbridge.com/js/bridge.min.js"></script>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/js/bridge.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/js/underscore.js"></script>
+    <script type="text/javascript" src="/js/backbone.js"></script>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 		<meta http-equiv="Content-Language" content="en-us">
     <script>
@@ -15,78 +17,6 @@
           xfbml      : true, // parse XFBML
           oauth      : true
         });
-        console.log("SUP");
-        var bridge = new Bridge({apiKey:"08c83c72"});
-        bridge.connect();
-        console.log(bridge);
-        var handler = 
-          {
-            onChat:function(user, message) {
-              console.log(user, message);
-            },
-            onAnswer:function(user, message){
-              console.log(user, message);
-              console.log(user.name+" "+message);
-            },
-            onNewWord:function(word) {
-              $('#text').append(word+" ");
-            },
-            onSystemBroadcast:function(message){
-              console.log("SYSTEM: "+message);
-            },
-            onBuzz:function(user, message){
-              console.log(user.name, "BUZZED IN");
-            },
-            onSit:function(user, team) {
-              console.log(user.name+" sat on "+team);
-            },
-            onStartQuestion:function(){
-              $("#text").html("");
-            },
-            onCompleteQuestion:function(question) {
-              $('#text').html(question.question+"<br />ANSWER: "+question.answer);
-            }
-        };
-        window.bridge = bridge;
-        bridge.getService("quizbowl-auth",function(auth){
-          var token = FB.getAccessToken();
-          window.token = token
-          console.log(auth);
-          auth.login(token, function(user){
-            window.user = user;
-            bridge.getService('quizbowl-multiplayer', function(obj) {
-              console.log(obj);
-            obj.getRooms(function(rooms){
-              var length = 0;
-              var name = '';
-              for (var i in rooms){
-                name = i;
-                length++;
-              }
-              if (length > 0) {
-                rooms[name].join(token,
-                  handler,
-                  function(handler) {
-                    window.handler = handler;
-                  }
-                );
-              } else {
-              obj.createRoom(token,{difficulty:'HS',category:'Literature',numQuestions:20},function(o) {
-                  room = o;
-                  o.join(token,
-                    handler,
-                    function(handler) {
-                      handler.sit(1);
-                      room.start(token);
-                      window.handler = handler;
-                    }
-                  );
-                });
-              }
-            });
-          });
-          });
-        });
       };
 
       // Load the SDK Asynchronously
@@ -96,30 +26,18 @@
         js.src = "//connect.facebook.net/en_US/all.js";
         d.getElementsByTagName('head')[0].appendChild(js);
       }(document));
-      $(document).ready(function(){
-        $("#buzz").click(function(){
-          window.handler.buzz();
-        });
-        $("#answer").keypress(function(event) {
-          if ( event.which == 13 ) {
-            window.handler.answer($("#answer").val(), function(right) {
-              $("#response").val(right+"");
-            });
-            window.handler.answer($("#answer").val(), function(right) {
-              $("#response").val(right+"");
-            });
-          }
-        });
-      });
     </script>
     <div id="fb-root"></div>
-    <script>
-    </script>
   </head>
   <body>
     <a><li id="login" class="nav-ele"><div class="fb-login-button" data-scope="email">Login</div></li></a>
     <div id="container">
       <div id="menu">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/search">Search</a></li>
+          <li><a href="/reader">Reader</a></li>
+          <li><a href="/multiplayer">Multiplayer</a></li>
       </div>
       <%-body%>
     </div>
