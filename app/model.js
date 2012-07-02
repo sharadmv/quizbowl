@@ -75,11 +75,18 @@ var init = function(app) {
     },
     Multiplayer : {
       Team:function(id, max, room) {
-        var players = [];
-        this.buzzed = false;
+        var team = this;
+        this.players = [];
+        var buzzed = false;
+        this.getBuzzed = function() {
+          return buzzed;
+        }
+        this.setBuzzed = function(b) {
+          buzzed = b;
+        }
         this.leave = function(user, callback) {
           if (room.getUserToTeam()[user] == id) {
-            players.splice(players.indexOf(user), 1);
+            team.players.splice(team.players.indexOf(user), 1);
             var ret = delete room.getUserToTeam()[user];
             if (callback) {
               callback(ret);
@@ -93,13 +100,13 @@ var init = function(app) {
         }
         this.sit = function(user, callback) {
           if (!room.game.started) {
-            if (players.length < max) {
+            if (team.players.length < max) {
               if (!this.contains(user)){
                 if (room.getUserToTeam()[user]) {
                   room.getTeams()[room.getUserToTeam()[user]].leave(user);
                 }
                 room.getUserToTeam()[user] = id;
-                players.push(user);
+                team.players.push(user);
                 if (callback) {
                   callback(true);
                 }
@@ -113,11 +120,11 @@ var init = function(app) {
           return false;
         } 
         this.contains = function(user) {
-          if (players.indexOf(user) != -1) {
+          if (team.players.indexOf(user) != -1) {
             return true;
           } else {
             return false;
-            }
+          }
         }
         this.getId = function(callback){
           if (callback) {
@@ -127,13 +134,12 @@ var init = function(app) {
         }
         this.getPlayers = function(callback) {
           if (callback) {
-            callback(players);
+            callback(this.players);
           }
-          return players;
+          return this.players;
         }
       },
       Room:function(name, host, properties, onCreate) {
-             console.log(properties);
         var room = this; 
 
         var teams = {};
@@ -236,6 +242,7 @@ var init = function(app) {
             }
           }
           this.sit = function(team, callback) {
+            console.log(teams);
             if (teams[team]) {
               var sat = teams[team].sit(user, callback);
               if (sat) {
@@ -261,7 +268,7 @@ var init = function(app) {
         }
         this.start = function(user) {
           if (!game.started) {
-            if (user == host) {
+            if (true) {
               game.start();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
             } else {
@@ -271,24 +278,28 @@ var init = function(app) {
             }
           }
         }
+        this.name = name;
         this.getName = function(callback){
           if (callback) {
             callback(name);
           }
           return name;
         }
+        this.host = host;
         this.getHost = function(callback){
           if (callback) {
             callback(host);
           }
           return host;
         }
+        this.created = created;
         this.getCreated = function(callback){
           if (callback) {
             callback(created);
           }
           return created;
         }
+        this.users = users;
         this.getUsers = function(callback){
           if (callback) {
             callback(users);
@@ -307,12 +318,14 @@ var init = function(app) {
           }
           return channel;
         }
+        this.teams = teams;
         this.getTeams = function(callback) {
           if (callback) {
             callback(teams);
           }
           return teams;
         }
+        this.properties = properties;
         this.getProperties = function(callback) {
           if (callback) {
             callback(properties);
@@ -387,12 +400,12 @@ var init = function(app) {
         }
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
-          if (team && !team.buzzed) {
+          if (team && !team.getBuzzed()) {
             clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
             room.getChannel().onBuzz(app.getUsers()[user]);
-            team.buzzed = true;
+            team.setBuzzed(true);
             pauseReading();
             console.log(answerTimeout);
             answerTimeout = setTimeout(answerTimer, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
@@ -466,7 +479,7 @@ var init = function(app) {
               count = curWords.length;
               resumeReading();
               for (var i in room.getTeams()) {
-                room.getTeams()[i].buzzed = false;
+                room.getTeams()[i].setBuzzed(false);
               }
             } else {
               app.deleteRoom(room.getName());

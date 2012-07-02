@@ -38,13 +38,13 @@ var init = function(app) {
     var res = app.router.wrap(res);
     var service = app.service.route(req.query.method);
     if (!service) {
-      res.error(app.model.Error.SERVICE_NOT_FOUND);
+      res.error(app.model.Constants.Error.SERVICE_NOT_FOUND);
     } else {
       service(res, req.query, function(ret) {
         if (ret) {
           res.json(ret);
         } else {
-          res.error(app.model.Error.SERVICE_FAILED);
+          res.error(app.model.Constants.Error.SERVICE_FAILED);
         }
       });
     }

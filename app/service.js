@@ -2,6 +2,25 @@ var querystring = require('qs');
 var init = function(app) {
   var Service = {
     services:{
+      user: {
+        get : function(res, query, callback) {
+          callback(app.getUsers()[query.user]);
+        },
+        list : function(res, query, callback) {
+          callback(app.getUsers());           
+        }
+      },
+      room: {
+        list: function(res,query, callback) {
+          var rooms = [];
+          var r = app.getRooms();
+          for (var i in r) {
+            console.log(r[i].getName());
+            rooms.push({name:r[i].getName(), host:r[i].getHost(), teams:r[i].getTeams()});
+          }
+          callback(rooms);
+        }
+      },
       tossup:{
         search:function(res, params, callback) {
           if (!params.limit) {

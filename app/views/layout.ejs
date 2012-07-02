@@ -15,7 +15,6 @@
           xfbml      : true, // parse XFBML
           oauth      : true
         });
-        console.log("SUP");
         var bridge = new Bridge({apiKey:"08c83c72"});
         bridge.connect();
         console.log(bridge);
@@ -57,12 +56,14 @@
             bridge.getService('quizbowl-multiplayer', function(obj) {
               console.log(obj);
             obj.getRooms(function(rooms){
+              console.log(rooms);
               var length = 0;
               var name = '';
               for (var i in rooms){
                 name = i;
                 length++;
               }
+              /*
               if (length > 0) {
                 rooms[name].join(token,
                   handler,
@@ -71,9 +72,10 @@
                   }
                 );
               } else {
-              obj.createRoom(token,{difficulty:'HS',category:'Literature',numQuestions:20},function(o) {
+              */
+              obj.createRoom(user.id,{type:"team",teamLimit:5,numTeams:2,name:"team",difficulty:'HS',category:'Literature',numQuestions:20},function(o) {
                   room = o;
-                  o.join(token,
+                  o.join(user.id,
                     handler,
                     function(handler) {
                       handler.sit(1);
@@ -82,8 +84,7 @@
                     }
                   );
                 });
-              }
-            });
+            }); 
           });
           });
         });

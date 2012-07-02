@@ -21,6 +21,12 @@ app.log = function(tag, message) {
 app.getUsers = function(){
   return users;
 }
+app.getRooms = function(callback) {
+  if (callback) {
+    callback(rooms);
+  }
+  return rooms;
+}
 
 if (process.argv[2]) {
   app.server.listen(process.argv[2]);
@@ -32,13 +38,17 @@ app.bridge.publishService("quizbowl-auth", app.auth.handler);
 app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
-    var room = new Room("main", user, properties, function(room) {
-      rooms["main"] = room;
-      callback(room);
+    var r = new Room(properties.name, user, properties, function(room) {
+      rooms[properties.name] = r;
+      callback(r);
+      console.log(r);
     });
   },
   getRooms:function(callback) {
     callback(rooms);
+  },
+  joinRoom:function(room, user,handler,callback ) {
+    rooms[room].join(user, handler, callback);
   }
 });
 app.deleteRoom = function(name) {

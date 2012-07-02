@@ -36,7 +36,7 @@ CREATE TABLE `tossup` (
   FULLTEXT KEY `question_2` (`question`,`answer`),
   FULLTEXT KEY `answer_2` (`answer`),
   FULLTEXT KEY `question_3` (`question`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
 INSERT INTO tossup_temp (question,answer,round,question_num,difficulty,category, tournament) (SELECT question, answer, round, question_num, difficulty, category,(SELECT id FROM tournament WHERE tournament.year=tossups.year AND tournament.name=tossups.tournament) FROM tossups);
