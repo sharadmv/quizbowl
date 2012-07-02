@@ -98,6 +98,9 @@ var init = function(app) {
         if (!query.offset) {
           query.offset = 0;
         }
+        if (!query.params) {
+          query.params = {};
+        }
         if (!query.params.category) {
           delete query.params.category;
         }
@@ -125,6 +128,7 @@ var init = function(app) {
             where = ["tournament.id=tossup.tournament"];
           }
         }
+        console.log(query.random);
         var values = Object.keys(query.params).map(function(param){return query.params[param]});
         values.push(query.limit);
         var query;
@@ -137,13 +141,16 @@ var init = function(app) {
           }
           callback(tossups);
         }
-        if (query.random) {
-          if (query.limit == 1) {
+        if (query.random == 'true') {
+          if (query.value == "" && query.limit == 1) {
             client.query(""+"SELECT COUNT(*) FROM "+Constants.Table.TOSSUP+"", function(err, result, fields) {
-              query = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?";
-              query.offset = Math.floor(Math.random()*results[0]['count(*)']);
+              if (err) throw err;
+              querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?";
+              query.offset = Math.floor(Math.random()*result[0]['COUNT(*)']);
               values.push(query.offset);
-              client.query(query,values, function(err, results, fields) {
+              console.log(querys);
+              console.log(values);
+              client.query(querys,values, function(err, results, fields) {
                 if (err) throw err;
                 convertResultToTossups(results, callback);
               });
@@ -163,6 +170,72 @@ var init = function(app) {
             convertResultToTossups(results, callback);
           });
         }
+      }
+    }
+    this.tournament = {
+      get:function(id, callback) {
+        app.log(app.Constants.Tag.DAO, ["tournament.get", id]);
+        client.query(""+"SELECT tournament.id AS id, tournament.name AS tournament, tournament.year AS year FROM "+Constants.Table.TOURNAMENT+" WHERE tournament.id=?",[id] ,function(err, rows, fields) {
+          if (err) throw err;
+          if (rows.length == 0) {
+            callback(null);
+            return;
+          }
+          var result = rows[0];
+          var tournament = new Model.Tournament(result.id, result.year, result.tournament);
+          callback(tournament);
+        });
+      },
+      tournaments:function(callback) {
+        app.log(app.Constants.Tag.DAO, ["tournament.tournaments"]);
+        client.query(""+"SELECT tournament.id AS id FROM "+Constants.Table.TOURNAMENT, function(err, rows, fields) {
+          if (err) throw err;
+          if (rows.length == 0) {
+            callback(null);
+            return;
+          }
+          var result = rows;
+          callback(result);
+        });
+      },
+      list:function(id, callback) {
+        app.log(app.Constants.Tag.DAO, ["tournament.list", id]);
+        client.query(""+"SELECT round.id AS id FROM "+Constants.Table.ROUND+" round, "+Constants.Table.TOURNAMENT+" tournament WHERE round.tournament = tournament.id AND tournament.id=?",[id] ,function(err, rows, fields) {
+          if (err) throw err;
+          if (rows.length == 0) {
+            callback(null);
+            return;
+          }
+          var result = rows;
+          callback(result);
+        });
+      }
+    }
+    this.round = {
+      get:function(id, callback) {
+        app.log(app.Constants.Tag.DAO, ["round.get", id]);
+        client.query(""+"SELECT round.id AS id, round.round AS round FROM "+Constants.Table.ROUND+" round WHERE round.id=?",[id] ,function(err, rows, fields) {
+          if (err) throw err;
+          if (rows.length == 0) {
+            callback(null);
+            return;
+          }
+          var result = rows[0];
+          var round = new Model.Round(result.id, result.round);
+          callback(round);
+        });
+      }, 
+      list:function(id, callback) {
+        app.log(app.Constants.Tag.DAO, ["round.list", id]);
+        client.query(""+"SELECT tossup.id AS id FROM "+Constants.Table.TOSSUP+" tossup, "+Constants.Table.ROUND+" round WHERE tossup.round = round.id AND round.id=?",[id] ,function(err, rows, fields) {
+          if (err) throw err;
+          if (rows.length == 0) {
+            callback(null);
+            return;
+          }
+          var result = rows;
+          callback(result);
+        });
       }
     }
   }

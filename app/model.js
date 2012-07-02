@@ -11,6 +11,7 @@ var init = function(app) {
         Table:{
           TOSSUP:"tossup",
           TOURNAMENT:"tournament",
+          ROUND:"round",
           USER:"user" 
         } 
       }, 
@@ -25,6 +26,23 @@ var init = function(app) {
           ANSWER_TIMEOUT: 10000,
           QUESTION_TIMEOUT: 5000
         }
+      },
+      Error:{
+        TOSSUP_NOT_FOUND:{message:"tossup not found",code:400},
+        TOURNAMENT_NOT_FOUND:{message:"tournament not found",code:401},
+        ROUND_NOT_FOUND:{message:"round not found",code:402},
+        SERVICE_NOT_FOUND:{message:"service not found",code:404},
+        SERVICE_FAILED:{message:"service failed",code:405}
+      }
+    },
+    Server: {
+      Response:function(data, status, url, query, timestamp, elapsed) {
+        this.data = data;
+        this.status = status;
+        this.url = url;
+        this.query = query;
+        this.timestamp = timestamp.getTime();
+        this.elapsed = elapsed;
       }
     },
     Dao : {
@@ -44,6 +62,15 @@ var init = function(app) {
         this.category = category;
         this.question = question;
         this.answer = answer;
+      },
+      Tournament:function(id, year, tournament) {
+        this.id = id;
+        this.year = year;
+        this.tournament = tournament;
+      },
+      Round:function(id, round) {
+        this.id = id;
+        this.round = round;
       }
     },
     Multiplayer : {
