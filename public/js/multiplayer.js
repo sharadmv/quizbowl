@@ -4,7 +4,17 @@ $(document).ready(function(){
   var MultiModel = Backbone.Model.extend({
     initialize: function() {
       this.connectBridge();
-      this.bridgeAuth();
+
+      // if fb and then this loads
+      if(typeof(FB) !== 'undefined') {
+        this.getAuth(this);
+      // else fb has not loaded yet
+      } else {
+        var self = this;
+        window.onFbAuth = function() {
+          self.getAuth();
+        };
+      }
     },
 
     connectBridge: function() {
@@ -12,16 +22,49 @@ $(document).ready(function(){
       this.bridge.connect();
     },
 
-    bridgeAuth: function() {
+    getAuth: function() {
+      this.fbToken = FB.getAccessToken();
+      var self = this;
+      this.bridge.getService('quizbowl-auth', function(auth) {
+        self.login(auth);
+      });
+    },
 
+    login: function(auth) {
+      var self = this;
+      auth.login(this.fbToken, function(user) {
+        self.getMultiService(user);
+      });
+    },
+
+    getMultiService: function(user) {
+      this.user = user;
+      var self = this;
+      this.bridge.getService('quizbowl-multiplayer', function(multiService) {
+        self.multiService = multiService; 
+        self.onMultiServiceLoad();
+      });
+    },
+
+    onMultiServiceLoad: function() {
+      this.getRooms();
+    },
+
+    getRooms: function() {
+      console.log("In get rooms");
+      var self = this;
+      this.multiService.getRooms(function(rooms) {
+        self.set({ rooms: rooms });
+        console.log(rooms);
+      });
     }
+
   }, {
     BRIDGE_API_KEY: "08c83c72"
   });
 
   var MultiView = Backbone.View.extend({
     initialize: function() {
-      console.log("creating view");
       this.bindModel();
       this.render();
     },
@@ -30,6 +73,7 @@ $(document).ready(function(){
       'change:chat': 'onChat',
       'change:answer': 'onAnswer',
       'change:systemBroadcast': 'onSystemBroadcast',
+      'change:rooms': 'onGetRooms',
       'change:gameStatus': 'onGameEvent',
       'change:seats': 'onSit',
       'change:question': 'onQuestion',
@@ -44,6 +88,11 @@ $(document).ready(function(){
 
     onChat: function(model, chat) {
       console.log("someone chatted: " + chat);
+    },
+
+    onGetRooms: function(model, rooms) {
+      console.log(rooms);
+      //this.$("#rooms").text(rooms.main.getName);
     },
 
     events: {

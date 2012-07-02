@@ -17,6 +17,12 @@
           xfbml      : true, // parse XFBML
           oauth      : true
         });
+        FB.getLoginStatus(function(response) {
+          if(typeof(window.onFbAuth) === 'function') {
+            window.onFbAuth();
+          }
+        });
+
       };
 
       // Load the SDK Asynchronously
@@ -38,9 +44,9 @@
           <li><a href="/search">Search</a></li>
           <li><a href="/reader">Reader</a></li>
           <li><a href="/multiplayer">Multiplayer</a></li>
+        </div>
+        <%-body%>
       </div>
-      <%-body%>
-    </div>
-  </body>
+    </body>
 
-</html>
+  </html>
