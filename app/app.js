@@ -26,8 +26,9 @@ if (process.argv[2]) {
   app.server.listen("test");
 }
 
-app.bridge.publishService("quizbowl-auth", app.auth.handler);
-app.bridge.publishService("quizbowl-multiplayer", {
+//commented out to not interrupt the main server
+//app.bridge.publishService("quizbowl-auth", app.auth.handler);
+/*app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
     var room = new Room("main", user, properties, function(room) {
@@ -38,7 +39,7 @@ app.bridge.publishService("quizbowl-multiplayer", {
   getRooms:function(callback) {
     callback(rooms);
   }
-});
+});*/
 app.deleteRoom = function(name) {
   delete rooms[name];
 }

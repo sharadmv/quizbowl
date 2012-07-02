@@ -53,9 +53,17 @@ $(document).ready(function(){
     getRooms: function() {
       console.log("In get rooms");
       var self = this;
-      this.multiService.getRooms(function(rooms) {
+      this.multiService.getRooms(function(response) {
+        var rooms = {};
+        console.log(response);
+        for(var roomKey in response) {
+          var curRoom = response[roomKey];
+          var roomObj = {};
+          x = response[roomKey];
+          
+          //rooms[roomKey] = roomObj;
+        }
         self.set({ rooms: rooms });
-        console.log(rooms);
       });
     }
 
@@ -92,7 +100,7 @@ $(document).ready(function(){
 
     onGetRooms: function(model, rooms) {
       console.log(rooms);
-      //this.$("#rooms").text(rooms.main.getName);
+      this.$("#rooms").text(rooms);
     },
 
     events: {
