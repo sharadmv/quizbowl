@@ -90,10 +90,11 @@ var init = function(app) {
       search:function(query, callback) {
         app.log(app.Constants.Tag.DAO, ["tossup.search", JSON.stringify(query)]);  
         if (!query.limit) {
-          query.limit = 1;
+          query.limit = 9999999999;
         }
         if (!query.random) {
           query.random = false;
+        } else {
         }
         if (!query.offset) {
           query.offset = 0;
@@ -107,6 +108,10 @@ var init = function(app) {
         if (!query.params.difficulty) {
           delete query.params.difficulty;
         }
+        if (query.params.tournament) {
+          query.params["tournament.id"] = query.params.tournament;
+          delete query.params.tournament;
+        }
         var match = "answer";
         if (query.condition == "all") {
           match = "question, answer";
@@ -117,18 +122,17 @@ var init = function(app) {
         var where;
         if (queryValues.length > 0) {
           if (query.value != "") {
-            where = ["tournament.id=tossup.tournament","MATCH("+match+") AGAINST ('"+query.value+"')", queryValues];
+            where = ["round.id=tossup.round","tournament.id=tossup.tournament","MATCH("+match+") AGAINST ('"+query.value+"')", queryValues];
           } else {
-            where = ["tournament.id=tossup.tournament",queryValues];
+            where = ["round.id=tossup.round","tournament.id=tossup.tournament",queryValues];
           }
         } else {
           if (query.value != "") {
-            where = ["tournament.id=tossup.tournament","MATCH("+match+") AGAINST ('"+query.value+"')"];
+            where = ["round.id=tossup.round","tournament.id=tossup.tournament","MATCH("+match+") AGAINST ('"+query.value+"')"];
           } else {
-            where = ["tournament.id=tossup.tournament"];
+            where = ["round.id=tossup.round","tournament.id=tossup.tournament"];
           }
         }
-        console.log(query.random);
         var values = Object.keys(query.params).map(function(param){return query.params[param]});
         values.push(query.limit);
         var query;
@@ -142,14 +146,12 @@ var init = function(app) {
           callback(tossups);
         }
         if (query.random == 'true') {
-          if (query.value == "" && query.limit == 1) {
+          if (query.value == "" && query.limit == 1){
             client.query(""+"SELECT COUNT(*) FROM "+Constants.Table.TOSSUP+"", function(err, result, fields) {
               if (err) throw err;
-              querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?";
+              querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?";
               query.offset = Math.floor(Math.random()*result[0]['COUNT(*)']);
               values.push(query.offset);
-              console.log(querys);
-              console.log(values);
               client.query(querys,values, function(err, results, fields) {
                 if (err) throw err;
                 convertResultToTossups(results, callback);
@@ -157,7 +159,7 @@ var init = function(app) {
             });
           } else {
             values.push(query.offset);
-            query = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" ORDER BY RAND() LIMIT ? OFFSET ?";
+            query = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY RAND() LIMIT ? OFFSET ?";
             client.query(query,values, function(err, results, fields) {
               if (err) throw err;
               convertResultToTossups(results, callback);
@@ -165,7 +167,7 @@ var init = function(app) {
           }
         } else {
           values.push(query.offset);
-          client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?", values ,function(err, results, fields) {
+          client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?", values ,function(err, results, fields) {
             if (err) throw err;
             convertResultToTossups(results, callback);
           });
@@ -188,7 +190,7 @@ var init = function(app) {
       },
       tournaments:function(callback) {
         app.log(app.Constants.Tag.DAO, ["tournament.tournaments"]);
-        client.query(""+"SELECT tournament.id AS id FROM "+Constants.Table.TOURNAMENT, function(err, rows, fields) {
+        client.query(""+"SELECT tournament.id AS id, tournament.year AS year, tournament.name AS tournament FROM "+Constants.Table.TOURNAMENT, function(err, rows, fields) {
           if (err) throw err;
           if (rows.length == 0) {
             callback(null);

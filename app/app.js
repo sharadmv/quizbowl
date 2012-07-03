@@ -5,7 +5,7 @@ var users = {};
 app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
-app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "quizbowl");
+app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox");
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
@@ -39,9 +39,13 @@ app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
     var r = new Room(properties.name, user, properties, function(room) {
-      rooms[properties.name] = r;
-      callback(r);
-      console.log(r);
+      if (!rooms[properties.name]) {
+        rooms[properties.name] = r;
+        callback(r);
+        console.log(r);
+      } else {
+        callback(null);
+      }
     });
   },
   getRooms:function(callback) {

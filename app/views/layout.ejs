@@ -17,7 +17,6 @@
         });
         var bridge = new Bridge({apiKey:"08c83c72"});
         bridge.connect();
-        console.log(bridge);
         var handler = 
           {
             onChat:function(user, message) {
@@ -63,27 +62,26 @@
                 name = i;
                 length++;
               }
-              /*
               if (length > 0) {
-                rooms[name].join(token,
+                rooms[name].join(user.id,
                   handler,
                   function(handler) {
                     window.handler = handler;
                   }
                 );
               } else {
-              */
-              obj.createRoom(user.id,{type:"team",teamLimit:5,numTeams:2,name:"team",difficulty:'HS',category:'Literature',numQuestions:20},function(o) {
+              obj.createRoom(user.id,{type:"team",maxOccupancy:10,teamLimit:5,numTeams:2,name:"team",difficulty:'HS',category:'Literature',numQuestions:20},function(o) {
                   room = o;
                   o.join(user.id,
                     handler,
                     function(handler) {
-                      handler.sit(1);
-                      room.start(token);
+                      handler.sit(1,function(){});
+                      room.start(user.id);
                       window.handler = handler;
                     }
                   );
                 });
+              }
             }); 
           });
           });

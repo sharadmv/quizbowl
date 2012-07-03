@@ -42,7 +42,12 @@ var init = function(app) {
     } else {
       service(res, req.query, function(ret) {
         if (ret) {
-          res.json(ret);
+          if (!(res.download == "true")) {
+            res.json(ret);
+          } else {
+            res.res.attachment("myfile.txt");
+            res.res.send(ret);
+          }
         } else {
           res.error(app.model.Constants.Error.SERVICE_FAILED);
         }

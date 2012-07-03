@@ -99,7 +99,7 @@ var init = function(app) {
           return false;
         }
         this.sit = function(user, callback) {
-          if (!room.game.started) {
+          //if (!room.game.started) {
             if (team.players.length < max) {
               if (!this.contains(user)){
                 if (room.getUserToTeam()[user]) {
@@ -113,7 +113,7 @@ var init = function(app) {
                 return true;
               }
             }
-          }
+          //}
           if (callback) {
             callback(false);
           }
@@ -242,7 +242,6 @@ var init = function(app) {
             }
           }
           this.sit = function(team, callback) {
-            console.log(teams);
             if (teams[team]) {
               var sat = teams[team].sit(user, callback);
               if (sat) {
@@ -382,13 +381,16 @@ var init = function(app) {
         var questionTimeout = -1;
         var buzzed = false;
         var started = false;
+        game.started = started;
         var count;
         var curTossups;
         var tossupNumber;
         var tossupLength;
         var index = 0;
+        game.questionNumber = index+1;
         var numBuzzes = 0;
         var answering = false;
+        var curPartial = [];
         var getNumTeams = function(){
           var c = 0;
           for (var i in room.getTeams()) {
@@ -407,7 +409,6 @@ var init = function(app) {
             room.getChannel().onBuzz(app.getUsers()[user]);
             team.setBuzzed(true);
             pauseReading();
-            console.log(answerTimeout);
             answerTimeout = setTimeout(answerTimer, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
             buzzed = true;
             numBuzzes++;
@@ -443,10 +444,11 @@ var init = function(app) {
           }, 5000);
         }
         this.start = function(){
+          game.started = true;
           started = true;
           app.dao.tossup.search(
             {
-              random:true,
+              random:'true',
               limit:room.getProperties().numQuestions,
               value:'',
               params:{
@@ -459,8 +461,10 @@ var init = function(app) {
                 curTossups = tossups;
                 tossupLength = tossups.length;
                 currentTossup = tossups[0];
+                game.currentTossup = currentTossup.id;
                 curWords = currentTossup.question.split(" ");
                 count = curWords.length;
+                game.wordNumber = curWords.length - count + 1;
                 room.getChannel().onStartQuestion();
                 resumeReading();
               }
@@ -472,11 +476,14 @@ var init = function(app) {
           setTimeout(function(){
             room.getChannel().onStartQuestion();
             if (!(tossupLength == index+1)) {
-              index++;
+              game.questionNumber = ++index+1;
               numBuzzes = 0;
+              curPartial = [];
               currentTossup = curTossups[index];
+              game.currentTossup = currentTossup.id;
               curWords = curTossups[index].question.split(" ");
               count = curWords.length;
+              game.wordNumber = curWords.length - count + 1;
               resumeReading();
               for (var i in room.getTeams()) {
                 room.getTeams()[i].setBuzzed(false);
@@ -494,14 +501,20 @@ var init = function(app) {
           gameTimer = setInterval(function(){
             if (count >= 1) {
               room.getChannel().onNewWord(curWords[curWords.length-count]);
+              if (count != tossupLength) {
+                curPartial.push(curWords[curWords.length-count]);
+                game.partial = curPartial.join(" ");;
+              }
               count--;
+              game.wordNumber++;
             } else {
+              game.partial = currentTossup.question;
               clearInterval(gameTimer);
               if (index < tossupLength) {
                 questionTimer();
               }
             }
-          },250);
+          },1000);
         }
         var answerTimer = function(){
           if (numBuzzes == getNumTeams()) {
