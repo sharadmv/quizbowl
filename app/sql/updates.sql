@@ -1,8 +1,7 @@
-DROP VIEW tournaments;
 CREATE TABLE `tournament` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `year` int(11) unsigned NOT NULL,
-  `tournament` varchar(200) NOT NULL,
+  `name` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
