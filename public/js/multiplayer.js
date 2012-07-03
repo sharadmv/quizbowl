@@ -63,7 +63,7 @@ $(document).ready(function(){
           
           //rooms[roomKey] = roomObj;
         }
-        self.set({ rooms: rooms });
+        self.set({ rooms: response });
       });
     }
 

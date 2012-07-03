@@ -11,6 +11,7 @@ var init = function(app) {
         Table:{
           TOSSUP:"tossup",
           TOURNAMENT:"tournament",
+          ROUND:"round",
           USER:"user" 
         } 
       }, 
@@ -25,6 +26,23 @@ var init = function(app) {
           ANSWER_TIMEOUT: 10000,
           QUESTION_TIMEOUT: 5000
         }
+      },
+      Error:{
+        TOSSUP_NOT_FOUND:{message:"tossup not found",code:400},
+        TOURNAMENT_NOT_FOUND:{message:"tournament not found",code:401},
+        ROUND_NOT_FOUND:{message:"round not found",code:402},
+        SERVICE_NOT_FOUND:{message:"service not found",code:404},
+        SERVICE_FAILED:{message:"service failed",code:405}
+      }
+    },
+    Server: {
+      Response:function(data, status, url, query, timestamp, elapsed) {
+        this.data = data;
+        this.status = status;
+        this.url = url;
+        this.query = query;
+        this.timestamp = timestamp.getTime();
+        this.elapsed = elapsed;
       }
     },
     Dao : {
@@ -44,15 +62,31 @@ var init = function(app) {
         this.category = category;
         this.question = question;
         this.answer = answer;
+      },
+      Tournament:function(id, year, tournament) {
+        this.id = id;
+        this.year = year;
+        this.tournament = tournament;
+      },
+      Round:function(id, round) {
+        this.id = id;
+        this.round = round;
       }
     },
     Multiplayer : {
       Team:function(id, max, room) {
-        var players = [];
-        this.buzzed = false;
+        var team = this;
+        this.players = [];
+        var buzzed = false;
+        this.getBuzzed = function() {
+          return buzzed;
+        }
+        this.setBuzzed = function(b) {
+          buzzed = b;
+        }
         this.leave = function(user, callback) {
           if (room.getUserToTeam()[user] == id) {
-            players.splice(players.indexOf(user), 1);
+            team.players.splice(team.players.indexOf(user), 1);
             var ret = delete room.getUserToTeam()[user];
             if (callback) {
               callback(ret);
@@ -65,32 +99,32 @@ var init = function(app) {
           return false;
         }
         this.sit = function(user, callback) {
-          if (!room.game.started) {
-            if (players.length < max) {
+          //if (!room.game.started) {
+            if (team.players.length < max) {
               if (!this.contains(user)){
                 if (room.getUserToTeam()[user]) {
                   room.getTeams()[room.getUserToTeam()[user]].leave(user);
                 }
                 room.getUserToTeam()[user] = id;
-                players.push(user);
+                team.players.push(user);
                 if (callback) {
                   callback(true);
                 }
                 return true;
               }
             }
-          }
+          //}
           if (callback) {
             callback(false);
           }
           return false;
         } 
         this.contains = function(user) {
-          if (players.indexOf(user) != -1) {
+          if (team.players.indexOf(user) != -1) {
             return true;
           } else {
             return false;
-            }
+          }
         }
         this.getId = function(callback){
           if (callback) {
@@ -100,13 +134,12 @@ var init = function(app) {
         }
         this.getPlayers = function(callback) {
           if (callback) {
-            callback(players);
+            callback(this.players);
           }
-          return players;
+          return this.players;
         }
       },
       Room:function(name, host, properties, onCreate) {
-             console.log(properties);
         var room = this; 
 
         var teams = {};
@@ -136,6 +169,7 @@ var init = function(app) {
 
         var users = [];
         var userToTeam = {};
+        var userToHandler = {};
         var channel;
         var channelName = Model.Constants.Bridge.ROOM_CHANNEL_PREFIX+name;
         var serviceName = Model.Constants.Bridge.ROOM_SERVICE_PREFIX+name;
@@ -152,6 +186,9 @@ var init = function(app) {
           }
           this.onLeave = function(user) {
             properties.onLeave(user);
+          }
+          this.onLeaveTeam = function(user, team) {
+            properties.onLeave(user, team);
           }
           this.onStartQuestion = function() {
             properties.onStartQuestion();
@@ -192,8 +229,17 @@ var init = function(app) {
           this.answer = function(answer, callback) {
             game.answer(user, answer, callback);
           }
-          this.leave = function() {
-            channel.onLeave(user);
+          this.leave = function(callback) {
+            var team = userToTeam[user];
+            if (team) {
+              team.leave(user, function(left) {
+                if (left) {
+                  channel.onLeave(user);
+                  bridge.leaveChannel(channelName, userToHandler[user]);
+                  callback(left);
+                }
+              });
+            }
           }
           this.sit = function(team, callback) {
             if (teams[team]) {
@@ -209,6 +255,7 @@ var init = function(app) {
 
         this.join = function(user, handler, onJoin) {
           users.push(user);
+          userToHandler[user] = handler;
           app.bridge.joinChannel(
             channelName,
             handler,
@@ -220,7 +267,7 @@ var init = function(app) {
         }
         this.start = function(user) {
           if (!game.started) {
-            if (user == host) {
+            if (true) {
               game.start();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
             } else {
@@ -230,24 +277,28 @@ var init = function(app) {
             }
           }
         }
+        this.name = name;
         this.getName = function(callback){
           if (callback) {
             callback(name);
           }
           return name;
         }
+        this.host = host;
         this.getHost = function(callback){
           if (callback) {
             callback(host);
           }
           return host;
         }
+        this.created = created;
         this.getCreated = function(callback){
           if (callback) {
             callback(created);
           }
           return created;
         }
+        this.users = users;
         this.getUsers = function(callback){
           if (callback) {
             callback(users);
@@ -266,12 +317,14 @@ var init = function(app) {
           }
           return channel;
         }
+        this.teams = teams;
         this.getTeams = function(callback) {
           if (callback) {
             callback(teams);
           }
           return teams;
         }
+        this.properties = properties;
         this.getProperties = function(callback) {
           if (callback) {
             callback(properties);
@@ -328,13 +381,16 @@ var init = function(app) {
         var questionTimeout = -1;
         var buzzed = false;
         var started = false;
+        game.started = started;
         var count;
         var curTossups;
         var tossupNumber;
         var tossupLength;
         var index = 0;
+        game.questionNumber = index+1;
         var numBuzzes = 0;
         var answering = false;
+        var curPartial = [];
         var getNumTeams = function(){
           var c = 0;
           for (var i in room.getTeams()) {
@@ -346,14 +402,13 @@ var init = function(app) {
         }
         this.buzz = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
-          if (team && !team.buzzed) {
+          if (team && !team.getBuzzed()) {
             clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
             room.getChannel().onBuzz(app.getUsers()[user]);
-            team.buzzed = true;
+            team.setBuzzed(true);
             pauseReading();
-            console.log(answerTimeout);
             answerTimeout = setTimeout(answerTimer, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
             buzzed = true;
             numBuzzes++;
@@ -389,10 +444,11 @@ var init = function(app) {
           }, 5000);
         }
         this.start = function(){
+          game.started = true;
           started = true;
           app.dao.tossup.search(
             {
-              random:true,
+              random:'true',
               limit:room.getProperties().numQuestions,
               value:'',
               params:{
@@ -405,8 +461,10 @@ var init = function(app) {
                 curTossups = tossups;
                 tossupLength = tossups.length;
                 currentTossup = tossups[0];
+                game.currentTossup = currentTossup.id;
                 curWords = currentTossup.question.split(" ");
                 count = curWords.length;
+                game.wordNumber = curWords.length - count + 1;
                 room.getChannel().onStartQuestion();
                 resumeReading();
               }
@@ -418,14 +476,17 @@ var init = function(app) {
           setTimeout(function(){
             room.getChannel().onStartQuestion();
             if (!(tossupLength == index+1)) {
-              index++;
+              game.questionNumber = ++index+1;
               numBuzzes = 0;
+              curPartial = [];
               currentTossup = curTossups[index];
+              game.currentTossup = currentTossup.id;
               curWords = curTossups[index].question.split(" ");
               count = curWords.length;
+              game.wordNumber = curWords.length - count + 1;
               resumeReading();
               for (var i in room.getTeams()) {
-                room.getTeams()[i].buzzed = false;
+                room.getTeams()[i].setBuzzed(false);
               }
             } else {
               app.deleteRoom(room.getName());
@@ -440,14 +501,20 @@ var init = function(app) {
           gameTimer = setInterval(function(){
             if (count >= 1) {
               room.getChannel().onNewWord(curWords[curWords.length-count]);
+              if (count != tossupLength) {
+                curPartial.push(curWords[curWords.length-count]);
+                game.partial = curPartial.join(" ");;
+              }
               count--;
+              game.wordNumber++;
             } else {
+              game.partial = currentTossup.question;
               clearInterval(gameTimer);
               if (index < tossupLength) {
                 questionTimer();
               }
             }
-          },250);
+          },1000);
         }
         var answerTimer = function(){
           if (numBuzzes == getNumTeams()) {

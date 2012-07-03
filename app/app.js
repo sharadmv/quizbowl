@@ -9,6 +9,8 @@ app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox"
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
+app.router = require('./router.js')(this);
+app.service = require('./service.js')(this);
 
 app.Constants = app.model.Constants;
 
@@ -18,6 +20,12 @@ app.log = function(tag, message) {
 }
 app.getUsers = function(){
   return users;
+}
+app.getRooms = function(callback) {
+  if (callback) {
+    callback(rooms);
+  }
+  return rooms;
 }
 
 if (process.argv[2]) {
@@ -31,13 +39,21 @@ if (process.argv[2]) {
 /*app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
-    var room = new Room("main", user, properties, function(room) {
-      rooms["main"] = room;
-      callback(room);
+    var r = new Room(properties.name, user, properties, function(room) {
+      if (!rooms[properties.name]) {
+        rooms[properties.name] = r;
+        callback(r);
+        console.log(r);
+      } else {
+        callback(null);
+      }
     });
   },
   getRooms:function(callback) {
     callback(rooms);
+  },
+  joinRoom:function(room, user,handler,callback ) {
+    rooms[room].join(user, handler, callback);
   }
 });*/
 app.deleteRoom = function(name) {

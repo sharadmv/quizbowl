@@ -9,7 +9,7 @@ var init = function(app) {
                 user = new app.model.Dao.User(null, fbObject.name, fbObject.id, fbObject.email, null);
               }
               app.dao.user.save(user);
-              app.getUsers()[userToken]=user;
+              app.getUsers()[user.id]=user;
               callback(user);
             });
           } else {
