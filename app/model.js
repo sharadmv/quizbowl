@@ -1,6 +1,18 @@
 var init = function(app) {
   var Model = {
     Constants : {
+      Events:{
+        Type:{
+          USER_LOGGED_IN:"user_logged_in",
+          USER_LOGGED_OUT:"user_logged_out"
+        },
+        Level:{
+          VERBOSE:"verbose",
+          DEBUG:"debug",
+          WARNING:"warning",
+          IMPORTANT:"important"
+        }
+      },
       Bridge:{
         ROOM_CHANNEL_PREFIX:"quizbowl-room-channel-",
         ROOM_SERVICE_PREFIX:"quizbowl-room-service-",
@@ -16,8 +28,11 @@ var init = function(app) {
         } 
       }, 
       Tag:{
-        DAO:"DAO", MULTIPLAYER:"MULTIPLAYER", BRIDGE:"BRIDGE",
-        SERVER:"SERVER"
+        DAO:"DAO", 
+        MULTIPLAYER:"MULTIPLAYER", 
+        BRIDGE:"BRIDGE",
+        SERVER:"SERVER",
+        AUTH: "AUTH"
       },
       Multiplayer:{
         GAME_TYPE_FFA:"ffa",
@@ -33,6 +48,12 @@ var init = function(app) {
         ROUND_NOT_FOUND:{message:"round not found",code:402},
         SERVICE_NOT_FOUND:{message:"service not found",code:404},
         SERVICE_FAILED:{message:"service failed",code:405}
+      }
+    },
+    Events: {
+      Event:function(type, level, message) {
+        this.type = type;
+        this.level = level;
       }
     },
     Server: {

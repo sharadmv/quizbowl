@@ -1,18 +1,26 @@
 var app = this;
 
 var users = {};
+var timeouts = {};
 
 app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
-app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox");
+app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "quizbowl");
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
 app.router = require('./router.js')(this);
 app.service = require('./service.js')(this);
+app.events = require('./events.js')(this);
 
 app.Constants = app.model.Constants;
+app.events.on(app.Constants.Events.Type.USER_LOGGED_IN, function(ev) {
+  console.log(ev);
+});
+app.events.on(app.Constants.Events.Type.USER_LOGGED_IN, function(ev) {
+  console.log('2',ev);
+});
 
 var rooms = {};
 app.log = function(tag, message) {
@@ -26,6 +34,9 @@ app.getRooms = function(callback) {
     callback(rooms);
   }
   return rooms;
+}
+app.getTimeouts = function() {
+  return timeouts;
 }
 
 if (process.argv[2]) {
