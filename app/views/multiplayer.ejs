@@ -1,9 +1,34 @@
 <div id='multi'>
   <script type='text/javascript' src='/js/multiplayer.js'></script>
   <h3>Multiplayer</h3>
-  <div id='rooms'></div>
-  <div id='text'></div>
-  <button id='buzz'>Buzz</button>
-  <input id='answer'></input>
-  <div id='response'></div>
+  <div id='left'>
+    <h4>Create Game</h4>
+    <div id='create'>
+      <input id='name'></input>
+      <button id='createbutton'>Create</button>
+    </div>
+    <h4>Join Game</h4>
+    <div id='rooms'>
+      <select id='roomlist'>
+      </select>
+      <button id='join'>Join</button>
+      <div id='teams'></div>
+    </div>
+  </div>
+  <div id='right'>
+    <div id='game'>
+      <div id='question'></div>
+      <div id='answerPanel'>
+        <button id='buzz'>Buzz</button>
+        <input id='answer'></input>
+      </div>
+      <div id='response'></div>
+    </div>
+  </div>
+  <div id='chat'>
+    <div id='box'>
+    </div>
+    <input id='message'></input>
+    <button id='send'>Send</button>
+  </div>
 </div>

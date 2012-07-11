@@ -105,7 +105,7 @@ var init = function(app) {
         this.setBuzzed = function(b) {
           buzzed = b;
         }
-        this.leave = function(user, callback) {
+        this.unsit = function(user, callback) {
           if (room.getUserToTeam()[user] == id) {
             team.players.splice(team.players.indexOf(user), 1);
             var ret = delete room.getUserToTeam()[user];
@@ -120,11 +120,11 @@ var init = function(app) {
           return false;
         }
         this.sit = function(user, callback) {
-          //if (!room.game.started) {
+          if (!room.game.started) {
             if (team.players.length < max) {
               if (!this.contains(user)){
                 if (room.getUserToTeam()[user]) {
-                  room.getTeams()[room.getUserToTeam()[user]].leave(user);
+                  room.getTeams()[room.getUserToTeam()[user]].unsit(user);
                 }
                 room.getUserToTeam()[user] = id;
                 team.players.push(user);
@@ -134,7 +134,7 @@ var init = function(app) {
                 return true;
               }
             }
-          //}
+          }
           if (callback) {
             callback(false);
           }
@@ -171,6 +171,7 @@ var init = function(app) {
           properties.maxOccupancy = 10;
         }
         if (properties.type == app.Constants.Multiplayer.GAME_TYPE_FFA) {
+          properties.teamLimit = 1;
           for (var i = 0; i <  properties.maxOccupancy; i++){
             var team = new Model.Multiplayer.Team(i+1, 1, room);
             teams[i+1] = team; 
@@ -191,13 +192,14 @@ var init = function(app) {
         var users = [];
         var userToTeam = {};
         var userToHandler = {};
+        var userToService = {};
         var channel;
         var channelName = Model.Constants.Bridge.ROOM_CHANNEL_PREFIX+name;
         var serviceName = Model.Constants.Bridge.ROOM_SERVICE_PREFIX+name;
 
-        Model.Multiplayer.Room.ChannelHandler = function(properties){
+        var ChannelHandler = function(properties){
           this.onChat = function(user, message) {
-            properties.onChat(app.getUsers()[user], message);
+            properties.onChat(user, message);
           }
           this.onSystemBroadcast = function(message) {
             properties.onSystemBroadcast(message);
@@ -209,7 +211,7 @@ var init = function(app) {
             properties.onLeave(user);
           }
           this.onLeaveTeam = function(user, team) {
-            properties.onLeave(user, team);
+            properties.onUnsit(user, team);
           }
           this.onStartQuestion = function() {
             properties.onStartQuestion();
@@ -240,9 +242,9 @@ var init = function(app) {
           }
         }
 
-        Model.Multiplayer.Room.ServiceHandler = function(user){
+        var ServiceHandler = function(user){
           this.chat = function(message) {
-            channel.onChat(user, message);
+            channel.onChat(app.getUsers()[user], message);
           }
           this.buzz = function() {
             game.buzz(user);
@@ -250,17 +252,38 @@ var init = function(app) {
           this.answer = function(answer, callback) {
             game.answer(user, answer, callback);
           }
-          this.leave = function(callback) {
+          this.unsit = function(callback) {
+            var that = this;
             var team = userToTeam[user];
             if (team) {
-              team.leave(user, function(left) {
+              teams[team].unsit(user, function(left) {
                 if (left) {
-                  channel.onLeave(user);
-                  bridge.leaveChannel(channelName, userToHandler[user]);
+                  channel.onLeaveTeam(user);
                   callback(left);
                 }
               });
+            } else {
+              callback(true);
             }
+          }
+          this.leave = function(callback) {
+            this.unsit(function(left) {
+              if (left) {
+                for (var i in users) {
+                  if (users[i] == user) {
+                    users.splice(i,1);
+                  }
+                }
+                console.log(channelName, userToHandler[user]);
+                if (callback) {
+                  callback(true);
+                }
+              } else {
+                if (callback) {
+                  callback(false);
+                }
+              }
+            });
           }
           this.sit = function(team, callback) {
             if (teams[team]) {
@@ -275,14 +298,22 @@ var init = function(app) {
         }
 
         this.join = function(user, handler, onJoin) {
-          users.push(user);
+          var joined = false;
+          for (var i in users) {
+            joined = joined || (users[i] == user)
+          }
+          if (!joined) {
+            users.push(user);
+          }
           userToHandler[user] = handler;
           app.bridge.joinChannel(
             channelName,
             handler,
             function(){
+              var h = new ServiceHandler(user);
+              userToService[user] = h;
               app.log(app.Constants.Tag.MULTIPLAYER, [app.getUsers()[user].name,"joined",channelName]);
-              onJoin(new Model.Multiplayer.Room.ServiceHandler(user));
+              onJoin(h);
             }
           );
         }
@@ -352,9 +383,21 @@ var init = function(app) {
           }
           return properties;
         }
+        this.getUserToHandler = function(callback) {
+          if (callback) {
+            callback(userToHandler);
+          }
+          return userToHandler;
+        }
+        this.getUserToService = function(callback) {
+          if (callback) {
+            callback(userToService);
+          }
+          return userToService;
+        }
         app.bridge.publishService(serviceName, room);
         app.bridge.joinChannel(channelName, 
-          new Model.Multiplayer.Room.ChannelHandler({
+          new ChannelHandler({
             onChat : function(user, message) {
             },
             onSystemBroadcast : function(message) {
@@ -362,6 +405,8 @@ var init = function(app) {
             onJoin : function(user) {
             },
             onLeave : function(user) {
+            },
+            onUnsit : function(user) {
             },
             onStartQuestion : function() {
             },
@@ -535,7 +580,7 @@ var init = function(app) {
                 questionTimer();
               }
             }
-          },1000);
+          },200);
         }
         var answerTimer = function(){
           if (numBuzzes == getNumTeams()) {

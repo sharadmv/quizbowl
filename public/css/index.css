@@ -1,0 +1,25 @@
+#chat {
+  width:200px;
+  float:left;
+}
+#box {
+  height : 400px;
+  border-radius:5px;
+  border : 2px solid #ddd;
+  overflow : scroll;
+}
+#answerPanel {
+  text-align : center;
+}
+#question {
+  width : 500px;
+  height : 400px;
+  border-radius:5px;
+  border : 3px solid #ccc;
+}
+#right {
+  float : left;
+}
+#left {
+  float : left;
+}

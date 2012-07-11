@@ -38,6 +38,7 @@ var init = function(app) {
 
   application.get('/api/service', authorize, function(req, res) {
     var res = app.router.wrap(res);
+    app.log(app.Constants.Tag.SERVER, ["GET",req.url]);
     var service = app.service.route(req.query.method);
     if (!service) {
       res.error(app.model.Constants.Error.SERVICE_NOT_FOUND);
