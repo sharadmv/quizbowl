@@ -228,6 +228,9 @@ var init = function(app) {
           this.onAnswer = function(user, answer) {
             properties.onAnswer(user, answer);
           }
+          this.onAnswerTimeout  = function(user) {
+            properties.onAnswerTimeout(user);
+          }
           this.onQuestionTimeout = function(){
             properties.onQuestionTimeout();
           }
@@ -419,6 +422,8 @@ var init = function(app) {
             },
             onAnswer : function(user, answer) {
             },
+            onAnswerTimeout : function(user) {
+            },
             onQuestionTimeout : function(){
             },
             onFinish : function() {
@@ -475,7 +480,9 @@ var init = function(app) {
             room.getChannel().onBuzz(app.getUsers()[user]);
             team.setBuzzed(true);
             pauseReading();
-            answerTimeout = setTimeout(answerTimer, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
+            answerTimeout = setTimeout(function(){
+              answerTimer(user);
+            }, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
             buzzed = true;
             numBuzzes++;
           }
@@ -506,6 +513,7 @@ var init = function(app) {
         var questionTimer = function() {
           questionTimeout = setTimeout(function(){
             room.getChannel().onQuestionTimeout();
+            room.getChannel().onCompleteQuestion(currentTossup);
             nextQuestion();
           }, 5000);
         }
@@ -582,9 +590,11 @@ var init = function(app) {
             }
           },200);
         }
-        var answerTimer = function(){
+        var answerTimer = function(user){
+          room.getChannel().onAnswerTimeout(app.getUsers()[user]);
           if (numBuzzes == getNumTeams()) {
             nextQuestion();
+            room.getChannel().onCompleteQuestion(currentTossup);
           } else {
             resumeReading()
           }

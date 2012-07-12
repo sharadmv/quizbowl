@@ -18,11 +18,14 @@
           xfbml      : true, // parse XFBML
           oauth      : true
         });
-        FB.getLoginStatus(function(response) {
-          if(typeof(window.onFbAuth) === 'function') {
-            window.onFbAuth();
-          }
-        });
+        FB.Event.subscribe('auth.statusChange',
+            function(response) {  
+              console.log(response);
+              if (response.status == "connected") {
+                window.onFbAuth();
+              }
+            }
+        );
       };
 
       // Load the SDK Asynchronously

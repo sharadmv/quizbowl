@@ -1,6 +1,12 @@
 $(document).ready(function(){
   var mHandler = 
   {
+    onAnswerTimeout: function(user) {
+      $("#box").append($("<div><i>"+user.name+" timed out</i><div>"));
+    },
+    onQuestionTimeout: function() {
+      $("#box").append($("<div><i>Question timed out</i><div>"));
+    },
     onChat:function(user, message) {
       console.log(user);
       $("#box").append($("<div><b>"+user.name+"</b>: "+message+"</div>"));
@@ -27,9 +33,6 @@ $(document).ready(function(){
     onCompleteQuestion:function(question) {
       $('#question').html(question.question+"<br />ANSWER: "+question.answer);
     },
-    onQuestionTimeout:function(user) {
-      $("#box").append($("<div><i>"+user.name+" timed out</i></div>"));
-    }
   };
 
   // "Multi" is synonymous to Multiplayer
@@ -37,9 +40,11 @@ $(document).ready(function(){
     initialize: function() {
       this.connectBridge();
 
-      // if fb and then this loads
-      if(typeof(FB) !== 'undefined') {
+      // if fb ad then this loads
+      console.log(window.FB);
+      if(window.FB){
         this.getAuth(this);
+        console.log("AUTHING");
       // else fb has not loaded yet
       } else {
         var self = this;
@@ -55,9 +60,12 @@ $(document).ready(function(){
     },
 
     getAuth: function() {
-      this.fbToken = FB.getAccessToken();
+      this.fbToken = window.FB.getAccessToken();
       var self = this;
+      console.log("AUTHING");
+      console.log(this.fbToken);
       this.bridge.getService('quizbowl-auth', function(auth) {
+        console.log(auth);
         self.login(auth);
       });
     },

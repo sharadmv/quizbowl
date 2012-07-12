@@ -16,6 +16,7 @@ var init = function(app) {
       },
       logout:function(userToken) {
         app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.USER_LOGGED_OUT, app.Constants.Events.Level.IMPORTANT, app.getUsers()[userToken].name+" logged out"));
+        delete app.getUserToRoom()[userToken]; 
         delete app.getUsers()[userToken];
       },
 			login:function(userToken, callback){
@@ -25,6 +26,7 @@ var init = function(app) {
               if (user == null) {
                 user = new app.model.Dao.User(null, fbObject.name, fbObject.id, fbObject.email, null);
               }
+              console.log(user);
               app.dao.user.save(user);
               app.getUsers()[user.id]=user;
               auth.handler.alive(user.id);
