@@ -60,7 +60,9 @@ var init = function(app) {
           } else {
             client.query(""+"INSERT INTO "+Constants.Table.USER+"(username, fb_id, email) values(?,?,?)",[u.name, u.fbId, u.email], function(err, rows, fields) {
               if (err) throw err;
-              callback(u);
+              if (callback) {
+                callback(u);
+              }
             });
           }
         });
