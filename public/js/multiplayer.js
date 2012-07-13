@@ -8,7 +8,6 @@ $(document).ready(function(){
       $("#box").append($("<div><i>Question timed out</i><div>"));
     },
     onChat:function(user, message) {
-      console.log(user);
       $("#box").append($("<div><b>"+user.name+"</b>: "+message+"</div>"));
     },
     onAnswer:function(user, message){
@@ -41,7 +40,6 @@ $(document).ready(function(){
       this.connectBridge();
 
       // if fb ad then this loads
-      console.log(window.FB);
       if(window.FB){
         this.getAuth(this);
         console.log("AUTHING");
@@ -62,10 +60,8 @@ $(document).ready(function(){
     getAuth: function() {
       this.fbToken = window.FB.getAccessToken();
       var self = this;
-      console.log("AUTHING");
       console.log(this.fbToken);
       this.bridge.getService('quizbowl-auth', function(auth) {
-        console.log(auth);
         self.login(auth);
       });
     },
@@ -119,7 +115,7 @@ $(document).ready(function(){
     }
 
   }, {
-    BRIDGE_API_KEY: "08c83c72"
+    BRIDGE_API_KEY: "c44bcbad333664b9"
   });
 
   var MultiView = Backbone.View.extend({
@@ -180,34 +176,48 @@ $(document).ready(function(){
   });  
 
   var bindEvents = function() {
-    $("#createbutton").click(function(){
-      var room = $("#name").val();
+    var create = function() {
+      var room = $("#name").val().trim();
       if (room!= "") {
         window.multiService.createRoom(user.id,{type:"ffa",maxOccupancy:10,name:$("#name").val(),numQuestions:20},function(o) {
           if (o) {
             window.gm = o;
-            window.multiService.joinRoom(room, user.id, mHandler, function(handler) {
+            window.multiService.joinRoom(room, user.id, mHandler, function(handler, partial) {
               window.room = room;
               loadRoom(room);
               window.handler = handler;
               var but = $("<button>Start</button>");
               but.click(function(){
-                window.gm.start();
-                loadRoom(room);
+                window.gm.start(user.id, function(started) {
+                  if (started) {
+                    loadRoom(room);
+                  }
+                });
               });
-              $("#create").append(but);
+              $("#start").html(but);
             });
           }
         });
       }
-    });
-    $("#send").click(function(){
-      window.handler.chat($("#message").val());
-    });
-    $("#buzz").click(function(){
-      window.handler.buzz();
-    });
-    $("#join").click(function(){
+    }
+    var send = function() {
+      window.handler.chat($("#message").val().trim());
+      $("#message").val("");
+    }
+    var buzz = function() {
+      window.handler.buzz(function(buzzed) {
+        if (buzzed) {
+          $("#answer").focus();
+        }
+      });
+    }
+    var answer = function() {
+      window.handler.answer($("#answer").val().trim(), function(right) {
+        $("#answer").val("");
+        $("#response").html(right+"");
+      });
+    }
+    var join = function() {
       var roomname = $("#roomlist").val();
       if (roomname) {
         window.multiService.joinRoom(roomname, user.id, mHandler, function(handler) {
@@ -216,12 +226,32 @@ $(document).ready(function(){
           loadRoom(roomname);
         });
       }
+    }
+    $("#createbutton").click(create);
+    $("#name").keypress(function(event) {
+      if ( event.which == 13 ) {
+        create();
+      }
     });
+    $("#send").click(send);
+    $("#message").focus(function() {
+    });
+    $("#message").keypress(function(event) {
+      if ( event.which == 13 ) {
+        send();
+      }
+    });
+    $("#buzz").click(buzz);
+    $("body").keypress(function(event) {
+      console.log(unfocused());
+      if ( event.which == 32  && unfocused()) {
+        buzz(); 
+      }
+    });
+    $("#join").click(join);
     $("#answer").keypress(function(event) {
       if ( event.which == 13 ) {
-        window.handler.answer($("#answer").val(), function(right) {
-          $("#response").val(right+"");
-        });
+        answer();
       }
     });
   }
@@ -231,19 +261,23 @@ $(document).ready(function(){
       var room = resp.data;
       $("#teams").html("<b>Current Room:</b> "+room.name);
       if (room) {
+        if (room.game.partial) {
+          $("#question").html(room.game.partial+" ");
+        }
         var teams = room.teams;
         for (var i in teams){
           (function(teams, i) {
             var team = $("<div></div>");
             team.html("<u>Team "+i+"</u>");
             $("#teams").append(team);
-            console.log(room);
-            if (teams[i].players.length < room.properties.teamLimit) {
-              var but = $("<button>Join</button>");
-              $(but).click(function(){ 
-                window.handler.sit(i);
-              });
-              team.append(but);
+            if (!room.game.started) {
+              if (teams[i].players.length < room.properties.teamLimit) {
+                var but = $("<button>Join</button>");
+                $(but).click(function(){ 
+                  window.handler.sit(i);
+                });
+                team.append(but);
+              }
             }
             for (var player in teams[i].players) {
               $.getJSON('/api/service?method=user.get&user='+teams[i].players[player], function(resp) {
@@ -255,5 +289,8 @@ $(document).ready(function(){
         }
       }
     });
+  }
+  var unfocused = function() {
+    return !($("#answer").is(":focus") || $("#message").is(":focus") || $("#name").is(":focus"));
   }
 });

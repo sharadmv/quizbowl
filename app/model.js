@@ -198,14 +198,20 @@ var init = function(app) {
         var serviceName = Model.Constants.Bridge.ROOM_SERVICE_PREFIX+name;
 
         var ChannelHandler = function(properties){
+          this.onGameStart = function() {
+            properties.onGameStart();
+          }
+          this.onGameEnd = function() {
+            properties.onGameEnd();
+          }
           this.onChat = function(user, message) {
             properties.onChat(user, message);
           }
           this.onSystemBroadcast = function(message) {
             properties.onSystemBroadcast(message);
           }
-          this.onJoin = function(user) {
-            properties.onJoin(user);
+          this.onJoin = function(user, partial) {
+            properties.onJoin(user, partial);
           }
           this.onLeave = function(user) {
             properties.onLeave(user);
@@ -249,8 +255,8 @@ var init = function(app) {
           this.chat = function(message) {
             channel.onChat(app.getUsers()[user], message);
           }
-          this.buzz = function() {
-            game.buzz(user);
+          this.buzz = function(callback) {
+            game.buzz(user, callback);
           }
           this.answer = function(answer, callback) {
             game.answer(user, answer, callback);
@@ -270,14 +276,15 @@ var init = function(app) {
             }
           }
           this.leave = function(callback) {
-            this.unsit(function(left) {
-              if (left) {
+            //this.unsit(function(left) {
+              if (true) {
                 for (var i in users) {
                   if (users[i] == user) {
                     users.splice(i,1);
                   }
                 }
                 console.log(channelName, userToHandler[user]);
+                app.bridge.leaveChannel(channelName, userToHandler[user]);
                 if (callback) {
                   callback(true);
                 }
@@ -286,7 +293,7 @@ var init = function(app) {
                   callback(false);
                 }
               }
-            });
+            //});
           }
           this.sit = function(team, callback) {
             if (teams[team]) {
@@ -316,20 +323,28 @@ var init = function(app) {
               var h = new ServiceHandler(user);
               userToService[user] = h;
               app.log(app.Constants.Tag.MULTIPLAYER, [app.getUsers()[user].name,"joined",channelName]);
-              onJoin(h);
+              var partial = "";
+              if (game.started) {
+                partial = game.partial;
+              }
+              console.log(partial);
+              onJoin(h, partial);
             }
           );
         }
-        this.start = function(user) {
+        this.start = function(user, callback) {
           if (!game.started) {
             if (true) {
               game.start();
-              app.log(app.Constants.Tag.MULTIPLAYER,["Game started"]);
+              app.log(app.Constants.Tag.MULTIPLAYER,["Game started:", room.name]);
+              callback(true);
             } else {
               app.dao.user.get(user, function(u) {
                 app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u.name]);
               });
             }
+          } else {
+            callback(false);
           }
         }
         this.name = name;
@@ -471,20 +486,24 @@ var init = function(app) {
           }
           return c;
         }
-        this.buzz = function(user){
+        this.buzz = function(user, callback){
           var team = room.getTeams()[room.getUserToTeam()[user]];
-          if (team && !team.getBuzzed()) {
+          if (started && !buzzed && team && !team.getBuzzed()) {
             clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
             room.getChannel().onBuzz(app.getUsers()[user]);
             team.setBuzzed(true);
+            console.log("PAUSING");
             pauseReading();
             answerTimeout = setTimeout(function(){
               answerTimer(user);
             }, app.Constants.Multiplayer.Game.ANSWER_TIMEOUT);
             buzzed = true;
             numBuzzes++;
+            callback(true);
+          } else {
+            callback(false);
           }
         }
         this.answer = function(user, answer, callback) {
@@ -588,7 +607,7 @@ var init = function(app) {
                 questionTimer();
               }
             }
-          },200);
+          },300);
         }
         var answerTimer = function(user){
           room.getChannel().onAnswerTimeout(app.getUsers()[user]);

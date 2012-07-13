@@ -1,6 +1,6 @@
 var init = function(app) {
-  var Bridge = require('bridge');
-  var API_KEY = "2e6d428f";
+  var Bridge = require('bridge-js');
+  var API_KEY = "c44bcbad333664b9";
   var dep = "default";
   if (process.argv.length > 3) {
     dep = process.argv[3];
