@@ -97,6 +97,9 @@ var init = function(app) {
     Multiplayer : {
       Team:function(id, max, room) {
         var team = this;
+        var score = {};
+        var recalc = true;
+        var totalscore = 0;
         this.players = [];
         var buzzed = false;
         this.getBuzzed = function() {
@@ -109,6 +112,7 @@ var init = function(app) {
           if (room.getUserToTeam()[user] == id) {
             team.players.splice(team.players.indexOf(user), 1);
             var ret = delete room.getUserToTeam()[user];
+            ret = ret && delete score.user
             if (callback) {
               callback(ret);
             } 
@@ -119,6 +123,23 @@ var init = function(app) {
           }
           return false;
         }
+        this.addScore = function(user, points) {
+          score[user] += points;
+          recalc = true;
+        }
+        this.getScore = function() {
+          var total = 0;
+          if (recalc) {
+            for (var user in score) {
+              total += score[user];
+            }
+            totalscore = total;
+          } else {
+            total = totalscore;
+          }
+          recalc = false;
+          return {total: total, players: score};
+        }
         this.sit = function(user, callback) {
           if (!room.game.started) {
             if (team.players.length < max) {
@@ -128,6 +149,9 @@ var init = function(app) {
                 }
                 room.getUserToTeam()[user] = id;
                 team.players.push(user);
+                if (!score[user]) {
+                  score[user] = 0;
+                }
                 if (callback) {
                   callback(true);
                 }
@@ -336,6 +360,7 @@ var init = function(app) {
           if (!game.started) {
             if (true) {
               game.start();
+              channel.onGameStart();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started:", room.name]);
               callback(true);
             } else {
@@ -514,15 +539,21 @@ var init = function(app) {
               if (callback) {
                 callback(obj); 
               }
+              var team = room.getTeams()[room.getUserToTeam()[user]];
               if (obj) {
-                room.getChannel().onAnswer(app.getUsers()[user],"answered correctly with "+answer);
+                team.addScore(user, 10);
+                room.getChannel().onAnswer(app.getUsers()[user],"answered correctly with "+answer+" for 10 points");
+                room.getChannel().onUpdateScore(game.getScore());
                 room.getChannel().onCompleteQuestion(currentTossup);
                 nextQuestion();
               } else {
-                room.getChannel().onAnswer(app.getUsers()[user],"answered incorrectly with "+answer);
                 if (numBuzzes == getNumTeams()) {
+                  room.getChannel().onAnswer(app.getUsers()[user],"answered incorrectly with "+answer+" for no penalty");
                   nextQuestion();
                 } else {
+                  team.addScore(user, -5);
+                  room.getChannel().onAnswer(app.getUsers()[user],"negged with "+answer);
+                  room.getChannel().onUpdateScore(game.getScore());
                   resumeReading()
                 }
               }
@@ -535,6 +566,13 @@ var init = function(app) {
             room.getChannel().onCompleteQuestion(currentTossup);
             nextQuestion();
           }, 5000);
+        }
+        this.getScore = function() {
+          var score = {};
+          for (var i in room.teams) {
+            score[i] = room.teams[i].getScore();
+          }
+          return score;
         }
         this.start = function(){
           game.started = true;
@@ -582,6 +620,7 @@ var init = function(app) {
                 room.getTeams()[i].setBuzzed(false);
               }
             } else {
+              room.getChannel().onGameEnd();
               app.deleteRoom(room.getName());
             }
           }, 5000);

@@ -1,5 +1,18 @@
 var querystring = require('qs');
 var init = function(app) {
+  var util = {
+    convertRoom:function(r) {
+      var room = {};
+      room.name = r.name;
+      room.host = app.getUsers()[r.host];
+      room.game = r.game;
+      room.properties = r.properties;
+      room.teams = r.teams;
+      room.users = r.users;
+      room.score = room.game.getScore();;
+      return room;
+    }
+  }
   var Service = {
     services:{
       user: {
@@ -15,13 +28,7 @@ var init = function(app) {
           var r = app.getRooms();
           for (var i in r) {
             if (query.room == r[i].name) {
-              var room = {};
-              room.name = r[i].name;
-              room.host = app.getUsers()[r[i].host];
-              room.game = r[i].game;
-              room.properties = r[i].properties;
-              room.teams = r[i].teams;
-              room.users = r[i].users;
+              var room = util.convertRoom(r[i]);
               callback(room);
             }
           }
@@ -30,14 +37,8 @@ var init = function(app) {
           var r = app.getRooms();
           var rooms = [];
           for (var i in r) {
-            var room = {};
-            room.name = r[i].name;
-            room.host = app.getUsers()[r[i].host];
-            room.game = r[i].game;
-            room.properties = r[i].properties;
-            room.teams = r[i].teams;
-            room.users = r[i].users;
-            rooms.push(r[i]);
+            var room = util.convertRoom(r[i]);
+            rooms.push(room);
           }
           callback(rooms);
         }

@@ -22,7 +22,9 @@
             function(response) {  
               console.log(response);
               if (response.status == "connected") {
-                window.onFbAuth();
+                if (window.onFbAuth) {
+                  window.onFbAuth();
+                }
               }
             }
         );

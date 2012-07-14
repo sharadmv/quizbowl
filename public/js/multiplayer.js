@@ -3,12 +3,15 @@ $(document).ready(function(){
   {
     onAnswerTimeout: function(user) {
       $("#box").append($("<div><i>"+user.name+" timed out</i><div>"));
+      $("#box").animate({scrollTop:$("#box")[0].scrollHeight},"0ms");
     },
     onQuestionTimeout: function() {
       $("#box").append($("<div><i>Question timed out</i><div>"));
+      $("#box").animate({scrollTop:$("#box")[0].scrollHeight},"0ms");
     },
     onChat:function(user, message) {
       $("#box").append($("<div><b>"+user.name+"</b>: "+message+"</div>"));
+      $("#box").animate({scrollTop:$("#box")[0].scrollHeight},"0ms");
     },
     onAnswer:function(user, message){
       $("#box").append($("<div><i>"+user.name+" "+message+"</i></div>"));
@@ -21,9 +24,11 @@ $(document).ready(function(){
     },
     onBuzz:function(user){
       $("#box").append($("<div><i>"+user.name+" buzzed in</i></div>"));
+      $("#box").animate({scrollTop:$("#box")[0].scrollHeight},"0ms");
     },
     onSit:function(user, team) {
       $("#box").append($("<div><i>"+user.name+" sat on Team "+team+"</i></div>"));
+      $("#box").animate({scrollTop:$("#box")[0].scrollHeight},"0ms");
       loadRoom(window.room);
     },
     onStartQuestion:function(){
@@ -32,6 +37,9 @@ $(document).ready(function(){
     onCompleteQuestion:function(question) {
       $('#question').html(question.question+"<br />ANSWER: "+question.answer);
     },
+    onUpdateScore:function(score){
+      loadScore(score);
+    }
   };
 
   // "Multi" is synonymous to Multiplayer
@@ -41,8 +49,10 @@ $(document).ready(function(){
 
       // if fb ad then this loads
       if(window.FB){
-        this.getAuth(this);
-        console.log("AUTHING");
+        if (window.FB.getAccessToken()) {
+          this.getAuth(this);
+          console.log("AUTHING");
+        }
       // else fb has not loaded yet
       } else {
         var self = this;
@@ -219,7 +229,7 @@ $(document).ready(function(){
     }
     var join = function() {
       var roomname = $("#roomlist").val();
-      if (roomname) {
+      if (roomname && roomname != window.room) {
         window.multiService.joinRoom(roomname, user.id, mHandler, function(handler) {
           window.handler = handler;
           window.room = roomname;
@@ -256,11 +266,37 @@ $(document).ready(function(){
     });
   }
   bindEvents();
+  var loadScore = function(score) {
+    $("#score").html("");
+    for (var i in score) {
+      (function(s){
+        var el = $("<div></div>");
+        var html = ""
+        if (!window.roomobj.properties.type == "ffa") {
+          html += "<b>Team "+i+":</b> "+score[i].total;
+        }
+        for (var player in s.players) {
+          (function(p,el, html) {
+            $.getJSON('/api/service?method=user.get&user='+p, function(resp) {
+              var response = resp.data;
+              html += "<div>"+response.name +": "+(s.players)[p]+"</div>";
+              el.html(html);
+            });
+          })(player,el, html);
+        }
+        el.html(html);
+        $("#score").append(el);
+      })(score[i]);
+    }
+  }
   var loadRoom = function(name) {
     $.getJSON('/api/service?method=room.get&room='+name, function(resp) {
       var room = resp.data;
-      $("#teams").html("<b>Current Room:</b> "+room.name);
+      window.roomobj = room;
       if (room) {
+        console.log(room);
+        loadScore(room.score);
+        $("#teams").html("<b>Current Room:</b> "+room.name);
         if (room.game.partial) {
           $("#question").html(room.game.partial+" ");
         }
