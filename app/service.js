@@ -17,7 +17,9 @@ var init = function(app) {
     services:{
       user: {
         get : function(res, query, callback) {
-          callback(app.getUsers()[query.user]);
+          app.dao.user.get(query.user, function(user) {
+            callback(user);
+          });
         },
         list : function(res, query, callback) {
           callback(app.getUsers());           
