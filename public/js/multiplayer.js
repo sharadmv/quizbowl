@@ -112,7 +112,7 @@ $(document).ready(function(){
 
     getRooms: function() {
       var self = this;
-      $.getJSON('/api/service?method=room.list', function(resp) {
+      $.getJSON('http://quizbowldb.com:8080/api/service?method=room.list&callback=?', function(resp) {
         var response = resp.data;
         var rooms = {};
         for(var roomKey in response) {
@@ -279,7 +279,7 @@ $(document).ready(function(){
         }
         for (var player in s.players) {
           (function(p,el, html) {
-            $.getJSON('/api/service?method=user.get&user='+p, function(resp) {
+            $.getJSON('http://quizbowldb.com:8080/api/service?method=user.get&user='+p+'&callback=?', function(resp) {
               var response = resp.data;
               html += "<div>"+response.name +": "+(s.players)[p]+"</div>";
               el.html(html);
@@ -292,7 +292,7 @@ $(document).ready(function(){
     }
   }
   var loadRoom = function(name) {
-    $.getJSON('/api/service?method=room.get&room='+name, function(resp) {
+    $.getJSON('http://quizbowldb.com:8080/api/service?method=room.get&room='+name+'&callback=?', function(resp) {
       var room = resp.data;
       window.roomobj = room;
       if (room) {
@@ -318,7 +318,7 @@ $(document).ready(function(){
               }
             }
             for (var player in teams[i].players) {
-              $.getJSON('/api/service?method=user.get&user='+teams[i].players[player], function(resp) {
+              $.getJSON('http://quizbowldb.com:8080/api/service?method=user.get&user='+teams[i].players[player]+'&callback=?', function(resp) {
                 var response = resp.data;
                 team.append($("<div>"+response.name+"</div>"));
               });
