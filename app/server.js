@@ -61,6 +61,38 @@ var init = function(app) {
     }
   });
 
+  application.get('/api/room', authorize, function(req, res) {
+    var res = app.router.wrap(res);
+    app.service.services.room.list(res, req.query, function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+
+  application.get('/api/room/:room', authorize, function(req, res) {
+    var res = app.router.wrap(res);
+    app.service.services.room.get(res, { room : req.params.room }, function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+
+  application.get('/api/tournament/:tournament', authorize, function(req, res) {
+    var res = app.router.wrap(res);
+    app.dao.tournament.get(req.params.tournament, function(tournament) {
+      if (tournament) {
+        res.json(tournament);
+      } else { 
+        res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
+      }
+    });
+  });
   application.get('/api/tossup/:tossup', authorize, function(req, res) {
     var res = app.router.wrap(res);
     app.dao.tossup.get(req.params.tossup, function(tossup) {

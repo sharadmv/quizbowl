@@ -20,14 +20,14 @@
           oauth      : true
         });
         FB.Event.subscribe('auth.statusChange',
-            function(response) {  
-              console.log(response);
-              if (response.status == "connected") {
-                if (window.onFbAuth) {
-                  window.onFbAuth();
-                }
+          function(response) {  
+            console.log(response);
+            if (response.status == "connected") {
+              if (window.onFbAuth) {
+                window.onFbAuth();
               }
             }
+          }
         );
       };
 
@@ -39,24 +39,24 @@
         d.getElementsByTagName('head')[0].appendChild(js);
       }(document));
     </script>
-    <script type="text/javascript" src="/js/<%=page%>.js"></script>
     <div id="fb-root"></div>
+    <script type="text/javascript" src="/js/<%=page%>.js"></script>
   </head>
   <body>
 		<div id="container">
 			<div id="header">
 				<div id="headerLogo">
-					Quizbowl DB.
+					Quizbowl DB
 				</div>
 				<ul id="menu">
 					<li><a href="/">Home</a></li>
 					<li><a href="/search">Search</a></li>
 					<li><a href="/reader">Reader</a></li>
 					<li><a href="/multiplayer">Multiplayer</a></li>
+          <li id="login" class="nav-ele"><a><div class="fb-login-button" data-scope="email">Login</div></a></li>
 				</ul>
 			</div>
 			<%-body%>
-			<a><li id="login" class="nav-ele"><div class="fb-login-button" data-scope="email">Login</div></li></a>
 		</div>
     </body>
   </html>

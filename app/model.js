@@ -112,6 +112,7 @@ var init = function(app) {
         }
         this.unsit = function(user, callback) {
           if (room.getUserToTeam()[user] == id) {
+            delete score[user];
             team.players.splice(team.players.indexOf(user), 1);
             var ret = delete room.getUserToTeam()[user];
             ret = ret && delete score.user
