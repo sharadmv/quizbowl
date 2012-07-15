@@ -31,6 +31,9 @@ var init = function(app) {
   application.get('/multiplayer', function (req, res) {
     res.render('multiplayer', { page: 'multiplayer' });
   });
+  application.get('/m', function (req, res) {
+    res.render('multiplayer_old', { page: 'multiplayer_old' });
+  });
   
   var authorize = express.basicAuth(function(user, password) {
     return (user == 'username' && password =='password');
@@ -48,7 +51,7 @@ var init = function(app) {
           if (!(res.download == "true")) {
             res.json(ret);
           } else {
-            res.res.attachment("myfile.txt");
+            res.res.attachment("export.txt");
             res.res.send(ret);
           }
         } else {
@@ -153,7 +156,7 @@ var init = function(app) {
   var server = {
     listen:function(deploy){
       var port = DEPLOY[deploy];
-      application.listen(DEPLOY[deploy]);
+      application.listen(port);
       app.log(app.Constants.Tag.SERVER, ["Listening on", port]);
     }
   }

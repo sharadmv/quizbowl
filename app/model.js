@@ -38,8 +38,10 @@ var init = function(app) {
         GAME_TYPE_FFA:"ffa",
         GAME_TYPE_TEAM:"team",
         Game:{
+          DEFAULT_READ_SPEED: 300,
           ANSWER_TIMEOUT: 10000,
-          QUESTION_TIMEOUT: 5000
+          QUESTION_TIMEOUT: 5000,
+          QUESTION_GAP: 5000
         }
       },
       Error:{
@@ -565,7 +567,7 @@ var init = function(app) {
             room.getChannel().onQuestionTimeout();
             room.getChannel().onCompleteQuestion(currentTossup);
             nextQuestion();
-          }, 5000);
+          }, app.Constants.Multiplayer.Game.QUESTION_TIMEOUT);
         }
         this.getScore = function() {
           var score = {};
@@ -623,7 +625,7 @@ var init = function(app) {
               room.getChannel().onGameEnd();
               app.deleteRoom(room.getName());
             }
-          }, 5000);
+          }, app.Constants.Multiplayer.Game.QUESTION_GAP);
         }
         var pauseReading = function(){
           clearInterval(gameTimer);
@@ -646,7 +648,7 @@ var init = function(app) {
                 questionTimer();
               }
             }
-          },300);
+          },app.Constants.Multiplayer.Game.DEFAULT_READ_SPEED);
         }
         var answerTimer = function(user){
           room.getChannel().onAnswerTimeout(app.getUsers()[user]);

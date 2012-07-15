@@ -18,8 +18,8 @@ app.Constants = app.model.Constants;
 app.events.on(app.Constants.Events.Type.USER_LOGGED_IN, function(ev) {
   console.log(ev);
 });
-app.events.on(app.Constants.Events.Type.USER_LOGGED_IN, function(ev) {
-  console.log('2',ev);
+app.events.on(app.Constants.Events.Type.USER_LOGGED_OUT, function(ev) {
+  console.log(ev);
 });
 
 var userToRoom = {};
@@ -45,6 +45,9 @@ app.getUserToRoom = function(callback) {
 }
 app.getTimeouts = function() {
   return timeouts;
+}
+app.deleteRoom = function(name) {
+  delete rooms[name];
 }
 
 if (process.argv[2]) {
@@ -86,29 +89,4 @@ app.bridge.publishService("quizbowl-multiplayer", {
     roomUpdate.push(callback);
   }
 }, function(){ console.log("PUBLISHED MULTIPLAYER")});
-app.deleteRoom = function(name) {
-  delete rooms[name];
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /*
-app.login(5,function(user){
-  var Room = app.model.Multiplayer.Room;
-  var room = new Room("main",user.id, {}, function(room) {
-    room.join(
-      user.id, 
-      new Room.ChannelHandler({
-        onChat:function(user, message) {
-          app.log(app.Constants.Tag.MULTIPLAYER, [users[user].name, ":", message]);
-        },
-        onNewWord:function(word){
-          app.log(app.Constants.Tag.MULTIPLAYER, [word]);
-        }
-      }),
-      function(handler) {
-      }
-    );
-    rooms.push(room);
-  });
-});
-  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
