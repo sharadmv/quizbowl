@@ -90,3 +90,24 @@ app.bridge.publishService("quizbowl-multiplayer", {
   }
 }, function(){ console.log("PUBLISHED MULTIPLAYER")});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /*
+app.login(5,function(user){
+  var Room = app.model.Multiplayer.Room;
+  var room = new Room("main",user.id, {}, function(room) {
+    room.join(
+      user.id, 
+      new Room.ChannelHandler({
+        onChat:function(user, message) {
+          app.log(app.Constants.Tag.MULTIPLAYER, [users[user].name, ":", message]);
+        },
+        onNewWord:function(word){
+          app.log(app.Constants.Tag.MULTIPLAYER, [word]);
+        }
+      }),
+      function(handler) {
+      }
+    );
+    rooms.push(room);
+  });
+});
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

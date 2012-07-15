@@ -43,16 +43,20 @@
     <div id="fb-root"></div>
   </head>
   <body>
-    <a><li id="login" class="nav-ele"><div class="fb-login-button" data-scope="email">Login</div></li></a>
-    <div id="container">
-      <div id="menu">
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/search">Search</a></li>
-          <li><a href="/reader">Reader</a></li>
-          <li><a href="/multiplayer">Multiplayer</a></li>
-        </div>
-        <%-body%>
-      </div>
+		<div id="container">
+			<div id="header">
+				<div id="headerLogo">
+					Quizbowl DB.
+				</div>
+				<ul id="menu">
+					<li><a href="/">Home</a></li>
+					<li><a href="/search">Search</a></li>
+					<li><a href="/reader">Reader</a></li>
+					<li><a href="/multiplayer">Multiplayer</a></li>
+				</ul>
+			</div>
+			<%-body%>
+			<a><li id="login" class="nav-ele"><div class="fb-login-button" data-scope="email">Login</div></li></a>
+		</div>
     </body>
   </html>
