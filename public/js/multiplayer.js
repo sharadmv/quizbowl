@@ -89,7 +89,9 @@
         var id = this.get("id");
         this.fetch({
           success : function(curRoom, response) {
-            //TODO join room here
+						var raph = Raphael('game', 500, 500);
+						raph.circle(250, 250, 250).attr({'fill':'#aaa'});
+						
             if (user) {
               multi.joinRoom(id, user.id, mHandler, function(rh) {
                 roomHandler = rh;
