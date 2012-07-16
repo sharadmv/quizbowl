@@ -1,4 +1,5 @@
 (function() {
+  var BASE_URL = "";
   var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
   var auth, multi;
   var user;
@@ -80,7 +81,7 @@
     }),
     CurrentRoom : Backbone.Model.extend({
       url : function() {
-        return "/api/room/"+this.get("id");
+        return BASE_URL+"/api/room/"+this.get("id");
       },
       parse : function(response) {
         return response.data;
@@ -121,7 +122,7 @@
           }
         });
       },
-      url : "/api/room",
+      url : BASE_URL+"/api/room",
       parse : function(response) {
         return response.data;
       },
