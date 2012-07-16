@@ -1,3 +1,4 @@
+USE sandbox;
 DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE `tournament` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
