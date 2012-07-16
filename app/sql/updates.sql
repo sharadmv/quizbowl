@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE `tournament` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `year` int(11) unsigned NOT NULL,
@@ -5,8 +6,9 @@ CREATE TABLE `tournament` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO tournament (year, tournament) (SELECT DISTINCT year,tournament FROM tossups);
-
+INSERT INTO tournament (year, name) (SELECT DISTINCT year,tournament FROM tossups);
+DROP TABLE IF EXISTS `tossup`;
+DROP TABLE IF EXISTS `tossup_temp`;
 CREATE TABLE `tossup_temp` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `tournament` int(11) unsigned DEFAULT 0,
@@ -21,7 +23,6 @@ CREATE TABLE `tossup_temp` (
   FULLTEXT KEY `answer_2` (`answer`),
   FULLTEXT KEY `question_3` (`question`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 CREATE TABLE `tossup` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `tournament` int(11) unsigned DEFAULT 0,
