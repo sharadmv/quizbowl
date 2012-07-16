@@ -480,7 +480,7 @@ var init = function(app) {
             channel = c;
             app.bridge.getService(serviceName, function(obj){
               onCreate(obj);
-              app.log(app.Constants.Tag.MULTIPLAYER, [app.getUsers()[host].name,"created",serviceName]);
+              app.log(app.Constants.Tag.MULTIPLAYER, [host.name,"created",serviceName]);
             });
           }
         );

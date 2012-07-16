@@ -62,12 +62,14 @@ app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
     if (!rooms[properties.name]) {
-      var r = new Room(properties.name, user, properties, function(room) {
-        rooms[properties.name] = r;
-        callback(r);
-        for (var i in roomUpdate) {
-          roomUpdate[i]();
-        }
+      app.dao.user.get(user, function(user) {
+        var r = new Room(properties.name, user, properties, function(room) {
+          rooms[properties.name] = r;
+          callback(r);
+          for (var i in roomUpdate) {
+            roomUpdate[i]();
+          }
+        });
       });
     } else {
       callback(null);

@@ -4,7 +4,7 @@ var init = function(app) {
     convertRoom:function(r) {
       var room = {};
       room.name = r.name;
-      room.host = app.getUsers()[r.host];
+      room.host = r.host;
       room.game = r.game;
       room.properties = r.properties;
       room.teams = r.teams;
