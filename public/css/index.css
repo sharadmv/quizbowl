@@ -51,7 +51,7 @@ html, body {
 
 #menu { 
 	height:100%; 
-	width:40%;
+	width:719px;
 	padding:0;
 	margin:0;
 	float:right;
@@ -66,16 +66,27 @@ html, body {
 	color:#ccc;
 	line-height:80px;
 	height:100%;
-	padding:0 0 0 10px;
+	padding:10px 0 0 10px;
 }
-
 #menu li {
-	width:25%;
 	list-style:none;
+}
+#menu a {
+	width:139px;
+  text-align:center;
 	display:inline-block;
 	margin:0;
 	float:left;
-	padding-top:45px;
+	padding-top:26px;
+	padding-bottom:26px;
+}
+
+#menu a:hover{
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#06192c), to(#00344b));
+	background-image: -webkit-linear-gradient(top, #06192c, #00344b); 
+	background-image:    -moz-linear-gradient(top, #06192c, #00344b); 
+	background-image:     -ms-linear-gradient(top, #06192c, #00344b); 
+	background-image:      -o-linear-gradient(top, #06192c, #00344b); 
 }
 
 #menu li a {

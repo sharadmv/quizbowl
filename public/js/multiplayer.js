@@ -12,6 +12,7 @@
   bridge.ready(function() {
     bridge.getService("quizbowl-multiplayer", function(m) {
       multi = m;
+
       multi.on("user_login", function(ev) {
         users.add(new Model.User(ev.message));
       });
@@ -32,7 +33,9 @@
           console.log("Successful FB Authentication");
           authenticate();
         } else {
-          console.log("FB Authentication Error");
+          window.onFbAuth = function() {
+            authenticate();
+          }
         }
       } else {
         var self = this;
@@ -181,7 +184,6 @@
       },
       add : function(model) {
         var v = new this.View({ model : model });
-        console.log(model);
         this._views[model.id] = v;
         $(this.el).append(v.render().el);
       },
@@ -192,10 +194,8 @@
       },
       reset : function() {
         for (var i in this._views) {
-          console.log(this._views[i]);
           this._views[i].remove();
         }
-        console.log(this._views);
         this._views = {};
       }
     })
@@ -248,7 +248,7 @@
       return this;
     },
     template : function(model) {
-      var started = room.started ? "Started" : "Idle";
+      var started = model.started ? "Started" : "Idle";
       return Mustache.render(
         "<div class='roomWrapper room"+started+"'>" +
         "<img class='roomHostImage' src='http://graph.facebook.com/{{host.fbId}}/picture'></img>" +
@@ -274,12 +274,17 @@
     },
     render : function() {
       $(this.el).html(this.template(this.model.toJSON()));
+      this.$(".userImage[title]").qtip({
+        style : {
+          classes : "ui-tooltip-blue ui-tooltip-shadow ui-tooltip-rounded"
+        }
+      });
       return this;
     },
     template : function(model) {
       return Mustache.render(
-        "<div class='userwrapper'>" +
-        "<img class='roomHostImage' src='http://graph.facebook.com/{{fbId}}/picture'></img>" +
+        "<div class='userWrapper'>" +
+        "<img class='userImage' title='{{name}}' src='http://graph.facebook.com/{{fbId}}/picture'></img>" +
         "</div>"
         ,
         model 
@@ -298,7 +303,6 @@
   });
   View.ChatRoom = Backbone.View.extend({
     initialize : function(options) {
-      console.log($(this.el));
       $(this.el).css({ 'visibility' : 'visible' })
       if (chatRoom) {
         chatRoom.reset();

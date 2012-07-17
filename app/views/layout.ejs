@@ -24,7 +24,7 @@
         });
         FB.Event.subscribe('auth.statusChange',
           function(response) {  
-            console.log(response);
+            console.log("Facebook Status Change: ", response);
             if (response.status == "connected") {
               if (window.onFbAuth) {
                 window.onFbAuth();
@@ -42,6 +42,12 @@
         d.getElementsByTagName('head')[0].appendChild(js);
       }(document));
     </script>
+    <script>
+      $.ajax("/api/room",{
+        username : "username",
+        password : "password"
+      });
+    </script>
     <div id="fb-root"></div>
     <script type="text/javascript" src="/js/<%=page%>.js"></script>
   </head>
@@ -49,14 +55,16 @@
 		<div id="container">
 			<div id="header">
 				<div id="headerLogo">
-					Quizbowl DB
+          <a href="/">
+          <img src='/img/logo-small.png'></img>
+          </a>
 				</div>
 				<ul id="menu">
 					<li><a href="/">Home</a></li>
 					<li><a href="/search">Search</a></li>
 					<li><a href="/reader">Reader</a></li>
 					<li><a href="/multiplayer">Multiplayer</a></li>
-          <li id="login" class="nav-ele"><a><div class="fb-login-button" data-scope="email">Login</div></a></li>
+          <li><a href="#" onclick="FB.login()">Login</a></li>
 				</ul>
 			</div>
 			<%-body%>
