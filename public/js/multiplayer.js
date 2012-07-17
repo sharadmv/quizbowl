@@ -1,7 +1,8 @@
 (function() {
   var scope = this;
 
-  var BASE_URL = "";
+  var BASE_URL = "http://www.quizbowldb.com:1337";
+  var BASE_URL_SUFFIX = "?callback=?";
   var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
   var auth, multi;
   var user;
@@ -93,24 +94,28 @@
       initialize : function() {
         this.set("id", this.get("name"));
       },
-      join : function() {
+      join : function(callback) {
         if (user) {
           if (!curRoom || this.get("id") != curRoom.get("id")) {
-            curRoom = new Model.CurrentRoom({id: this.get("id")});
+            curRoom = new Model.CurrentRoom({id: this.get("id"), callback : callback });
           }
+        } else {
+          callback({status:false, message:"You haven't logged in yet"});
         }
       }
     }),
     CurrentRoom : Backbone.Model.extend({
       url : function() {
-        return BASE_URL+"/api/room/"+this.get("id");
+        return BASE_URL+"/api/room/"+this.get("id")+BASE_URL_SUFFIX;
       },
       parse : function(response) {
         return response.data;
       },
       initialize : function() {
         var id = this.get("id");
+        var callback = this.get("callback");
         this.fetch({
+          type : "jsonp",
           success : function(room, response) {
 						
             if (user) {
@@ -121,6 +126,7 @@
                 raph.circle(25, 25, 25).attr({'fill':'#aaa'});
 
                 roomHandler = rh;
+                callback({ status : true });
               });
             }
           }
@@ -136,7 +142,7 @@
         this._meta = {};
       },
       url : function() {
-        return BASE_URL + "/api/chat/"+this._meta.id;
+        return BASE_URL + "/api/chat/"+this._meta.id+BASE_URL_SUFFIX;
       },
       parse : function(response) {
         return response.data;
@@ -148,9 +154,9 @@
     }),
     Lobby : Backbone.Collection.extend({
       initialize : function() {
-        this.fetch({ add : true });
+        this.fetch({ type : "jsonp", add : true });
       },
-      url : BASE_URL+"/api/room",
+      url : BASE_URL+"/api/room"+BASE_URL_SUFFIX,
       parse : function(response) {
         return response.data;
       },
@@ -158,9 +164,9 @@
     }),
     UserList : Backbone.Collection.extend({
       initialize : function() {
-        this.fetch({ add : true });
+        this.fetch({ type : "jsonp", add : true });
       },
-      url : BASE_URL+"/api/user",
+      url : BASE_URL+"/api/user"+BASE_URL_SUFFIX,
       parse : function(response) {
         return _.values(response.data);
       },
@@ -251,16 +257,21 @@
       var started = model.started ? "Started" : "Idle";
       return Mustache.render(
         "<div class='roomWrapper room"+started+"'>" +
+        "<div class='roomLoadingMask' style='visibility:hidden'><img style='width:25px' src='/img/loading.gif'></img></div>" +
         "<img class='roomHostImage' src='http://graph.facebook.com/{{host.fbId}}/picture'></img>" +
         "<span class='roomName'>{{name}}</span>" +
         "<button class='joinButton'>Join</button>" +
+        "<div style='clear:both'></div>" +
         "</div>"
         ,
         model 
       );
     },
     join : function() {
-      this.model.join();
+      this.$(".roomLoadingMask").css({ "visibility" : "visible" });
+      this.model.join(function() {
+        this.$(".roomLoadingMask").css({ "visibility" : "hidden" });
+      });
     }
   })
   View.User = Backbone.View.extend({

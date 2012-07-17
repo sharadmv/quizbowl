@@ -13,18 +13,6 @@ html, body {
 	height:100%;
 }
 
-#chat {
-  width:215px;
-  float:left;
-}
-
-#box {
-  height : 400px;
-  border-radius:5px;
-  border : 2px solid #ddd;
-  overflow : scroll;
-}
-
 .smallButton {
 	border:none;
 	padding:5px;
@@ -51,8 +39,7 @@ html, body {
 
 #menu { 
 	height:100%; 
-	width:719px;
-	padding:0;
+	width:719px; padding:0;
 	margin:0;
 	float:right;
 }
@@ -98,17 +85,6 @@ html, body {
 	display:inline-block;
 	text-decoration:none;
 	color:#ccc;
-}
-
-#answerPanel {
-  text-align : center;
-}
-
-#question {
-  width : 500px;
-  height : 400px;
-  border-radius:5px;
-  border : 3px solid #ccc;
 }
 
 #right {

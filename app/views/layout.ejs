@@ -43,13 +43,15 @@
       }(document));
     </script>
     <script>
-      $.ajax("/api/room",{
+      $.ajax("/api/room?callback=?",{
+        dataType : "jsonp",
         username : "username",
         password : "password"
       });
     </script>
     <div id="fb-root"></div>
     <script type="text/javascript" src="/js/<%=page%>.js"></script>
+    <link rel="stylesheet" href="css/<%=page%>.css" />
   </head>
   <body>
 		<div id="container">

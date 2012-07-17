@@ -1,0 +1,10 @@
+.roomLoadingMask {
+  position : absolute;
+  background-color : #ccc;
+  opacity : 0.5;
+}
+
+.chatImage {
+  width : 25px;
+  border-radius : 12px;
+}
