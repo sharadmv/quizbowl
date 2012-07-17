@@ -5,6 +5,19 @@ var natural= require('natural');
 natural.PorterStemmer.attach();
 var init = function(app) {
   var util = {
+    room : {
+      convertRoom:function(r) {
+        var room = {};
+        room.name = r.name;
+        room.host = r.host;
+        room.game = r.game;
+        room.properties = r.properties;
+        room.teams = r.teams;
+        room.users = r.users;
+        room.score = room.game.getScore();;
+        return room;
+      }
+    },
     remote : {
       get:function(url, callback) {
         rest.get(url).on('complete', function(result) {

@@ -61,6 +61,28 @@ var init = function(app) {
     }
   });
 
+  application.get('/api/user', authorize, function(req, res) {
+    var res = app.router.wrap(res);
+    app.service.services.user.list(res, req.query, function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+
+  application.get('/api/user/:user', authorize, function(req, res) {
+    var res = app.router.wrap(res);
+    app.service.services.user.get(res, { user : req.params.user }, function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+
   application.get('/api/room', authorize, function(req, res) {
     var res = app.router.wrap(res);
     app.service.services.room.list(res, req.query, function(ret) {
@@ -75,6 +97,17 @@ var init = function(app) {
   application.get('/api/room/:room', authorize, function(req, res) {
     var res = app.router.wrap(res);
     app.service.services.room.get(res, { room : req.params.room }, function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+
+  application.get('/api/chat/:room', authorize, function(req, res) {
+    var res = app.router.wrap(res);
+    app.service.services.room.chats(res, { room : req.params.room }, function(ret) {
       if (ret) {
         res.json(ret);
       } else {

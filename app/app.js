@@ -15,16 +15,11 @@ app.service = require('./service.js')(this);
 app.events = require('./events.js')(this);
 
 app.Constants = app.model.Constants;
-app.events.on(app.Constants.Events.Type.USER_LOGGED_IN, function(ev) {
-  console.log(ev);
-});
-app.events.on(app.Constants.Events.Type.USER_LOGGED_OUT, function(ev) {
-  console.log(ev);
-});
 
 var userToRoom = {};
 var rooms = {};
-var roomUpdate = [];
+var roomNew = [];
+var roomRemove = [];
 app.log = function(tag, message) {
   console.log("["+tag+"]","\t\t",message.join(" "));
 }
@@ -47,6 +42,8 @@ app.getTimeouts = function() {
   return timeouts;
 }
 app.deleteRoom = function(name) {
+  rooms[name] = r;
+  app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.ROOM_DELETED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(r)));
   delete rooms[name];
 }
 
@@ -65,30 +62,32 @@ app.bridge.publishService("quizbowl-multiplayer", {
       app.dao.user.get(user, function(user) {
         var r = new Room(properties.name, user, properties, function(room) {
           rooms[properties.name] = r;
+          app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.ROOM_CREATED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(r)));
           callback(r);
-          for (var i in roomUpdate) {
-            roomUpdate[i]();
-          }
         });
       });
     } else {
       callback(null);
     }
   },
+  on : function(event, callback) {
+    app.events.on(event, callback);
+  },
   getRooms:function(callback) {
     callback(rooms);
   },
   joinRoom:function(room, user,handler,callback ) {
-    console.log(rooms);
     if (userToRoom[user] && userToRoom[user] != room) {
-      console.log("LEAVING");
       rooms[userToRoom[user]].getUserToService()[user].leave();
     }
     userToRoom[user] = room;
     rooms[room].join(user, handler, callback);
   },
   onNewRoom : function(callback) {
-    roomUpdate.push(callback);
+    roomNew.push(callback);
+  },
+  onRemoveRoom : function(callback) {
+    roomRemove.push(callback);
   }
 }, function(){ console.log("PUBLISHED MULTIPLAYER")});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

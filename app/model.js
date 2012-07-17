@@ -3,8 +3,10 @@ var init = function(app) {
     Constants : {
       Events:{
         Type:{
-          USER_LOGGED_IN:"user_logged_in",
-          USER_LOGGED_OUT:"user_logged_out"
+          USER_LOGGED_IN:"user_login",
+          USER_LOGGED_OUT:"user_logout",
+          ROOM_CREATED:"room_create",
+          ROOM_DELETED:"room_delete"
         },
         Level:{
           VERBOSE:"verbose",
@@ -56,6 +58,7 @@ var init = function(app) {
       Event:function(type, level, message) {
         this.type = type;
         this.level = level;
+        this.message = message;
       }
     },
     Server: {
@@ -214,6 +217,8 @@ var init = function(app) {
         var host = host;
         var created = new Date();
         var game = new Model.Multiplayer.Game(room);
+        var chats  = [];
+        var chatCount = 0;
         this.game = game;
 
         var users = [];
@@ -231,8 +236,8 @@ var init = function(app) {
           this.onGameEnd = function() {
             properties.onGameEnd();
           }
-          this.onChat = function(user, message) {
-            properties.onChat(user, message);
+          this.onChat = function(chat) {
+            properties.onChat(chat);
           }
           this.onSystemBroadcast = function(message) {
             properties.onSystemBroadcast(message);
@@ -280,7 +285,17 @@ var init = function(app) {
 
         var ServiceHandler = function(user){
           this.chat = function(message) {
-            channel.onChat(app.getUsers()[user], message);
+            var chat = { 
+              id : chatCount++, 
+              user : app.getUsers()[user], 
+              message : message,
+              time : new Date().getTime()
+            };
+            if (chatCount > 30) {
+              chats.shift();
+            }
+            chats.push(chat);
+            channel.onChat(chat);
           }
           this.buzz = function(callback) {
             game.buzz(user, callback);
@@ -310,7 +325,6 @@ var init = function(app) {
                     users.splice(i,1);
                   }
                 }
-                console.log(channelName, userToHandler[user]);
                 app.bridge.leaveChannel(channelName, userToHandler[user]);
                 if (callback) {
                   callback(true);
@@ -354,7 +368,6 @@ var init = function(app) {
               if (game.started) {
                 partial = game.partial;
               }
-              console.log(partial);
               onJoin(h, partial);
             }
           );
@@ -441,10 +454,16 @@ var init = function(app) {
           }
           return userToService;
         }
+        this.getChats = function(callback) {
+          if (callback) {
+            callback(chats);
+          }
+          return chats;
+        }
         app.bridge.publishService(serviceName, room);
         app.bridge.joinChannel(channelName, 
           new ChannelHandler({
-            onChat : function(user, message) {
+            onChat : function(chat) {
             },
             onSystemBroadcast : function(message) {
             },
@@ -522,7 +541,6 @@ var init = function(app) {
             currentUser = user;
             room.getChannel().onBuzz(app.getUsers()[user]);
             team.setBuzzed(true);
-            console.log("PAUSING");
             pauseReading();
             answerTimeout = setTimeout(function(){
               answerTimer(user);

@@ -1,17 +1,6 @@
 var querystring = require('qs');
 var init = function(app) {
   var util = {
-    convertRoom:function(r) {
-      var room = {};
-      room.name = r.name;
-      room.host = r.host;
-      room.game = r.game;
-      room.properties = r.properties;
-      room.teams = r.teams;
-      room.users = r.users;
-      room.score = room.game.getScore();;
-      return room;
-    }
   }
   var Service = {
     services:{
@@ -26,23 +15,31 @@ var init = function(app) {
         }
       },
       room: {
-        get: function(res, query, callback) {
+        get : function(res, query, callback) {
           var r = app.getRooms();
           for (var i in r) {
             if (query.room == r[i].name) {
-              var room = util.convertRoom(r[i]);
+              var room = app.util.room.convertRoom(r[i]);
               callback(room);
             }
           }
         },
-        list: function(res,query, callback) {
+        list : function(res,query, callback) {
           var r = app.getRooms();
           var rooms = [];
           for (var i in r) {
-            var room = util.convertRoom(r[i]);
+            var room = app.util.room.convertRoom(r[i]);
             rooms.push(room);
           }
           callback(rooms);
+        },
+        chats : function(res, query, callback) {
+          var r = app.getRooms();
+          for (var i in r) {
+            if (query.room == r[i].name) {
+              callback(r[i].getChats());
+            }
+          }
         }
       },
       tossup:{
