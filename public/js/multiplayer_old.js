@@ -48,20 +48,28 @@ $(document).ready(function(){
       this.connectBridge();
 
       // if fb ad then this loads
-      if(window.FB){
-        if (window.FB.getAccessToken()) {
-          this.getAuth(this);
-          console.log("AUTHING");
+      var self = this;
+      this.bridge.ready(function(){
+        console.log(window.userId);
+        if (window.userId) {
+          console.log(window.userId);
+          self.loginWithId();
         } else {
-          console.log(window.FB);
+          if(window.FB){
+            if (window.FB.getAccessToken()) {
+              self.getAuth(this);
+              console.log("AUTHING");
+            } else {
+              console.log(window.FB);
+            }
+          // else fb has not loaded yet
+          } else {
+            window.onFbAuth = function() {
+              self.getAuth();
+            };
+          }
         }
-      // else fb has not loaded yet
-      } else {
-        var self = this;
-        window.onFbAuth = function() {
-          self.getAuth();
-        };
-      }
+      });
     },
 
     connectBridge: function() {
@@ -73,8 +81,22 @@ $(document).ready(function(){
       this.fbToken = window.FB.getAccessToken();
       var self = this;
       console.log(this.fbToken);
-      this.bridge.getService('quizbowl-auth', function(auth) {
+      this.bridge.getService('quizbowl-'+namespace+'-auth', function(auth) {
         self.login(auth);
+      });
+    },
+    loginWithId : function() {
+      var self = this;
+      this.bridge.getService('quizbowl-'+namespace+'-auth', function(auth) {
+        auth.loginWithId(window.userId, function(user) {
+          console.log(user);
+          self.getMultiService(user);
+          if (user) {
+            setInterval(function(){
+              auth.alive(user.id);
+            }, 5000);
+          }
+        });
       });
     },
 
@@ -94,7 +116,7 @@ $(document).ready(function(){
       this.user = user;
       window.user = user;
       var self = this;
-      this.bridge.getService('quizbowl-multiplayer', function(multiService) {
+      this.bridge.getService('quizbowl-'+namespace+'-multiplayer', function(multiService) {
         self.multiService = multiService; 
         multiService.onNewRoom(function() {
           self.getRooms();
