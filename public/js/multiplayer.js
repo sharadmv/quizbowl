@@ -1,6 +1,7 @@
 (function() {
   var scope = this;
 
+  var namespace = "test";
   var BASE_URL = "";//"http://www.quizbowldb.com:1337";
   var BASE_URL_SUFFIX = "";//"?callback=?";
   var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
@@ -11,7 +12,7 @@
 
   bridge.connect();
   bridge.ready(function() {
-    bridge.getService("quizbowl-multiplayer", function(m) {
+    bridge.getService("quizbowl-"+namespace+"-multiplayer", function(m) {
       multi = m;
 
       multi.on("user_login", function(ev) {
@@ -27,7 +28,7 @@
         lobby.remove(new Model.Room(ev.message));
       });
     });
-    bridge.getService("quizbowl-auth", function(a) {
+    bridge.getService("quizbowl-"+namespace+"-auth", function(a) {
       auth = a;
       if (window.userId) {
         authenticateWithId(window.userId);

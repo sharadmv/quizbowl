@@ -16,10 +16,8 @@ var init = function(app) {
         }
       },
       Bridge:{
-        ROOM_CHANNEL_PREFIX:"quizbowl-room-channel-",
-        ROOM_SERVICE_PREFIX:"quizbowl-room-service-",
-        GAME_CHANNEL_PREFIX:"quizbowl-room-channel-",
-        GAME_SERVICE_PREFIX:"quizbowl-room-service-"
+        ROOM_CHANNEL_PREFIX:"quizbowl-"+app.namespace()+"-room-channel-",
+        ROOM_SERVICE_PREFIX:"quizbowl-"+app.namespace()+"-room-service-",
       },
       Dao:{
         Table:{

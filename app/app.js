@@ -1,8 +1,12 @@
 var app = this;
 
+var namespace = process.argv[2]?process.argv[2]:"test";
+this.namespace = function() {
+  return namespace;
+}
+
 var users = {};
 var timeouts = {};
-
 app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
@@ -47,15 +51,12 @@ app.deleteRoom = function(name) {
   delete rooms[name];
 }
 
-if (process.argv[2]) {
-  app.server.listen(process.argv[2]);
-} else {
-  app.server.listen("test");
-}
+
+app.server.listen(namespace);
 
 //commented out to not interrupt the main server
-app.bridge.publishService("quizbowl-auth", app.auth.handler);
-app.bridge.publishService("quizbowl-multiplayer", {
+app.bridge.publishService("quizbowl-"+namespace+"-auth", app.auth.handler);
+app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
   createRoom:function(user,properties, callback) {
     var Room = app.model.Multiplayer.Room;
     if (!rooms[properties.name]) {
