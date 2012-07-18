@@ -16,9 +16,10 @@
     <script>
       $.ajax("/api/auth",{
         success : function(response) {
-          if (response.data) {
-            console.log("Loading cookie: ", response);
-            window.userId = response.data;
+          window.namespace = response.data.namespace;
+          if (response.data.userId) {
+            console.log("Loading cookie: ", response.data);
+            window.userId = response.data.userId;
           } else {
             console.log("Loading facebook");
             (function(d){

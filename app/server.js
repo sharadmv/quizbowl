@@ -48,12 +48,10 @@ var init = function(app) {
 
   application.get('/api/auth', function(req, res) {
     var res = app.router.wrap(res);
-    if (req.session && req.session.userId) {
-      res.json(req.session.userId);
-    } else {
+    if (!(req.session && req.session.userId)) {
       req.session.userId = req.query.userId;
-      res.json(req.session.userId);
     }
+    res.json({ userId : req.session.userId, namespace : app.namespace() });
   });
 
   application.get('/api/service', authorize, function(req, res) {

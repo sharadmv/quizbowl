@@ -1,7 +1,6 @@
 (function() {
   var scope = this;
 
-  var namespace = "test";
   var BASE_URL = "";//"http://www.quizbowldb.com:1337";
   var BASE_URL_SUFFIX = "";//"?callback=?";
   var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
