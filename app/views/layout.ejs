@@ -14,6 +14,22 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 		<meta http-equiv="Content-Language" content="en-us">
     <script>
+      $.ajax("/api/auth",{
+        success : function(response) {
+          if (response.data) {
+            console.log("Loading cookie: ", response);
+            window.userId = response.data;
+          } else {
+            console.log("Loading facebook");
+            (function(d){
+              var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+              js = d.createElement('script'); js.id = id; js.async = true;
+              js.src = "//connect.facebook.net/en_US/all.js";
+              d.getElementsByTagName('head')[0].appendChild(js);
+            }(document));
+          }
+        }
+      });
       window.fbAsyncInit = function() {
         FB.init({
           appId      : '378548848840009', // App ID
@@ -35,16 +51,9 @@
       };
 
       // Load the SDK Asynchronously
-      (function(d){
-        var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
-        js = d.createElement('script'); js.id = id; js.async = true;
-        js.src = "//connect.facebook.net/en_US/all.js";
-        d.getElementsByTagName('head')[0].appendChild(js);
-      }(document));
     </script>
     <script>
-      $.ajax("/api/room?callback=?",{
-        dataType : "jsonp",
+      $.ajax("/api/room",{
         username : "username",
         password : "password"
       });

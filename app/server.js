@@ -10,11 +10,18 @@ var init = function(app) {
     secure:443
   }
 
-  application.use(express.static("../public/"));
+  var MemoryStore = express.session.MemoryStore;
+  application.configure(function() {
+    application.use(express.cookieParser());
+    application.use(express.bodyParser());
+    application.use(express.session({ key : "blah", secret : "string", store : new MemoryStore({ reapInterval : 60000*10 }) }));
+    application.use(express.static("../public/"));
+    application.set('view engine', 'ejs');
+    application.set('views', __dirname + '/views');
+    application.enable("jsonp callback");
+  });
 
-  application.set('view engine', 'ejs');
-  application.set('views', __dirname + '/views');
-  application.enable("jsonp callback");
+
 
   application.get('/', function (req, res) {
     res.render('home', { page: 'home' });
@@ -37,6 +44,16 @@ var init = function(app) {
   
   var authorize = express.basicAuth(function(user, password) {
     return (user == 'username' && password =='password');
+  });
+
+  application.get('/api/auth', function(req, res) {
+    var res = app.router.wrap(res);
+    if (req.session && req.session.userId) {
+      res.json(req.session.userId);
+    } else {
+      req.session.userId = req.query.userId;
+      res.json(req.session.userId);
+    }
   });
 
   application.get('/api/service', authorize, function(req, res) {

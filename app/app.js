@@ -54,7 +54,6 @@ if (process.argv[2]) {
 }
 
 //commented out to not interrupt the main server
-/*
 app.bridge.publishService("quizbowl-auth", app.auth.handler);
 app.bridge.publishService("quizbowl-multiplayer", {
   createRoom:function(user,properties, callback) {
@@ -91,7 +90,6 @@ app.bridge.publishService("quizbowl-multiplayer", {
     roomRemove.push(callback);
   }
 }, function(){ console.log("PUBLISHED MULTIPLAYER")});
-*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /*
 app.login(5,function(user){

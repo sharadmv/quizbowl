@@ -1,8 +1,8 @@
 (function() {
   var scope = this;
 
-  var BASE_URL = "http://www.quizbowldb.com:1337";
-  var BASE_URL_SUFFIX = "?callback=?";
+  var BASE_URL = "";//"http://www.quizbowldb.com:1337";
+  var BASE_URL_SUFFIX = "";//"?callback=?";
   var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
   var auth, multi;
   var user;
@@ -29,19 +29,23 @@
     });
     bridge.getService("quizbowl-auth", function(a) {
       auth = a;
-      if(window.FB){
-        if (window.FB.getAccessToken()) {
-          console.log("Successful FB Authentication");
-          authenticate();
+      if (window.userId) {
+        authenticateWithId(window.userId);
+      } else {
+        if(window.FB){
+          if (window.FB.getAccessToken()) {
+            console.log("Successful FB Authentication");
+            authenticate();
+          } else {
+            window.onFbAuth = function() {
+              authenticate();
+            }
+          }
         } else {
+          var self = this;
           window.onFbAuth = function() {
             authenticate();
           }
-        }
-      } else {
-        var self = this;
-        window.onFbAuth = function() {
-          authenticate();
         }
       }
     });
@@ -49,6 +53,19 @@
 
   var authenticate = function() {
     auth.login(FB.getAccessToken(), function(u) {
+      $.ajax("/api/auth?userId="+u.id+"&callback=?",{
+        success : function(response) {
+          window.userId = u.id;
+        }
+      });
+      user = u;
+      setInterval(alive, 5000);
+      console.log("Authenticated with QuizbowlDB: ", user);
+    });
+  }
+
+  var authenticateWithId = function(id) {
+    auth.loginWithId(id, function(u) {
       user = u;
       setInterval(alive, 5000);
       console.log("Authenticated with QuizbowlDB: ", user);
@@ -115,7 +132,6 @@
         var id = this.get("id");
         var callback = this.get("callback");
         this.fetch({
-          type : "jsonp",
           success : function(room, response) {
 						
             if (user) {
@@ -154,7 +170,7 @@
     }),
     Lobby : Backbone.Collection.extend({
       initialize : function() {
-        this.fetch({ type : "jsonp", add : true });
+        this.fetch({ add : true });
       },
       url : BASE_URL+"/api/room"+BASE_URL_SUFFIX,
       parse : function(response) {
@@ -164,7 +180,7 @@
     }),
     UserList : Backbone.Collection.extend({
       initialize : function() {
-        this.fetch({ type : "jsonp", add : true });
+        this.fetch({ add : true });
       },
       url : BASE_URL+"/api/user"+BASE_URL_SUFFIX,
       parse : function(response) {
