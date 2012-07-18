@@ -238,6 +238,7 @@ var init = function(app) {
   var server = {
     listen:function(deploy){
       var port = DEPLOY[deploy];
+      port = port?port:1337;
       application.listen(port);
       app.log(app.Constants.Tag.SERVER, ["Listening on", port]);
     }
