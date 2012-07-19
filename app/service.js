@@ -21,8 +21,10 @@ var init = function(app) {
             if (query.room == r[i].name) {
               var room = app.util.room.convertRoom(r[i]);
               callback(room);
+              return;
             }
           }
+          callback(null);
         },
         list : function(res,query, callback) {
           var r = app.getRooms();
@@ -38,8 +40,10 @@ var init = function(app) {
           for (var i in r) {
             if (query.room == r[i].name) {
               callback(r[i].getChats());
+              return;
             }
           }
+          callback(null);
         }
       },
       tossup:{

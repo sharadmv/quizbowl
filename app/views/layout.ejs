@@ -14,6 +14,13 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 		<meta http-equiv="Content-Language" content="en-us">
     <script>
+      window.login = function() {
+        if (window["FB"] === undefined) {
+          console.log("Already authed");
+        } else {
+          FB.login();
+        }
+      };
       $.ajax("/api/auth",{
         success : function(response) {
           window.namespace = response.data.namespace;
@@ -76,7 +83,7 @@
 					<li><a href="/search">Search</a></li>
 					<li><a href="/reader">Reader</a></li>
 					<li><a href="/multiplayer">Multiplayer</a></li>
-          <li><a class="fbLoginButtonWrapper" href="#" onclick="FB.login()"><img class='fbLoginButtonImg' src='/img/f_logo.png'></img><div id='fbLoginDiv'>Login</div></a></li>
+          <li><a class="fbLoginButtonWrapper" href="#" onclick="window.login()"><img class='fbLoginButtonImg' src='/img/f_logo.png'></img><div id='fbLoginDiv'>Login</div></a></li>
 				</ul>
 			</div>
 			<%-body%>

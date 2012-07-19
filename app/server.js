@@ -47,7 +47,7 @@ var init = function(app) {
   });
 
   application.get('/api/auth', function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     if (!(req.session && req.session.userId)) {
       req.session.userId = req.query.userId;
     }
@@ -55,7 +55,7 @@ var init = function(app) {
   });
 
   application.get('/api/service', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.log(app.Constants.Tag.SERVER, ["GET",req.url]);
     var service = app.service.route(req.query.method);
     if (!service) {
@@ -77,7 +77,7 @@ var init = function(app) {
   });
 
   application.get('/api/user', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.service.services.user.list(res, req.query, function(ret) {
       if (ret) {
         res.json(ret);
@@ -88,7 +88,7 @@ var init = function(app) {
   });
 
   application.get('/api/user/:user', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.service.services.user.get(res, { user : req.params.user }, function(ret) {
       if (ret) {
         res.json(ret);
@@ -99,7 +99,7 @@ var init = function(app) {
   });
 
   application.get('/api/room', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.service.services.room.list(res, req.query, function(ret) {
       if (ret) {
         res.json(ret);
@@ -110,7 +110,7 @@ var init = function(app) {
   });
 
   application.get('/api/room/:room', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.service.services.room.get(res, { room : req.params.room }, function(ret) {
       if (ret) {
         res.json(ret);
@@ -121,7 +121,7 @@ var init = function(app) {
   });
 
   application.get('/api/chat/:room', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.service.services.room.chats(res, { room : req.params.room }, function(ret) {
       if (ret) {
         res.json(ret);
@@ -132,7 +132,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/:tournament', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.tournament.get(req.params.tournament, function(tournament) {
       if (tournament) {
         res.json(tournament);
@@ -142,7 +142,7 @@ var init = function(app) {
     });
   });
   application.get('/api/tossup/:tossup', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.tossup.get(req.params.tossup, function(tossup) {
       if (tossup) {
         res.json(tossup);
@@ -153,7 +153,7 @@ var init = function(app) {
   });
 
   application.get('/api/round/:round', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.round.get(req.params.round, function(round) {
       if (round) {
         res.json(round);
@@ -164,7 +164,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/list', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.tournament.tournaments(function(tournament) {
       if (tournament) {
         res.json(tournament);
@@ -175,7 +175,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/:tournament', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.tournament.get(req.params.tournament, function(tournament) {
       if (tournament) {
         res.json(tournament);
@@ -186,7 +186,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/:tournament/list', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.tournament.list(req.params.tournament, function(tournament) {
       if (tournament) {
         res.json(tournament);
@@ -197,7 +197,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/:tournament/:round', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.round.get(req.params.round, function(round) {
       if (round) {
         res.json(round);
@@ -208,7 +208,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/:tournament/:round/list', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.round.list(req.params.round, function(round) {
       if (round) {
         res.json(round);
@@ -219,7 +219,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/:tournament/:round/:tossup', authorize, function(req, res) {
-    var res = app.router.wrap(res);
+    var res = app.router.wrap(req, res);
     app.dao.tossup.get(req.params.tossup, function(tossup) {
       if (tossup) {
         res.json(tossup);
