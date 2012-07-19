@@ -58,18 +58,20 @@
           window.userId = u.id;
         }
       });
-      user = u;
-      setInterval(alive, 5000);
-      console.log("Authenticated with QuizbowlDB: ", user);
+      doneAuthentication(u);
     });
   }
 
   var authenticateWithId = function(id) {
     auth.loginWithId(id, function(u) {
-      user = u;
-      setInterval(alive, 5000);
-      console.log("Authenticated with QuizbowlDB: ", user);
+      doneAuthentication(u);
     });
+  }
+
+  var doneAuthentication = function(u) {
+    user = u;
+    setInterval(alive, 5000);
+    console.log("Authenticated with QuizbowlDB: ", user);
   }
   var alive = function() {
     auth.alive(user.id);
@@ -92,9 +94,15 @@
     },
     onSystemBroadcast : function(message){
     },
+    onJoin : function(user) {
+    },
     onBuzz : function(user){
     },
     onSit : function(user, team) {
+    },
+    onLeave : function(user) {
+    },
+    onLeaveTeam : function(user, team) {
     },
     onStartQuestion : function(){
     },
@@ -374,7 +382,7 @@
       collection : lobby 
     });
     users = new Collection.UserList;
-    userView = new View.UserList({
+    usersView = new View.UserList({
       el : $("#userlist"),
       collection : users
     });

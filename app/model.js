@@ -367,6 +367,8 @@ var init = function(app) {
                 partial = game.partial;
               }
               onJoin(h, partial);
+              console.log(channel.onJoin);
+              channel.onJoin(app.getUsers()[user]);
             }
           );
         }
