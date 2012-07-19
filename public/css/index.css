@@ -19,11 +19,9 @@ html, body {
   padding-bottom: 21px !important;
   height: 38px;
   position:relative;
+  width:113px;
 }
 
-.fbLoginButtonWrapper:hover {
-	background:#09F !important;
-}
 
 .fbLoginButtonImg {
   height:1.5em;
@@ -83,14 +81,7 @@ html, body {
 #header {
 	width:100%;
 	height:80px;
-	background:#09F;
-  /*
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#00344b), to(#06192c));
-	background-image: -webkit-linear-gradient(top, #00344b, #06192c); 
-	background-image:    -moz-linear-gradient(top, #00344b, #06192c);
-	background-image:     -ms-linear-gradient(top, #00344b, #06192c);
-	background-image:      -o-linear-gradient(top, #00344b, #06192c);
-  */
+	background:rgba(10, 112, 220, 1);
 }
 
 #menu { 
@@ -116,7 +107,6 @@ html, body {
 	list-style:none;
 }
 #menu a {
-  text-align:center;
 	display:inline-block;
 	margin:0;
 	float:left;
