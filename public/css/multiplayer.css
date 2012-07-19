@@ -1,7 +1,13 @@
+.roomWrapper {
+  position : relative;
+}
+
 .roomLoadingMask {
   position : absolute;
   background-color : #ccc;
   opacity : 0.5;
+  height : 100%;
+  width : 100%;
 }
 
 .chatImage {

@@ -1,7 +1,12 @@
+@font-face {
+  font-family: 'Junction';
+  src: url('/font/Junction.eot?') format('eot'), url('/font/Junction.woff') format('woff'), url('/font/Junction.ttf') format('truetype');
+}
+
 html, body {
 	margin:0;
 	padding:0;
-	font-family:"Segoe UI", Helvetica, "Open Sans", sans-serif;
+	font-family:"Junction","Segoe UI", Helvetica, "Open Sans", sans-serif;
 }
 
 html, body {
@@ -10,13 +15,32 @@ html, body {
 }
 
 .fbLoginButtonWrapper {
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-  height: 64px;
+  padding-top: 21px !important;
+  padding-bottom: 21px !important;
+  height: 38px;
+  position:relative;
+}
+
+.fbLoginButtonWrapper:hover {
+	background:#09F !important;
 }
 
 .fbLoginButtonImg {
-  width: 64px;
+  height:1.5em;
+}
+
+#fbLoginDiv {
+  position: absolute;
+  left: 55px;
+  top: 21px;
+  padding-bottom: 3px;
+  padding-top: 9px;
+  background: #3B5B99;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 #container {
@@ -24,6 +48,7 @@ html, body {
 }
 
 .btn-small {
+  cursor:pointer;
   border: none;
   border-radius:14px;
   padding-left: 12px;
@@ -40,23 +65,19 @@ html, body {
   padding-right: 12px;
   padding-top: 5px;
   padding-bottom: 5px;
-  width: 135px;
   font-size: 1.1em;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-  font-family: MonotypeCorsiva;
   margin-top: 5px;
   margin-left: 5px;
   margin-right: 5px;
+  margin-bottom: 5px;
 }
 .btn-small:hover {
   box-shadow: 0px 0px 0px 5px #aaa;
 }
+
 .btn-small:active{
-  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#00344B), to(#06192C));
-  background-image: -webkit-linear-gradient(top, #4096EE, #3FF);
-  background-image:    -moz-linear-gradient(top, #00344B, #06192C);
-  background-image:     -ms-linear-gradient(top, #00344B, #06192C);
-  background-image:     -o-linear-gradient(top, #00344B, #06192C);
+  background:#03C
 }
 
 #header {
@@ -74,7 +95,8 @@ html, body {
 
 #menu { 
 	height:100%; 
-	width:719px; padding:0;
+	width:675px; 
+  padding:0;
 	margin:0;
 	float:right;
 }
@@ -88,25 +110,27 @@ html, body {
 	color:#ccc;
 	line-height:80px;
 	height:100%;
-	padding:10px 0 0 10px;
+	padding:15px 0 0 10px;
 }
 #menu li {
 	list-style:none;
 }
 #menu a {
-	width:139px;
   text-align:center;
 	display:inline-block;
 	margin:0;
 	float:left;
-	padding-top:26px;
-	padding-bottom:26px;
+  padding-left:20px;
+  padding-right:20px;
+	padding-top:28px;
+	padding-bottom:28px;
 	background:#09F;
   -webkit-transition: background 0.3s ease-out;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 #menu a:hover{
-  background:#03C
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 #menu li a {

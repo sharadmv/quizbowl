@@ -76,7 +76,7 @@
   var alive = function() {
     auth.alive(user.id);
   }
-  // if fb ad then this loads
+
   var mHandler = 
   {
     onGameStart : function() {
@@ -123,6 +123,7 @@
         if (user) {
           if (!curRoom || this.get("id") != curRoom.get("id")) {
             curRoom = new Model.CurrentRoom({id: this.get("id"), callback : callback });
+            loadRoom(curRoom.toJSON());
           } else {
             callback({status:true});
           }
@@ -286,7 +287,7 @@
         "<div class='roomLoadingMask' style='visibility:hidden'><img style='width:25px' src='/img/loading.gif'></img></div>" +
         "<img class='roomHostImage' src='http://graph.facebook.com/{{host.fbId}}/picture'></img>" +
         "<span class='roomName'>{{name}}</span>" +
-        "<button class='joinButton'>Join</button>" +
+        "<button class='joinButton btn-small'>Join</button>" +
         "<div style='clear:both'></div>" +
         "</div>"
         ,
