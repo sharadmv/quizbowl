@@ -6,7 +6,8 @@ var init = function(app) {
           USER_LOGGED_IN:"user_login",
           USER_LOGGED_OUT:"user_logout",
           ROOM_CREATED:"room_create",
-          ROOM_DELETED:"room_delete"
+          ROOM_DELETED:"room_delete",
+          GAME_STARTED:"game_start"
         },
         Level:{
           VERBOSE:"verbose",
@@ -460,6 +461,11 @@ var init = function(app) {
         app.bridge.publishService(serviceName, room);
         app.bridge.joinChannel(channelName, 
           new ChannelHandler({
+            onGameStart:function(){
+              app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.GAME_STARTED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(room)));
+            },
+            onGameEnd:function(){
+            },
             onChat : function(chat) {
             },
             onSystemBroadcast : function(message) {

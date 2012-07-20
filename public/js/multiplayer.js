@@ -26,6 +26,9 @@
       multi.on("room_delete", function(ev) {
         lobby.remove(new Model.Room(ev.message));
       });
+      multi.on("game_start", function(ev) {
+        lobby.setStarted(new Model.Room(ev.message));
+      });
     });
     bridge.getService("quizbowl-"+namespace+"-auth", function(a) {
       auth = a;
@@ -153,6 +156,10 @@
         } else {
           callback({status:false, message:"You haven't logged in yet"});
         }
+      },
+      setStarted : function() {
+        this.get("game").started = true;
+        this.trigger("started");
       }
     }),
     CurrentRoom : Backbone.Model.extend({
@@ -200,6 +207,13 @@
       url : BASE_URL+"/api/room"+BASE_URL_SUFFIX,
       parse : function(response) {
         return response.data;
+      },
+      setStarted : function(room) {
+        this.each(function(r) {
+          if (r.get('name') == room.get('name')) {
+            r.setStarted();
+          }
+        });
       },
       model : Model.Room
     }),
@@ -291,9 +305,13 @@
       "click .joinButton" : "join",
       "dblclick" : "join",
     },
+    started : function() {
+      this.render();
+    },
     initialize : function() {
       this._meta = {};
       this.setSelected(false);
+      this.model.bind("started",this.started, this);
     },
     render : function() {
       $(this.el).html(this.template(this.model.toJSON()));
@@ -306,6 +324,8 @@
     },
     template : function(model) {
       var started = model.game.started ? "Started" : "Idle";
+      $(this.el).removeClass("roomIdle");
+      $(this.el).removeClass("roomStarted");
       $(this.el).addClass("room"+started);
       var join = "";
       if (this._meta.selected) {
@@ -505,8 +525,8 @@
     });
   });
   jQuery.fn.outerHTML = function(s) {
-        return s
-                  ? this.before(s).remove()
-                          : jQuery("<p>").append(this.eq(0).clone()).html();
+    return s
+      ? this.before(s).remove()
+      : jQuery("<p>").append(this.eq(0).clone()).html();
   };
 })();
