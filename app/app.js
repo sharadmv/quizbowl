@@ -24,7 +24,7 @@ var userToRoom = {};
 var rooms = {};
 var roomNew = [];
 var roomRemove = [];
-var gmToRh = {};
+var roomToGm = {};
 app.log = function(tag, message) {
   console.log("["+tag+"]","\t\t",message.join(" "));
 }
@@ -47,6 +47,11 @@ app.getTimeouts = function() {
   return timeouts;
 }
 app.deleteRoom = function(name) {
+  for (var i in userToRoom) {
+    if (userToRoom[i].name == name) {
+      userToRoom[i] = null;
+    }
+  }
   r = rooms[name];
   app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.ROOM_DELETED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(r)));
   delete rooms[name];
@@ -65,7 +70,7 @@ app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
         var r = new Room(properties.name, user, properties, function(room) {
           rooms[properties.name] = r;
           app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.ROOM_CREATED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(r)));
-          gmToRh[user.id] = r;
+          roomToGm[properties.name] = user.id;
           callback(r);
         });
       });
@@ -85,9 +90,8 @@ app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
     }
     userToRoom[user] = room;
     var gh = null;
-    console.log(gmToRh);
-    if (gmToRh[user]) {
-      gh = gmToRh[user];
+    if (roomToGm[room] == user) {
+      gh = rooms[room];
     }
     rooms[room].join(user, handler, function(h, partial) {
       callback(h, partial, gh);

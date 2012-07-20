@@ -23,7 +23,7 @@
       multi.on("room_create",function(ev) {
         lobby.add(new Model.Room(ev.message));
       });
-      multi.on("room_delete", function(room) {
+      multi.on("room_delete", function(ev) {
         lobby.remove(new Model.Room(ev.message));
       });
     });
@@ -296,12 +296,12 @@
       this.setSelected(false);
     },
     render : function() {
+      $(this.el).html(this.template(this.model.toJSON()));
       this.$(".roomHostImage[title]").qtip({
         style : {
           classes : "ui-tooltip-blue ui-tooltip-shadow ui-tooltip-rounded"
         }
       });
-      $(this.el).html(this.template(this.model.toJSON()));
       return this;
     },
     template : function(model) {
