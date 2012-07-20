@@ -194,21 +194,15 @@ var init = function(app) {
         var teams = {};
         
         //set up properties
-        if (!properties.type) {
-          properties.type = app.Constants.Multiplayer.GAME_TYPE_FFA;
-          properties.maxOccupancy = 10;
+        if (!properties.numTeams) {
+          properties.numTeams = 10;
         }
-        if (properties.type == app.Constants.Multiplayer.GAME_TYPE_FFA) {
-          properties.teamLimit = 1;
-          for (var i = 0; i <  properties.maxOccupancy; i++){
-            var team = new Model.Multiplayer.Team(i+1, 1, room);
-            teams[i+1] = team; 
-          }
-        } else if (properties.type == app.Constants.Multiplayer.GAME_TYPE_TEAM) {
-          for (var i = 0; i <  properties.numTeams; i++){
-            var team = new Model.Multiplayer.Team(i+1, properties.teamLimit, room);
-            teams[i+1] = team; 
-          }
+        if (!properties.numPlayers) {
+          properties.numPlayers = 1;
+        }
+        for (var i = 0; i <  properties.numTeams; i++){
+          var team = new Model.Multiplayer.Team(i+1,properties.numPlayers, room);
+          teams[i+1] = team; 
         }
 
         var name = name;
@@ -367,7 +361,6 @@ var init = function(app) {
                 partial = game.partial;
               }
               onJoin(h, partial);
-              console.log(channel.onJoin);
               channel.onJoin(app.getUsers()[user]);
             }
           );
@@ -378,14 +371,18 @@ var init = function(app) {
               game.start();
               channel.onGameStart();
               app.log(app.Constants.Tag.MULTIPLAYER,["Game started:", room.name]);
-              callback(true);
+              if (callback) {
+                callback(true);
+              }
             } else {
               app.dao.user.get(user, function(u) {
                 app.log(app.Constants.Tag.MULTIPLAYER,["Oh please, you're not the gamemaster. Don't try to be something you aren't, "+u.name]);
               });
             }
           } else {
-            callback(false);
+            if (callback) {
+              callback(false);
+            }
           }
         }
         this.name = name;
@@ -609,6 +606,7 @@ var init = function(app) {
               }
             },
             function(tossups) {
+              console.log(tossups.length);
               if (tossups.length > 0) {
                 curTossups = tossups;
                 tossupLength = tossups.length;

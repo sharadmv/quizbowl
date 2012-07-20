@@ -91,6 +91,7 @@
     onAnswer : function(user, message){
     },
     onNewWord : function(word) {
+      console.log(word);
     },
     onSystemBroadcast : function(message){
     },
@@ -111,6 +112,28 @@
     onUpdateScore : function(score){
     }
   };
+
+  var loadRoom = function(room) {
+  }
+  var loadGM = function(gm) {
+    gameHandler = gm;
+    window.gameHandler = gm;
+  }
+
+  var joinRoom = function(name, id, callback) {
+    multi.joinRoom(name, user.id, mHandler, function(rh, partial, gh) {
+      if (gh) {
+        loadGM(gh);
+      }
+      new View.ChatRoom({ id : name, el : $("#roomChat") });
+      $("#game").html("");
+      var raph = Raphael('game', 50, 50);
+      raph.circle(25, 25, 25).attr({'fill':'#aaa'});
+
+      roomHandler = rh;
+      callback({ status : true });
+    });
+  }
 
   var Model = {
     Chat : Backbone.Model.extend({
@@ -144,17 +167,8 @@
         var callback = this.get("callback");
         this.fetch({
           success : function(room, response) {
-						
             if (user) {
-              multi.joinRoom(id, user.id, mHandler, function(rh) {
-                new View.ChatRoom({ id : id, el : $("#roomChat") });
-                $("#game").html("");
-                var raph = Raphael('game', 50, 50);
-                raph.circle(25, 25, 25).attr({'fill':'#aaa'});
-
-                roomHandler = rh;
-                callback({ status : true });
-              });
+              joinRoom(id, user.id, callback);
             }
           }
         });
@@ -216,11 +230,15 @@
         }, this);
       },
       add : function(model) {
+        this.render();
         var v = new this.View({ model : model });
         this._views[model.id] = v;
         $(this.el).append(v.render().el);
       },
       remove : function(model) {
+        if (this.collection.length == 0) {
+          this.render();
+        }
         var v = new this.View({ model : model });
         this._views[model.id].remove();
         delete this._views[model.id];
@@ -271,33 +289,51 @@
     className : "room",
     events : {
       "click .joinButton" : "join",
-      "dblclick" : "join"
+      "dblclick" : "join",
     },
     initialize : function() {
-      this.model.bind('change', this.render, this);
+      this._meta = {};
+      this.setSelected(false);
     },
     render : function() {
+      this.$(".roomHostImage[title]").qtip({
+        style : {
+          classes : "ui-tooltip-blue ui-tooltip-shadow ui-tooltip-rounded"
+        }
+      });
       $(this.el).html(this.template(this.model.toJSON()));
       return this;
     },
     template : function(model) {
-      var started = model.started ? "Started" : "Idle";
+      var started = model.game.started ? "Started" : "Idle";
+      $(this.el).addClass("room"+started);
+      var join = "";
+      if (this._meta.selected) {
+        join = "Leave";
+      } else {
+        join = "Join";
+      }
+      var button = $("<button class='joinButton btn-small'></button>").html(join).outerHTML();
       return Mustache.render(
-        "<div class='roomWrapper room"+started+"'>" +
-        "<div class='roomLoadingMask' style='visibility:hidden'><img style='width:25px' src='/img/loading.gif'></img></div>" +
-        "<img class='roomHostImage' src='http://graph.facebook.com/{{host.fbId}}/picture'></img>" +
+        "<div class='roomWrapper'>" +
+        "<div class='roomLoadingMask' style='visibility:hidden'><img class='roomLoadingImage' src='/img/loading.gif'></img></div>" +
+        "<img title='{{host.name}}' class='roomHostImage' src='http://graph.facebook.com/{{host.fbId}}/picture'></img>" +
         "<span class='roomName'>{{name}}</span>" +
-        "<button class='joinButton btn-small'>Join</button>" +
+        button +
         "<div style='clear:both'></div>" +
         "</div>"
         ,
         model 
       );
     },
+    setSelected : function(selected) {
+      this._meta.selected = selected;
+    },
     join : function() {
+      var self = this;
       this.$(".roomLoadingMask").css({ "visibility" : "visible" });
       this.model.join(function() {
-        this.$(".roomLoadingMask").css({ "visibility" : "hidden" });
+        self.$(".roomLoadingMask").css({ "visibility" : "hidden" });
       });
     }
   })
@@ -331,7 +367,20 @@
 
   });
   View.Lobby = Super.UpdateView.extend({
-    View : View.Room
+    View : View.Room,
+    initialize : function(options) {
+      Super.UpdateView.prototype.initialize.call(this, options);
+      this.emptyMessage = $("<div></div>").html("Sorry no rooms are currently in existence");
+      this.render(); 
+    },
+    render : function() {
+      if (this.collection.length > 0) {
+        this.emptyMessage.remove();
+      } else {
+        $(this.el).append(this.emptyMessage);
+      }
+      return Super.UpdateView.prototype.render.call(this);
+    }
   });
   View.ChatList = Super.UpdateView.extend({
     View : View.Chat
@@ -367,6 +416,68 @@
       }
     }
   });
+  View.Create = Backbone.View.extend({
+    events : {
+      "click #createButton" : "create",
+      "change #presetsField" : "setPreset"
+    },
+    create : function() {
+      var obj = {};
+      obj.name = this.$("#nameField").val();
+      obj.message = this.$("#messageField").val();
+      obj.numQuestions = parseInt(this.$("#numField").val());
+      var speedIncrement = this.$("#readingSpeedField").val();
+      var startSpeed = 350;
+      var speedPerIncrement = 5;
+      obj.readingSpeed = startSpeed + speedPerIncrement * (speedIncrement-50) * -1;
+      obj.difficulty = this.$("#difficultyField").val();
+      if (obj.difficulty == "All") {
+        delete obj.difficulty;
+      }
+      obj.category = this.$("#categoryField").val();
+      if (obj.category == "All") {
+        delete obj.category;
+      }
+      obj.numTeams = parseInt(this.$("#numTeamsBox").val());
+      obj.numPlayers = parseInt(this.$("#numPlayersBox").val());
+      if (this.validate(obj)) {
+        multi.createRoom(user.id, obj, function() {
+          joinRoom(obj.name, user.id,function(){});
+        }); 
+      } else {
+        alert("invalid");
+      }
+    },
+    setPreset : function() {
+      if (this.$("#presetsField").val() == "FFA") {
+        this.$("#numTeamsBox").val(10);
+        this.$("#numPlayersBox").val(1);
+      } else if (this.$("#presetsField").val() == "Team") {
+        this.$("#numTeamsBox").val(2);
+        this.$("#numPlayersBox").val(5);
+      } else {
+      }
+    },
+    validate : function(game) {
+      var valid = true;
+      if (game.name == "") {
+        valid = false;
+      }
+      if (game.message == "") {
+        valid = false;
+      }
+      if (!game.numQuestions){
+        valid = false;
+      }
+      if (!game.numTeams) {
+        valid = false;
+      }
+      if (!game.numPlayers) {
+        valid = false;
+      }
+      return valid;
+    }
+  });
 
   var lobby;
   var lobbyView;
@@ -374,6 +485,8 @@
   var usersView;
   var chatRoom;
   var chatRoomView;
+  var createView;
+  var gameHandler;
 
   $(document).ready(function() {
     $("#roomChat").css({ 'visibility' : 'hidden' });
@@ -387,6 +500,13 @@
       el : $("#userlist"),
       collection : users
     });
+    createView = new View.Create({
+      el : $("#create")
+    });
   });
-
+  jQuery.fn.outerHTML = function(s) {
+        return s
+                  ? this.before(s).remove()
+                          : jQuery("<p>").append(this.eq(0).clone()).html();
+  };
 })();

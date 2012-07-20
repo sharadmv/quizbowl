@@ -34,18 +34,45 @@ html, body {
   padding-bottom: 3px;
   padding-top: 9px;
   background: #3B5B99;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
+  height:24px;
 }
 
 #container {
 	height:100%;
 }
 
-.btn-small {
+.btn-small{
+  cursor: pointer;
+  border: none;
+  border-radius: 14px;
+  padding-left: 12px;
+  color: white;
+  -moz-box-shadow: 3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px -11px #ccc;
+  box-shadow: 0px 0px 0px 2px #ddd;
+  background: #4096EE;
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#00344B), to(#06192C));
+  background-image: -webkit-linear-gradient(bottom, #4096EE, #4096E0);
+  background-image: -moz-linear-gradient(top, #00344B, #06192C);
+  background-image: -ms-linear-gradient(top, #00344B, #06192C);
+  background-image: -o-linear-gradient(top, #00344B, #06192C);
+  padding-right: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  font-size: 0.8em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  margin-top: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-bottom: 3px;
+}
+
+.btn-medium {
   cursor:pointer;
   border: none;
   border-radius:14px;
@@ -69,13 +96,6 @@ html, body {
   margin-left: 5px;
   margin-right: 5px;
   margin-bottom: 5px;
-}
-.btn-small:hover {
-  box-shadow: 0px 0px 0px 5px #aaa;
-}
-
-.btn-small:active{
-  background:#03C
 }
 
 #header {

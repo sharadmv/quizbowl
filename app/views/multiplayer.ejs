@@ -1,17 +1,87 @@
-<div id="create">
-  <button class='btn-small' id="createButton">Create Game</button>
-</div>
-<div id='lobby'>
+<div id='leftWrapper'>
+  <div id='lobbyWrapper'>
+    <h2>Join Game</h2>
+    <div id='lobby'>
+    </div>
+  </div>
+  <div id='createWrapper'>
+    <h2>Create Game</h2>
+    <div id="create">
+      <div id='createBox'>
+        <div class='createField'>
+          <span class='labelField'>Name:</span>
+          <input maxlength=20 id='nameField' class='textField'></input>
+        </div>
+        <div class='createField'>
+          <span class='labelField'>Message:</span>
+          <input id='messageField' class='textField'></input>
+        </div>
+        <div class='createField'>
+          <span class='labelField'>Number of Questions:</span>
+          <input id='numField' class='numBox' value=20></input>
+        </div>
+        <div class='createField'>
+          <span class='labelField'>Reading Speed:</span>
+          <input id="readingSpeedField" type="range" min="0" max="100" value="50">
+        </div>
+        <div class='createField'>
+          <span class='labelField'>Difficulty:</span>
+          <select id='difficultyField' class='dropdownField'>
+            <option class="optionField">All</option>
+            <option class="optionField">College</option>
+            <option class="optionField">HS</option>
+            <option class="optionField">MS</option>
+          </select>
+        </div>
+        <div class='createField'>
+          <span class='labelField'>Category:</span>
+          <select id="categoryField" class='dropdownField'>
+            <option class="optionField">All</option>
+            <option class="optionField">Social Science</option>
+            <option class="optionField">Literature</option>
+            <option class="optionField">Trash</option>
+            <option class="optionField">History</option>
+            <option class="optionField">Science</option>
+            <option class="optionField">Mythology</option>
+            <option class="optionField">Fine Arts</option>
+            <option class="optionField">Religion</option>
+            <option class="optionField">Philosophy</option>
+            <option class="optionField">Geography</option>
+          </select>
+        </div>
+        <div class='createField'>
+          <span class='labelField'>Presets:</span>
+          <select id='presetsField' class='dropdownField'>
+            <option>FFA</option>
+            <option>Team</option>
+          </select>
+        </div>
+        <div id='numTeamsField' class='createField'>
+          <span class='labelField'>Number of Teams:</span>
+          <input id="numTeamsBox" class='numBox' value="10">
+        </div>
+        <div id='numPlayersField' class='createField'>
+          <span class='labelField'>Players per Team:</span>
+          <input id="numPlayersBox" class='numBox' value="1">
+        </div>
+      </div>
+      <button class='createButton btn-small' id="createButton">Create</button>
+    </div>
+  </div>
 </div>
 <div id='game'>
 </div>
-<div id='roomChat'>
-  <div id='roomChatBox'>
+<div id='rightWrapper'>
+  <h2>Users</h2>
+  <div id="userlist">
   </div>
-  <div id='roomChatControl'>
-    <input id='roomChatMessage'></input>
-    <button id='roomChatSend'>Send</button>
+  <div id='roomChat'>
+    <h2>Chat</h2>
+    <div id='roomChatBox'>
+    </div>
+    <div id='roomChatControl'>
+      <input id='roomChatMessage'></input>
+      <button id='roomChatSend'>Send</button>
+    </div>
   </div>
-</div>
-<div id="userlist">
 </div>

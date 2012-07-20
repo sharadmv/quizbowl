@@ -24,6 +24,7 @@ var userToRoom = {};
 var rooms = {};
 var roomNew = [];
 var roomRemove = [];
+var gmToRh = {};
 app.log = function(tag, message) {
   console.log("["+tag+"]","\t\t",message.join(" "));
 }
@@ -46,7 +47,7 @@ app.getTimeouts = function() {
   return timeouts;
 }
 app.deleteRoom = function(name) {
-  rooms[name] = r;
+  r = rooms[name];
   app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.ROOM_DELETED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(r)));
   delete rooms[name];
 }
@@ -64,6 +65,7 @@ app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
         var r = new Room(properties.name, user, properties, function(room) {
           rooms[properties.name] = r;
           app.events.trigger(new app.model.Events.Event(app.Constants.Events.Type.ROOM_CREATED, app.Constants.Events.Level.IMPORTANT, app.util.room.convertRoom(r)));
+          gmToRh[user.id] = r;
           callback(r);
         });
       });
@@ -77,12 +79,19 @@ app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
   getRooms:function(callback) {
     callback(rooms);
   },
-  joinRoom:function(room, user,handler,callback ) {
+  joinRoom:function(room, user,handler,callback) {
     if (userToRoom[user] && userToRoom[user] != room) {
       rooms[userToRoom[user]].getUserToService()[user].leave();
     }
     userToRoom[user] = room;
-    rooms[room].join(user, handler, callback);
+    var gh = null;
+    console.log(gmToRh);
+    if (gmToRh[user]) {
+      gh = gmToRh[user];
+    }
+    rooms[room].join(user, handler, function(h, partial) {
+      callback(h, partial, gh);
+    });
   },
   onNewRoom : function(callback) {
     roomNew.push(callback);

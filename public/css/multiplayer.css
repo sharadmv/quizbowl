@@ -1,16 +1,102 @@
-.roomWrapper {
-  position : relative;
+#game {
+  float:left;
+}
+#leftWrapper{
+  position:relative;
+  float:left;
+  padding-left:3px;
+  padding-right:3px;
+  background-color:rgba(0, 143, 213, 0.5);
+  height:100%;
+}
+#rightWrapper {
+  position:relative;
+  float:right;
+  padding-left:3px;
+  padding-right:3px;
+  background-color:rgba(0, 143, 213, 0.5);
+  height:100%;
+}
+#lobby {
+  margin-left:30px;
+  width:250px;
+  border:2px solid black;
+  max-height:300px;
+  overflow:scroll;
 }
 
+.room {
+  border-top:1px solid rgba(0,0,0,0.4);
+  border-bottom:1px solid rgba(0,0,0,0.4);
+  height:35px;
+  padding-top:3px;
+}
+.roomName {
+  line-height:38px;
+  position:relative;
+  float:left;
+  padding-left:9px;
+}
+.roomWrapper {
+  background-color:transparent;
+  -webkit-transition: background-color 0.3s ease-out;
+  position : relative;
+  margin-top:-3px;
+  height:38px;
+}
+.roomWrapper:hover {
+  background-color:rgba(0, 0, 0, 0.3);
+}
+.roomHostImage {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 25px;
+  border-radius:13px;
+  position: relative;
+  float: left;
+  margin-left: 3px;
+}
+.roomStarted {
+  background:rgba(228, 31, 58, 0.5);
+}
+.roomIdle {
+  background:rgba(111,199,0,0.5);
+}
+.roomLoadingImage {
+  width:25px;
+  margin-top:5px;
+}
+
+.joinButton {
+  position:relative;
+  float:right;
+  margin-top:7px;
+  margin-left:3px;
+}
 .roomLoadingMask {
   position : absolute;
   background-color : #ccc;
-  opacity : 0.5;
-  height : 100%;
+  opacity : 0.7;
   width : 100%;
+  text-align: center;
+  height:100%;
 }
 
 .chatImage {
   width : 25px;
   border-radius : 12px;
+}
+.numBox {
+  width:20px;
+}
+#create {
+  margin-left: 30px;
+  width: 250px;
+  border: 2px solid black;
+  max-height: 300px;
+  overflow: scroll;
+  text-align: center;
+  background-color: rgba(72, 160, 229, 0.4);
+}
+.createButton {
 }

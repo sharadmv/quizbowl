@@ -1,4 +1,4 @@
-USE sandbox;
+USE test;
 DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE `tournament` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -42,6 +42,7 @@ CREATE TABLE `tossup` (
 
 INSERT INTO tossup_temp (question,answer,round,question_num,difficulty,category, tournament) (SELECT question, answer, round, question_num, difficulty, category,(SELECT id FROM tournament WHERE tournament.year=tossups.year AND tournament.name=tossups.tournament) FROM tossups);
 
+DROP TABLE IF EXISTS `round`;
 CREATE TABLE `round` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `round` varchar(200) DEFAULT NULL,
@@ -49,8 +50,7 @@ CREATE TABLE `round` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO round (round, tournament) (SELECT DISTINCT round, tournament FROM tossups);
+INSERT INTO round (round, tournament) (SELECT DISTINCT round, tournament FROM tossup_temp);
 
 INSERT INTO tossup (question,answer,round,question_num,difficulty,category, tournament) (SELECT question, answer, (SELECT round.id from round WHERE tossup_temp.round=round.round AND tossup_temp.tournament=round.tournament), question_num, difficulty, category,tournament FROM tossup_temp);
 
-DROP TABLE tossup_temp;
