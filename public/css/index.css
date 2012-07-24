@@ -125,6 +125,7 @@ html, body {
 }
 #menu li {
 	list-style:none;
+	display:inline-block;
 }
 #menu a {
 	display:inline-block;
