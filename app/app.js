@@ -84,6 +84,16 @@ app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
   getRooms:function(callback) {
     callback(rooms);
   },
+  leaveRoom:function(room, user, callback) {
+    console.log(userToRoom[user], room);
+    if (userToRoom[user]) {
+      rooms[userToRoom[user]].getUserToService()[user].leave();
+      delete userToRoom[user];
+      callback(true);
+    } else {
+      callback(false);
+    }
+  },
   joinRoom:function(room, user,handler,callback) {
     if (userToRoom[user] && userToRoom[user] != room) {
       rooms[userToRoom[user]].getUserToService()[user].leave();
