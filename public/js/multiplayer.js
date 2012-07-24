@@ -117,6 +117,134 @@
   };
 
   var loadRoom = function(room) {
+		// clear the game
+		$("#game").html("");
+
+		var numTeams = 0;
+		$.each(room.teams, function(){ numTeams++ });
+
+		// slide left wrapper
+		$('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
+			// scroll the header out
+			$('html, body').animate({ scrollTop:	$('#header').height() });
+
+			// remove padding left on holy grail container
+			$('#holyGrailContainer').css({paddingLeft : 0 });
+			var height	= $('#game').height(),
+					width		= $('#game').width(),
+					// Raphael's Paper should be a square
+					// with the smaller dimension
+					s			 = height < width ? height : width,
+					or			 = .95*s/2, // outer radius
+					ir		 = .5*or,			// inner radius
+					pi		 = Math.PI;		// mmm... pi...
+			
+			var paper = Raphael('game', s, s),
+					outerCircle = paper.circle(s/2, s/2, or),
+					innerCircle = paper.circle(s/2, s/2, ir);
+			outerCircle.attr({
+				'stroke-width'	: s*.025,
+				stroke	:	'#555'
+			});
+
+			innerCircle.attr({
+				gradient		:	'r(.5, .5)#fff-#aaa',
+			});
+
+			var teamArcs = [],
+			// draw as many arcs as we need
+					part = 2*pi/numTeams,
+					gradientArr = gradientAngleArray(numTeams);
+			for (var i = 0; i < numTeams; i++) {
+				// teamArcs only used for events; not drawn
+				var teamArc = paper.path(arc(s/2, s/2, ir, or, part*i, part*(i+1)));
+				teamArc.attr({
+					'stroke-width':2,
+					gradient	:	gradientArr[i]+'-#00f:0-#000',
+					opacity:1
+				});
+				teamArc.data('gradientAngle', gradientArr[i]);
+
+				teamArc.hover(function() {
+					console.log(this.attr('gradient'));
+					this.attr({
+						gradient	:	this.data('gradientAngle')+'-#00f:40-#000'
+					})
+					console.log(this.attr('gradient'));
+				}, function() {
+					this.attr({
+						gradient	:	this.data('gradientAngle')+'-#00f:0-#000'
+					})
+				});
+				
+				teamArcs.push(teamArc);
+			}
+			window.teamArcs = teamArcs;
+			// move the inner circle on top
+			// (the arc isn't perfect, so we have to hide it's arc parts)
+			innerCircle.toFront();
+			// move the outer circle on top
+			// this will only move the border up, since there is no fill
+			outerCircle.toFront();
+		});
+
+		function arc(cx, cy, ir, or, startRad, endRad) {
+					// outer calculations
+			var osx = cx+or*Math.cos(startRad), // outer start x
+					osy = cy+or*Math.sin(startRad),	// outer start y
+
+					oex = cx+or*Math.cos(endRad),		// outer end x
+					oey = cy+or*Math.sin(endRad),		// outer end y
+
+					// inner calculations
+					isx = cx+ir*Math.cos(startRad),	// inner start x
+					isy = cy+ir*Math.sin(startRad),	// inner start y
+
+					iex = cx+ir*Math.cos(endRad),		// outer end x
+					iey = cy+ir*Math.sin(endRad);		// outer end y
+			
+			// CREATE THE ARC OBJECT
+			// move to the inner start point
+			var path = 'M'+isx+','+isy;
+
+			// draw a line to the outer start point
+			path += 'L'+osx+','+osy;
+
+			// arc to the outer end point
+			path += 'A'+cx+','+cy+' 0 0 1 '+oex+','+oey;
+
+			// draw a line back to the inner end point
+			path += 'L'+iex+','+iey;
+
+			// arc back to the start point
+			path += 'A'+cx+','+cy+' 0 0 0 '+isx+','+isy;
+			
+			// close the path
+			path += 'Z';
+			return path;
+		}
+
+		// generates gradient angles so the circle has
+		// a near radial gradient
+		function gradientAngleArray(numPieces) {
+			// We start with the right side of the circle, taking the bottom piece of
+			// the two rightmost ones. 
+			var pi = Math.PI,
+					// this will be the angle difference between pieces
+					interval = 2*pi/numPieces,
+					// 'pi' angle is at the center of the start and the start-1 piece
+					// angles. Draw this out; makes more sense
+					curr = pi-(interval/2),
+					arr = [];
+			arr.push(curr/2/pi*360);
+			for (var i = 1; i < numPieces; i++) {
+				curr = (curr > interval) ? curr - interval : curr+2*pi-interval;
+				arr.push(curr/2/pi*360);
+			}
+			console.log(arr);
+			return arr;
+		}
+
   }
   var loadGM = function(gm) {
     gameHandler = gm;
@@ -129,10 +257,6 @@
         loadGM(gh);
       }
       new View.ChatRoom({ id : name, el : $("#roomChat") });
-      $("#game").html("");
-      var raph = Raphael('game', 50, 50);
-      raph.circle(25, 25, 25).attr({'fill':'#aaa'});
-
       roomHandler = rh;
       callback({ status : true });
     });
@@ -146,10 +270,11 @@
         this.set("id", this.get("name"));
       },
       join : function(callback) {
+				var self = this;
         if (user) {
           if (!curRoom || this.get("id") != curRoom.get("id")) {
             curRoom = new Model.CurrentRoom({id: this.get("id"), callback : callback });
-            loadRoom(curRoom.toJSON());
+            loadRoom(self.toJSON());
           } else {
             callback({status:true});
           }
