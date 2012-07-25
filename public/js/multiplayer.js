@@ -135,8 +135,8 @@
 					// Raphael's Paper should be a square
 					// with the smaller dimension
 					s			 = height < width ? height : width,
-					or			 = .95*s/2, // outer radius
-					ir		 = .5*or,			// inner radius
+					or			 = .9*s/2, // outer radius
+					ir		 = .75*or,			// inner radius
 					pi		 = Math.PI;		// mmm... pi...
 			
 			var paper = Raphael('game', s, s),
