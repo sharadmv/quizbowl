@@ -61,10 +61,16 @@ var init = function(app) {
           } else { 
             params.limit = parseInt(params.limit);
           }
+          if (params.limit < 0) {
+            params.limit = 0;
+          }
           if (!params.offset) {
             params.offset = 0;
           } else { 
             params.offset = parseInt(params.offset);
+          }
+          if (params.offset < 0) {
+            params.offset = 0;
           }
           if (!params.value) {
             params.value = "";

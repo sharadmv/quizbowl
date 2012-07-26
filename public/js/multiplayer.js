@@ -692,7 +692,6 @@
   var chatRoomView;
   var createView;
   var gameHandler;
-ult
   $(document).ready(function() {
     $("#roomChat").css({ 'visibility' : 'hidden' });
     lobby = new Collection.Lobby;
