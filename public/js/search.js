@@ -1,0 +1,161 @@
+(function() {
+  $(document).ready(function() {
+    var scope = this;
+    var BASE_URL = "/api";
+
+    var Router = Backbone.Router.extend({
+      routes : { 
+        ":term" : "search"
+      },
+
+      search : function(term) {
+        //search.search(term,{});
+      }
+    });
+
+    var Super = {
+      UpdateView : Backbone.View.extend({
+        initialize : function(options) {
+          var self = this;
+          this._views = {};
+          this.collection.bind("add", function(model) {
+            self.add(model);
+          }, this);
+          this.collection.bind("reset", function() {
+            self.reset();
+            this.render();
+          }, this);
+          this.collection.bind("remove", function(model) {
+            self.remove(model);
+          }, this);
+        },
+        render : function() {
+          var self = this;
+          this.collection.each(function(model) {
+            self.add(model);
+          });
+          return this;
+        },
+        add : function(model) {
+          var v = new this.View({ model : model });
+          this._views[model.id] = v;
+          $(this.el).append(v.render().el);
+        },
+        remove : function(model) {
+          var v = new this.View({ model : model });
+          this._views[model.id].remove();
+          delete this._views[model.id];
+        },
+        reset : function() {
+          for (var i in this._views) {
+            this._views[i].remove();
+          }
+          this._views = {};
+        }
+      })
+    }
+
+    var View = {};
+    View.Tossup = Backbone.View.extend({
+      tagName : "div",
+      className : "tossup",
+      events : {
+      },
+      initialize : function() {
+      },
+      render : function() {
+        $(this.el).html(this.template(this.model.toJSON()));
+        return this;
+      },
+      template : function(model) {
+        return Mustache.render(
+        "{{question}}",
+        model
+        );
+      }
+    });
+    View.Results = Super.UpdateView.extend({
+      View : View.Tossup
+    });
+    View.SearchBox = Backbone.View.extend({
+      events : {
+        "click #searchButton" : "search"
+      },
+      search : function() {
+        results.search(this.$("#searchBox").val());
+      }
+    });
+
+    var Model = {
+      Tossup : Backbone.Model.extend({
+      })
+    }
+
+    var Collection = {
+      Results : Backbone.Paginator.requestPager.extend({ 
+        model : Model.Tossup,
+
+        events : {
+          "add" : "blah"
+        },
+
+        initialize : function() {
+          this.term = "";
+          this._params = {};
+        },
+
+        paginator_core: {
+          dataType: 'jsonp',
+          url : function() {
+            return BASE_URL+"/search/"+this.term+"?"+jQuery.param(this._params);
+          }
+        },
+        paginator_ui: {
+          firstPage: 0,
+          currentPage: 0,
+          perPage: 10
+        },
+        server_api: {
+          limit : function() { return this.perPage },
+          offset : function() { return this.currentPage * this.perPage },
+        },
+        parse : function(response) {
+          return response.data.tossups;
+        },
+        search : function(term, params) {
+          this.reset();
+          if (!params) {
+            params = {};
+          }
+          this.term = term;
+          this._params = params;
+          this.fetch({ 
+            add : true
+          });
+        },
+        next : function() {
+          var self = this;
+          this.requestNextPage()
+            .done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        },
+        previous : function() {
+          var self = this;
+          this.requestPreviousPage()
+            .done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        }
+      })
+    }
+
+    //entry point
+    new Router;
+    var results = new Collection.Results;
+    var resultView = new View.Results({ el : $("#results"), collection : results });
+    var searchBox = new View.SearchBox({ el : $("#searchBoxWrapper") });
+    window.results = results;
+    Backbone.history.start();
+  });
+})();
