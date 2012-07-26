@@ -7,9 +7,8 @@
       routes : { 
         ":term" : "search"
       },
-
       search : function(term) {
-        //search.search(term,{});
+        results.search(term);
       }
     });
 
@@ -85,6 +84,18 @@
         results.search(this.$("#searchBox").val());
       }
     });
+    View.ResultControl = Backbone.View.extend({
+      events : {
+        "click #next" : "next",
+        "click #previous" : "previous"
+      },
+      next : function() {
+        results.next();
+      },
+      previous : function() {
+        results.previous();
+      }
+    });
 
     var Model = {
       Tossup : Backbone.Model.extend({
@@ -155,6 +166,7 @@
     var results = new Collection.Results;
     var resultView = new View.Results({ el : $("#results"), collection : results });
     var searchBox = new View.SearchBox({ el : $("#searchBoxWrapper") });
+    var resultControl = new View.ResultControl({ el : $("#resultControl") });
     window.results = results;
     Backbone.history.start();
   });
