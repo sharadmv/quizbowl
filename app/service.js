@@ -94,13 +94,11 @@ var init = function(app) {
               previous.value = params.value;
               previous.params = params.params;
               var baseUrl = res.res.req.headers.host+res.res.req.url.substring(0,res.res.req.url.indexOf("?"));
-              console.log(querystring.stringify(next));
               ret.tossups = tossups;
               ret.next = baseUrl+"?"+querystring.stringify(next);
               ret.previous = baseUrl+"?"+querystring.stringify(previous);
               callback(ret)
             } else {
-              console.log(tossups);
               var sb = "";
               for (var i in tossups) {
                 var tossup = tossups[i];

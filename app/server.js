@@ -28,7 +28,10 @@ var init = function(app) {
   });
 
   application.get('/search', function (req, res) {
-    res.render('search', { page: 'search' });
+    if (!req.query.params) {
+      req.query.params = {};
+    }
+    res.render('search', { page: 'search',query : req.query.params });
   });
 
   application.get('/reader', function (req, res) {
@@ -38,6 +41,7 @@ var init = function(app) {
   application.get('/multiplayer', function (req, res) {
     res.render('multiplayer', { page: 'multiplayer' });
   });
+
   application.get('/m', function (req, res) {
     res.render('multiplayer_old', { page: 'multiplayer_old' });
   });
@@ -52,6 +56,19 @@ var init = function(app) {
       req.session.userId = req.query.userId;
     }
     res.json({ userId : req.session.userId, namespace : app.namespace() });
+  });
+
+  application.get('/api/search/:term?', function(req, res) {
+    var res = app.router.wrap(req, res);
+    var pars = { value : req.params.term, limit : req.query.limit, offset : req.query.offset, params : { category : req.query.category, difficulty : req.query.difficulty } };
+    console.log(pars);
+    app.service.services.tossup.search(res, pars, function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
   });
 
   application.get('/api/service', authorize, function(req, res) {
