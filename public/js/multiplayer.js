@@ -95,7 +95,7 @@
     onAnswer : function(user, message){
     },
     onNewWord : function(word) {
-      console.log(word);
+			$('#gameText').append(word);
     },
     onSystemBroadcast : function(message){
     },
@@ -117,6 +117,7 @@
 	onUpdateScore : function(score){
 	}
   };
+	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
 	  // clear the game
@@ -132,8 +133,9 @@
 
 		  // remove padding left on holy grail container
 		  $('#holyGrailContainer').css({paddingLeft : 0 });
-		  var height	= $('#game').height();
-		  var width		= $('#game').width();
+			jGame = $('#game');
+		  var height	= jGame.height();
+		  var width		= jGame.width();
 
 		  // Raphael's Paper should be a square
 		  // with the smaller dimension
@@ -199,9 +201,6 @@
 								transform: 'r'+centerAngle
 							});
 
-						  // store gradient angles that we need
-						  // userArc.data('gradientAngle', gradientArr[i]);
-
 						  // set up hover handlers for the player arc
 						  userArc.hover(
 							  function() { // hover in
@@ -230,8 +229,6 @@
 				  })(i, userId, lastUser);
 			  }
 
-			  if (last !== 0) {
-			  }
 		  }
 
 		  window.teamArcs = teamArcs;
@@ -242,6 +239,43 @@
 		  // this will only move the border up, since there is no fill
 		  outerCircle.toFront();
 		  window.separators = separators;
+
+			// set up the text div
+			jGame.append('<div id="gameTextDiv"><div id="gameText"></div></div>');
+			
+			// we want the div's top to start somewhere at the upper half of the
+			// circle. 
+			
+			// this will have to be called every window resize
+			function positionGameText() {
+				// angle is the angle between the center of the circle and the top point
+				// at which the circle and square's corner meet 
+				//	(the "meet" point)
+				var angle = Math.PI/4; 
+				var width = 2*ir*Math.cos(angle);
+				var height = 0.7*width;
+
+				// center of the circle, relative to the #game div
+				var cx = jGame.width()/2;
+				var cy = jGame.height()/2;
+
+				// move to center, then move bit more left so it meets "meet" point
+				var left = cx - width/2;
+				// move to center, then move bit higher so it meets "meet" point
+				var top = cy - width/2;
+				$('#gameTextDiv').width(width).height(height).css({
+					// positioning is relative to #game div
+					left:left, top:top
+				});
+				$('#gameText').width(.95*width).height(.95*height).css({
+					// positioning is relative to #gameTextContainer div
+					// vertically center
+					top : .025*height,
+					left: .025*width
+				});
+			}
+			positionGameText();
+
 	  });
 
 	  function radLine(paper, cx, cy, ir, or, rad) {
