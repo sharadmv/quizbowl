@@ -103,6 +103,7 @@
     onBuzz : function(user){
     },
     onSit : function(user, team) {
+			
     },
     onLeave : function(user) {
     },
@@ -112,138 +113,243 @@
     },
     onCompleteQuestion : function(question) {
     },
-    onUpdateScore : function(score){
-    }
+	onUpdateScore : function(score){
+	}
   };
 
   var loadRoom = function(room) {
-		// clear the game
-		$("#game").html("");
+	  // clear the game
+	  $("#game").html("");
 
-		var numTeams = 0;
-		$.each(room.teams, function(){ numTeams++ });
+	  var numTeams = 0;
+	  $.each(room.teams, function(){ numTeams++ });
 
-		// slide left wrapper
-		$('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
-			// scroll the header out
-			$('html, body').animate({ scrollTop:	$('#header').height() });
+	  // slide left wrapper
+	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
+		  // scroll the header out
+		  $('html, body').animate({ scrollTop:	$('#header').height() });
 
-			// remove padding left on holy grail container
-			$('#holyGrailContainer').css({paddingLeft : 0 });
-			var height	= $('#game').height(),
-					width		= $('#game').width(),
-					// Raphael's Paper should be a square
-					// with the smaller dimension
-					s			 = height < width ? height : width,
-					or			 = .95*s/2, // outer radius
-					ir		 = .5*or,			// inner radius
-					pi		 = Math.PI;		// mmm... pi...
+		  // remove padding left on holy grail container
+		  $('#holyGrailContainer').css({paddingLeft : 0 });
+		  var height	= $('#game').height();
+		  var width		= $('#game').width();
+
+		  // Raphael's Paper should be a square
+		  // with the smaller dimension
+		  var s = height < width ? height : width;
+		  var or = .9*s/2;  // outer radius
+		  var ir = .75*or;  // inner radius
+		  var pi = Math.PI; // mmm... pi...
+
+		  var paper = Raphael('game', s, s);
+		  var outerCircle = paper.circle(s/2, s/2, or);
+		  var innerCircle = paper.circle(s/2, s/2, ir);
+
+		  outerCircle.attr({
+			  'stroke-width'	: s*.025,
+			  stroke	:	'#555'
+		  });
+
+		  innerCircle.attr({
+			  gradient		:	'r(.5, .5)#fff-#aaa',
+		  });
+
+		  var userArcs = [];
+		  // draw as many arcs as we need
+		  var numUsers = room.users.length;
+		  var part = 2*pi/numUsers;
+		  gradientArr = gradientAngleArray(numUsers);
+		  i = 0;
+
+		  var teamArcs = {};
+		  var separators = [];
+		  for (var teamName in room.teams) {
+			  var team = room.teams[teamName];
+			  var players = team.players;
+			  var userArcs = teamArcs[teamName] = [];
+			  var last = 0;
+			  for (var i in players) {
+				  var userId = players[i];
+				  var lastUser = false;
+				  if (!(i+1 in players)) {
+					  // last user
+					  lastUser = true;
+				  }
+				  (function(i, userId, lastUser) {
+					  $.get('/api/user/'+userId, function(user) {
+						  var fbId = user.data.fbId;
+							var name = user.data.name;
+							var start = part*i;
+							var end = part*(i+1);
+						  var arc = drawUser(paper, s/2, s/2, ir, or, start, end, name);
+							var centerAngle = gradientArr[i];
+
+							var userArc = arc.shape;
+						  // style the player arc
+						  userArc.attr({
+							  'stroke-width':2,
+							  gradient	:	centerAngle+'-#00f:0-#000',
+							  opacity:1
+							  // fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
+						  });
+
+							var text = arc.text;
+							text.attr({
+								transform: 'r'+centerAngle
+							});
+
+						  // store gradient angles that we need
+						  // userArc.data('gradientAngle', gradientArr[i]);
+
+						  // set up hover handlers for the player arc
+						  userArc.hover(
+							  function() { // hover in
+								  this.attr({
+									  gradient	:	centerAngle+'-#00f:40-#000'
+								  });
+							  }, 
+							  function() { // hover out
+								  this.attr({
+									  gradient	:	centerAngle+'-#00f:0-#000'
+								  });
+							  }
+						  );
+
+						  userArcs.push(userArc);
+
+						  if (lastUser) {
+							  var endRad = part*(i+1);
+								var separator = radLine(paper, s/2, s/2, ir, or, endRad);
+								separator.attr({
+									'stroke-width':5,
+									stroke: '#f00'
+								}).toFront();
+							  separators.push(separator);
+						  }
+					  });
+				  })(i, userId, lastUser);
+			  }
+
+			  if (last !== 0) {
+			  }
+		  }
+
+		  window.teamArcs = teamArcs;
+		  // move the inner circle on top
+		  // (the arc isn't perfect, so we have to hide it's arc parts)
+		  innerCircle.toFront();
+		  // move the outer circle on top
+		  // this will only move the border up, since there is no fill
+		  outerCircle.toFront();
+		  window.separators = separators;
+	  });
+
+	  function radLine(paper, cx, cy, ir, or, rad) {
+		  var ops = ptOnCircle(cx, cy, or, rad); // outer end points
+		  var ips = ptOnCircle(cx, cy, ir, rad); // inner end points
+
+		  var ix = ips[0];
+		  var iy = ips[1];
+		  var ox = ops[0];
+		  var oy = ops[1];
 			
-			var paper = Raphael('game', s, s),
-					outerCircle = paper.circle(s/2, s/2, or),
-					innerCircle = paper.circle(s/2, s/2, ir);
-			outerCircle.attr({
-				'stroke-width'	: s*.025,
-				stroke	:	'#555'
-			});
+		  // move to the inner point
+		  var path = 'M'+ix+','+iy;
 
-			innerCircle.attr({
-				gradient		:	'r(.5, .5)#fff-#aaa',
-			});
+		  // draw a line to the outer point
+		  path += 'L'+ox+','+oy;
 
-			var teamArcs = [],
-			// draw as many arcs as we need
-					part = 2*pi/numTeams,
-					gradientArr = gradientAngleArray(numTeams);
-			for (var i = 0; i < numTeams; i++) {
-				// teamArcs only used for events; not drawn
-				var teamArc = paper.path(arc(s/2, s/2, ir, or, part*i, part*(i+1)));
-				teamArc.attr({
-					'stroke-width':2,
-					gradient	:	gradientArr[i]+'-#00f:0-#000',
-					opacity:1
-				});
-				teamArc.data('gradientAngle', gradientArr[i]);
+			return paper.path(path);
+	  }
 
-				teamArc.hover(function() {
-					console.log(this.attr('gradient'));
-					this.attr({
-						gradient	:	this.data('gradientAngle')+'-#00f:40-#000'
-					})
-					console.log(this.attr('gradient'));
-				}, function() {
-					this.attr({
-						gradient	:	this.data('gradientAngle')+'-#00f:0-#000'
-					})
-				});
-				
-				teamArcs.push(teamArc);
+	  function drawUser(paper, cx, cy, ir, or, startRad, endRad, name) {
+		  // if it's too close to a circle, Raphael won't draw anything
+		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
+			  if (Raphael.vml) { // VML needs this offset
+				  endRad -= 0.001; 
+				  console.log("VML!");
+			  } else {
+				  endRad -= 0.0001; // other browsers can have a smaller offset
+			  }
+		  }
+		  var osps = ptOnCircle(cx, cy, or, startRad); // outer start points
+		  var isps = ptOnCircle(cx, cy, ir, startRad); // inner start points
+		  var oeps = ptOnCircle(cx, cy, or, endRad); // outer end points
+		  var ieps = ptOnCircle(cx, cy, ir, endRad); // inner end points
+
+		  var osx = osps[0];	// outer start x
+		  var osy = osps[1];	// outer start y
+
+		  var oex = oeps[0];	// outer end x
+		  var oey = oeps[1];	// outer end y
+
+		  // inner calculations
+		  var isx = isps[0];	// inner start x
+		  var isy = isps[1];	// inner start y
+
+		  var iex = ieps[0];		// outer end x
+		  var iey = ieps[1];		// outer end y
+
+		  // larger arc?
+		  var la = endRad - startRad > Math.PI ? 1 : 0;
+
+		  // CREATE THE ARC OBJECT
+		  // move to the inner start point
+		  var path = 'M'+isx+','+isy;
+
+		  // draw a line to the outer start point
+		  path += 'L'+osx+','+osy;
+
+		  // arc to the outer end point
+		  path += 'A'+or+','+or+' 0 '+la+' 1 '+oex+','+oey;
+
+		  // draw a line back to the inner end point
+		  path += 'L'+iex+','+iey;
+
+		  // arc back to the start point
+		  path += 'A'+ir+','+ir+' 0 '+la+' 0 '+isx+','+isy;
+
+		  // close the path
+		  path += 'Z';
+			var shape = paper.path(path);
+
+			var midRadian = (endRad + startRad)/2;
+			var midRadius = (or + ir)/2;
+			var textPts = ptOnCircle(cx, cy, midRadius, midRadian);
+			var textX = textPts[0];
+			var textY = textPts[1];
+			var text = paper.text(textX, textY, name.split(' ')[0]);
+			text.attr({fill:'#fff', font:22+'px Segoe UI, sans-serif', 'font-weight':'300'});
+
+			return {
+				shape	:	shape,
+				text	: text
 			}
-			window.teamArcs = teamArcs;
-			// move the inner circle on top
-			// (the arc isn't perfect, so we have to hide it's arc parts)
-			innerCircle.toFront();
-			// move the outer circle on top
-			// this will only move the border up, since there is no fill
-			outerCircle.toFront();
-		});
+	  }
 
-		function arc(cx, cy, ir, or, startRad, endRad) {
-					// outer calculations
-			var osx = cx+or*Math.cos(startRad), // outer start x
-					osy = cy+or*Math.sin(startRad),	// outer start y
+	  function ptOnCircle(cx, cy, r, Rad) {
+		  return [cx+r*Math.cos(Rad), cy+r*Math.sin(Rad)];
+	  }
 
-					oex = cx+or*Math.cos(endRad),		// outer end x
-					oey = cy+or*Math.sin(endRad),		// outer end y
-
-					// inner calculations
-					isx = cx+ir*Math.cos(startRad),	// inner start x
-					isy = cy+ir*Math.sin(startRad),	// inner start y
-
-					iex = cx+ir*Math.cos(endRad),		// outer end x
-					iey = cy+ir*Math.sin(endRad);		// outer end y
-			
-			// CREATE THE ARC OBJECT
-			// move to the inner start point
-			var path = 'M'+isx+','+isy;
-
-			// draw a line to the outer start point
-			path += 'L'+osx+','+osy;
-
-			// arc to the outer end point
-			path += 'A'+cx+','+cy+' 0 0 1 '+oex+','+oey;
-
-			// draw a line back to the inner end point
-			path += 'L'+iex+','+iey;
-
-			// arc back to the start point
-			path += 'A'+cx+','+cy+' 0 0 0 '+isx+','+isy;
-			
-			// close the path
-			path += 'Z';
-			return path;
-		}
-
-		// generates gradient angles so the circle has
-		// a near radial gradient
-		function gradientAngleArray(numPieces) {
-			// We start with the right side of the circle, taking the bottom piece of
-			// the two rightmost ones. 
-			var pi = Math.PI,
-					// this will be the angle difference between pieces
-					interval = 2*pi/numPieces,
-					// 'pi' angle is at the center of the start and the start-1 piece
-					// angles. Draw this out; makes more sense
-					curr = pi-(interval/2),
-					arr = [];
-			arr.push(curr/2/pi*360);
-			for (var i = 1; i < numPieces; i++) {
-				curr = (curr > interval) ? curr - interval : curr+2*pi-interval;
-				arr.push(curr/2/pi*360);
-			}
-			console.log(arr);
-			return arr;
-		}
+	  // generates gradient angles so the circle has
+	  // a near radial gradient
+	  function gradientAngleArray(numPieces) {
+		  // We start with the right side of the circle, taking the bottom piece of
+		  // the two rightmost ones. 
+		  var pi = Math.PI,
+		  // this will be the angle difference between pieces
+		  interval = 2*pi/numPieces,
+		  // 'pi' angle is at the center of the start and the start-1 piece
+		  // angles. Draw this out; makes more sense
+		  curr = pi-(interval/2),
+		  arr = [];
+		  arr.push(curr/2/pi*360);
+		  for (var i = 1; i < numPieces; i++) {
+			  curr = (curr > interval) ? curr - interval : curr+2*pi-interval;
+			  arr.push(curr/2/pi*360);
+		  }
+		  return arr;
+	  }
 
   }
   var loadGM = function(gm) {
@@ -258,6 +364,7 @@
       }
       new View.ChatRoom({ id : name, el : $("#roomChat") });
       roomHandler = rh;
+			window.roomHandler = roomHandler;
       callback({ status : true });
     });
   }
