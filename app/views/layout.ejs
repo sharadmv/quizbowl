@@ -7,68 +7,24 @@
     <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="/js/underscore.js"></script>
     <script type="text/javascript" src="/js/backbone.js"></script>
+    <script type="text/javascript" src="/js/backbone.paginator.min.js"></script>
     <script type="text/javascript" src="/js/mustache.js"></script>
     <script type='text/javascript' src='/js/jquery.qtip.min.js'></script>
-    <link rel="stylesheet" href="css/index.css" />
-    <link rel="stylesheet" href="css/jquery.qtip.min.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/jquery.qtip.min.css" />
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 		<meta http-equiv="Content-Language" content="en-us">
-    <script>
-      window.login = function() {
-        if (window["FB"] === undefined) {
-          console.log("Already authed");
-        } else {
-          FB.login();
-        }
-      };
-      $.ajax("/api/auth",{
-        success : function(response) {
-          window.namespace = response.data.namespace;
-          if (response.data.userId) {
-            console.log("Loading cookie: ", response.data);
-            window.userId = response.data.userId;
-          } else {
-            console.log("Loading facebook");
-            (function(d){
-              var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
-              js = d.createElement('script'); js.id = id; js.async = true;
-              js.src = "//connect.facebook.net/en_US/all.js";
-              d.getElementsByTagName('head')[0].appendChild(js);
-            }(document));
-          }
-        }
-      });
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '378548848840009', // App ID
-          status     : true, // check login status
-          cookie     : true, // enable cookies to allow the server to access the session
-          xfbml      : true, // parse XFBML
-          oauth      : true
-        });
-        FB.Event.subscribe('auth.statusChange',
-          function(response) {  
-            console.log("Facebook Status Change: ", response);
-            if (response.status == "connected") {
-              if (window.onFbAuth) {
-                window.onFbAuth();
-              }
-            }
-          }
-        );
-      };
 
-      // Load the SDK Asynchronously
-    </script>
+    <script type='text/javascript' src='/js/index.js'></script>
     <script>
       $.ajax("/api/room",{
         username : "username",
         password : "password"
       });
     </script>
-    <div id="fb-root"></div>
     <script type="text/javascript" src="/js/<%=page%>.js"></script>
-    <link rel="stylesheet" href="css/<%=page%>.css" />
+    <div id="fb-root"></div>
+    <link rel="stylesheet" href="/css/<%=page%>.css" />
   </head>
   <body>
 		<div id="container">
@@ -79,7 +35,6 @@
           </a>
 				</div>
 				<ul id="menu">
-					<li><a href="/">Home</a></li>
 					<li><a href="/search">Search</a></li>
 					<li><a href="/reader">Reader</a></li>
 					<li><a href="/multiplayer">Multiplayer</a></li>

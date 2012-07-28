@@ -61,10 +61,16 @@ var init = function(app) {
           } else { 
             params.limit = parseInt(params.limit);
           }
+          if (params.limit < 0) {
+            params.limit = 0;
+          }
           if (!params.offset) {
             params.offset = 0;
           } else { 
             params.offset = parseInt(params.offset);
+          }
+          if (params.offset < 0) {
+            params.offset = 0;
           }
           if (!params.value) {
             params.value = "";
@@ -94,13 +100,11 @@ var init = function(app) {
               previous.value = params.value;
               previous.params = params.params;
               var baseUrl = res.res.req.headers.host+res.res.req.url.substring(0,res.res.req.url.indexOf("?"));
-              console.log(querystring.stringify(next));
               ret.tossups = tossups;
               ret.next = baseUrl+"?"+querystring.stringify(next);
               ret.previous = baseUrl+"?"+querystring.stringify(previous);
               callback(ret)
             } else {
-              console.log(tossups);
               var sb = "";
               for (var i in tossups) {
                 var tossup = tossups[i];

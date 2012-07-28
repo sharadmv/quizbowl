@@ -7,6 +7,7 @@
   var auth, multi;
   var user;
   var curRoom;
+  var oldRoomName;
 
 
   bridge.connect();
@@ -216,7 +217,6 @@
 						  );
 
 						  userArcs.push(userArc);
-
 						  if (lastUser) {
 							  var endRad = part*(i+1);
 								var separator = radLine(paper, s/2, s/2, ir, or, endRad);
@@ -359,6 +359,11 @@
 
   var joinRoom = function(name, id, callback) {
     multi.joinRoom(name, user.id, mHandler, function(rh, partial, gh) {
+      if (oldRoomName) {
+        lobby.setUnjoined(oldRoomName);
+      }
+      lobby.setJoined(name);
+      oldRoomName = name;
       if (gh) {
         loadGM(gh);
       }
@@ -376,9 +381,27 @@
       initialize : function() {
         this.set("id", this.get("name"));
       },
+      leave : function(callback) {
+        var self = this;
+        if (user) {
+          if (curRoom) {
+            oldRoomName = undefined;
+          }
+          multi.leaveRoom(this.get("name"), user.id, function(status) {
+            callback({ status : status });
+            lobby.setUnjoined(self.get("name"));
+            curRoom = null;
+          });
+        } else {
+          callback({status:false, message:"You haven't logged in yet"});
+        }
+      },
       join : function(callback) {
 				var self = this;
         if (user) {
+          if (curRoom) {
+            oldRoomName = curRoom.get('name');
+          }
           if (!curRoom || this.get("id") != curRoom.get("id")) {
             curRoom = new Model.CurrentRoom({id: this.get("id"), callback : callback });
             loadRoom(self.toJSON());
@@ -388,6 +411,12 @@
         } else {
           callback({status:false, message:"You haven't logged in yet"});
         }
+      },
+      setJoined : function() {
+        this.trigger("joined");
+      },
+      setUnjoined : function() {
+        this.trigger("unjoined");
       },
       setStarted : function() {
         this.get("game").started = true;
@@ -444,6 +473,20 @@
         this.each(function(r) {
           if (r.get('name') == room.get('name')) {
             r.setStarted();
+          }
+        });
+      },
+      setUnjoined : function(name) {
+        this.each(function(r) {
+          if (r.get('name') == name) {
+            r.setUnjoined();
+          }
+        });
+      },
+      setJoined : function(name) {
+        this.each(function(r) {
+          if (r.get('name') == name) {
+            r.setJoined();
           }
         });
       },
@@ -540,10 +583,20 @@
     started : function() {
       this.render();
     },
+    joined : function() {
+      this._meta.selected = true;
+      this.render();
+    },
+    unjoined : function() {
+      this._meta.selected = false;
+      this.render();
+    },
     initialize : function() {
       this._meta = {};
       this.setSelected(false);
       this.model.bind("started",this.started, this);
+      this.model.bind("joined",this.joined, this);
+      this.model.bind("unjoined",this.unjoined, this);
     },
     render : function() {
       $(this.el).html(this.template(this.model.toJSON()));
@@ -584,9 +637,15 @@
     join : function() {
       var self = this;
       this.$(".roomLoadingMask").css({ "visibility" : "visible" });
-      this.model.join(function() {
-        self.$(".roomLoadingMask").css({ "visibility" : "hidden" });
-      });
+      if (!this._meta.selected) {
+        this.model.join(function() {
+          self.$(".roomLoadingMask").css({ "visibility" : "hidden" });
+        });
+      } else {
+        this.model.leave(function() {
+          self.$(".roomLoadingMask").css({ "visibility" : "hidden" });
+        });
+      }
     }
   })
   View.User = Backbone.View.extend({
@@ -739,7 +798,6 @@
   var chatRoomView;
   var createView;
   var gameHandler;
-
   $(document).ready(function() {
     $("#roomChat").css({ 'visibility' : 'hidden' });
     lobby = new Collection.Lobby;

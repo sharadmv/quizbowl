@@ -7,10 +7,11 @@ this.namespace = function() {
 
 var users = {};
 var timeouts = {};
+
 app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
-app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox");
+app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "test");
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
@@ -83,6 +84,16 @@ app.bridge.publishService("quizbowl-"+namespace+"-multiplayer", {
   },
   getRooms:function(callback) {
     callback(rooms);
+  },
+  leaveRoom:function(room, user, callback) {
+    console.log(userToRoom[user], room);
+    if (userToRoom[user]) {
+      rooms[userToRoom[user]].getUserToService()[user].leave();
+      delete userToRoom[user];
+      callback(true);
+    } else {
+      callback(false);
+    }
   },
   joinRoom:function(room, user,handler,callback) {
     if (userToRoom[user] && userToRoom[user] != room) {
