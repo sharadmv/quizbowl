@@ -122,6 +122,8 @@
     onJoin : function(user) {
     },
     onBuzz : function(user){
+      $('#gameBuzz').hide();
+      $('#gameAnswer').show();
     },
     onSit : function(user, team) {
 			// SHARAD TODO: the room has to be passed into this function
@@ -283,8 +285,20 @@
 			gameObjects.redrawArcs = setUpTeams;
 
 			// set up the text div
-			$game.append('<div id="gameTextDiv"><div id="gameText"></div></div>');
+			$game.append('<div id="gameControlsContainer">'
+                 +   '<div id="gameText"></div>'
+                 +   '<div id="gameAnswerControl">'
+                 +     '<input id="gameBuzz" type="button" value="Buzz"></input>'
+                 +     '<input id="gameAnswer" type="text"></input>'
+                 +   '</div>'
+                 + '</div>');
 			
+      // SHARAD CHECK: should buzzing be handled here? What should be called
+     //                 when buzz button is clicked?
+      $('#gameBuzz').click(function() {
+        mHandler.onBuzz('???');
+      });
+
 			// we want the div's top to start somewhere at the upper half of the
 			// circle. 
 			
@@ -293,10 +307,14 @@
 				// angle is the angle between the center of the circle and the top
 				// point at which the circle and square's corner meet (the "meet"
 				// point)
+        var width, height;
         var ir = gameObjects.ir;
 				var angle = Math.PI/4; 
-				var width = 2*ir*Math.cos(angle);
-				var height = 2*ir*Math.sin(angle);
+				var containerWidth = 2*ir*Math.cos(angle);
+				var containerHeight = ir + ir*Math.sin(angle);
+        var textWidth = .95*containerWidth;
+        var textHeight = 2*ir*Math.sin(angle);
+
         var game = $('#game');
 
 				// center of the circle, relative to the #game div
@@ -304,20 +322,23 @@
 				var cy = $game.height()/2;
 
 				// move to center, then move bit more left so it meets "meet" point
-				var left = cx - width/2;
+				var left = cx - containerWidth/2;
 				// move to center, then move bit higher so it meets "meet" point
-				var top = cy - width/2;
-				$('#gameTextDiv').width(width).height(height).css({
+				var top = cy - containerWidth/2;
+				$('#gameControlsContainer').width(containerWidth).height(containerHeight).css({
 					// positioning is relative to #game div
 					left:left, top:top
 				});
-				$('#gameText').width(.95*width).height(.95*height).css({
+
+				$('#gameText').width(textWidth).height(textHeight).css({
 					// positioning is relative to #gameTextContainer div
 					// vertically center
-					top : .025*height,
-					left: .025*width
+					left: .5*($('#gameControlsContainer').width() - textWidth)
 				});
-        console.log("real top ", $('#gameTextDiv').css('top'));
+
+        $('#gameAnswerControl').width(.5*textWidth).css({
+          marginTop : (ir - (textHeight/2))/4
+        });
 			}
 			positionGameText();
 			gameHelpers.recenterGameText = positionGameText;

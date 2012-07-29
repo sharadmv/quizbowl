@@ -122,7 +122,7 @@
 .createButton {
 }
 
-#gameTextDiv {
+#gameControlsContainer {
 	position:absolute;
 	text-align:center;
 }
@@ -131,3 +131,7 @@
 	position:relative;
   box-shadow:0px 0px 20px 2px #aaa;
 }
+
+#gameAnswerControl { margin: 0 auto; }
+
+#gameAnswer { display: none; }
