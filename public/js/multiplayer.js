@@ -1,4 +1,25 @@
 (function() {
+  var gameObjects = {
+    paper : {}, // Raphael's paper
+    outerCircle : {}, 
+    innerCircle : {},
+    s : 0, // length of smaller dimension of game
+    ir: 0, // radius of inner circle
+    or: 0, // radius of outer circle
+    separators : [], // references to separators between teams
+    teams : {} // teamName to userArc list
+  }
+  window.gameObjects = gameObjects;
+
+  var gameHelpers = {
+    redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
+    recenterGameText : function(){}, // recenters text/buttons/etc (e.g. resize)
+    // generates gradient angles for circle
+    _gradientAngleArr : function(cx, cy, r, radian) {},
+    _drawSeparator : function(paper, cx, cy, ir, or, radian){}, 
+    _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name){}, 
+  }
+
   var scope = this;
 
   var BASE_URL = "";//"http://www.quizbowldb.com:1337";
@@ -81,8 +102,7 @@
     auth.alive(user.id);
   }
 
-  var mHandler = 
-  {
+  var mHandler = {
     onGameStart : function() {
     },
     onAnswerTimeout : function(user) {
@@ -104,11 +124,16 @@
     onBuzz : function(user){
     },
     onSit : function(user, team) {
-			
+			// SHARAD TODO: the room has to be passed into this function
+			gameHandler.redrawArcs(room);
     },
     onLeave : function(user) {
+			// SHARAD TODO: the room has to be passed into this function
+			gameHandler.redrawArcs(room);
     },
     onLeaveTeam : function(user, team) {
+			// SHARAD TODO: the room has to be passed into this function
+			gameHandler.redrawArcs(room);
     },
     onStartQuestion : function(){
     },
@@ -128,17 +153,22 @@
 
 	  // slide left wrapper
 	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
-		  // scroll the header out
-		  $('html, body').animate({ scrollTop:	$('#header').height() });
+      
+      // increase height of game and make sure the height never gets smaller
+      var newHeight = $('body').height();
+      $('#holyGrailContainer').height(newHeight);
+      $('#holyGrailContainer').css('min-height', newHeight);
 
+		  // scroll header out
+		  $('html, body').animate({ scrollTop:	$('#header').height() });
 		  // remove padding left on holy grail container
 		  $('#holyGrailContainer').css({paddingLeft : 0 });
-			jGame = $('#game');
-		  var height	= jGame.height();
-		  var width		= jGame.width();
 
-		  // Raphael's Paper should be a square
-		  // with the smaller dimension
+			$game = $('#game');
+		  var height	= $game.height();
+		  var width		= $game.width();
+
+			// Paper should be a square with the smaller dimension
 		  var s = height < width ? height : width;
 		  var or = .9*s/2;  // outer radius
 		  var ir = .75*or;  // inner radius
@@ -157,107 +187,121 @@
 			  gradient		:	'r(.5, .5)#fff-#aaa',
 		  });
 
-		  var userArcs = [];
-		  // draw as many arcs as we need
-		  var numUsers = room.users.length;
-		  var part = 2*pi/numUsers;
-		  gradientArr = gradientAngleArray(numUsers);
-		  i = 0;
+			// set references from gameObjects
+			gameObjects.paper = paper;
+			gameObjects.outerCircle = outerCircle;
+			gameObjects.innerCircle = innerCircle;
+			gameObjects.s = s;
+			gameObjects.ir = ir;
+			gameObjects.or = or;
 
-		  var teamArcs = {};
-		  var separators = [];
-		  for (var teamName in room.teams) {
-			  var team = room.teams[teamName];
-			  var players = team.players;
-			  var userArcs = teamArcs[teamName] = [];
-			  var last = 0;
-			  for (var i in players) {
-				  var userId = players[i];
-				  var lastUser = false;
-				  if (!(i+1 in players)) {
-					  // last user
-					  lastUser = true;
-				  }
-				  (function(i, userId, lastUser) {
-					  $.get('/api/user/'+userId, function(user) {
-						  var fbId = user.data.fbId;
-							var name = user.data.name;
-							var start = part*i;
-							var end = part*(i+1);
-						  var arc = drawUser(paper, s/2, s/2, ir, or, start, end, name);
-							var centerAngle = gradientArr[i];
+			// this will be called outside of loadRoom as well, so this function must
+			// be self contained (i.e. only access fn arguments, gameObjects, and
+			// gameHelpers)
+			function setUpTeams(room) {
+				// draw as many arcs as we need
+				var numUsers = room.users.length;
+				var part = 2*pi/numUsers;
+				gradientArr = gameHelpers._gradientAngleArray(numUsers);
 
-							var userArc = arc.shape;
-						  // style the player arc
-						  userArc.attr({
-							  'stroke-width':2,
-							  gradient	:	centerAngle+'-#00f:0-#000',
-							  opacity:1
-							  // fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
-						  });
+				var s = gameObjects.s;
+				var ir = gameObjects.ir;
+				var or = gameObjects.or;
 
-							var text = arc.text;
-							text.attr({
-								transform: 'r'+centerAngle
+				var teamArcs = {};
+				var separators = [];
+
+				for (var teamName in room.teams) {
+					var team = room.teams[teamName];
+					var players = team.players;
+					var userArcs = teamArcs[teamName] = [];
+					var last = 0;
+					for (var i in players) {
+						var userId = players[i];
+						var lastUser = false;
+						if (!(i+1 in players)) {
+							// last user
+							lastUser = true;
+						}
+						(function(i, userId, lastUser) {
+							$.get('/api/user/'+userId, function(user) {
+								var fbId = user.data.fbId;
+								var name = user.data.name;
+								var start = part*i;
+								var end = part*(i+1);
+								var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
+								var centerAngle = gradientArr[i];
+
+								var userArc = arc.shape;
+								// style the player arc
+								userArc.attr({
+									'stroke-width':2,
+									gradient	:	centerAngle+'-#00f:0-#000',
+									opacity:1
+									// fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
+								});
+
+								var text = arc.text;
+								text.attr({ transform: 'r'+centerAngle });
+
+								// set up hover handlers for the player arc
+								userArc.hover(
+									function() { // hover in
+										this.attr({ gradient	:	centerAngle+'-#00f:40-#000' });
+									}, 
+									function() { // hover out
+										this.attr({ gradient	:	centerAngle+'-#00f:0-#000' });
+									}
+								);
+
+								userArcs.push(userArc);
+								if (lastUser) {
+									var endRad = part*(i+1);
+									var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, endRad);
+									separator.attr({
+										'stroke-width':5,
+										stroke: '#f00'
+									}).toFront();
+									separators.push(separator);
+								}
 							});
+						})(i, userId, lastUser);
+					}
 
-						  // set up hover handlers for the player arc
-						  userArc.hover(
-							  function() { // hover in
-								  this.attr({
-									  gradient	:	centerAngle+'-#00f:40-#000'
-								  });
-							  }, 
-							  function() { // hover out
-								  this.attr({
-									  gradient	:	centerAngle+'-#00f:0-#000'
-								  });
-							  }
-						  );
+					gameObjects.separators = separators;
+					gameObjects.teamArcs = teamArcs;
 
-						  userArcs.push(userArc);
-						  if (lastUser) {
-							  var endRad = part*(i+1);
-								var separator = radLine(paper, s/2, s/2, ir, or, endRad);
-								separator.attr({
-									'stroke-width':5,
-									stroke: '#f00'
-								}).toFront();
-							  separators.push(separator);
-						  }
-					  });
-				  })(i, userId, lastUser);
-			  }
-
-		  }
-
-		  window.teamArcs = teamArcs;
-		  // move the inner circle on top
-		  // (the arc isn't perfect, so we have to hide it's arc parts)
-		  innerCircle.toFront();
-		  // move the outer circle on top
-		  // this will only move the border up, since there is no fill
-		  outerCircle.toFront();
-		  window.separators = separators;
+					// move the inner circle on top
+					// (the arc isn't perfect, so we have to hide it's arc parts)
+					innerCircle.toFront();
+					// move the outer circle on top
+					// this will only move the border up, since there is no fill
+					outerCircle.toFront();
+				}
+			}
+			setUpTeams(room);
+			gameObjects.redrawArcs = setUpTeams;
 
 			// set up the text div
-			jGame.append('<div id="gameTextDiv"><div id="gameText"></div></div>');
+			$game.append('<div id="gameTextDiv"><div id="gameText"></div></div>');
 			
 			// we want the div's top to start somewhere at the upper half of the
 			// circle. 
 			
 			// this will have to be called every window resize
 			function positionGameText() {
-				// angle is the angle between the center of the circle and the top point
-				// at which the circle and square's corner meet 
-				//	(the "meet" point)
+				// angle is the angle between the center of the circle and the top
+				// point at which the circle and square's corner meet (the "meet"
+				// point)
+        var ir = gameObjects.ir;
 				var angle = Math.PI/4; 
 				var width = 2*ir*Math.cos(angle);
-				var height = 0.7*width;
+				var height = 2*ir*Math.sin(angle);
+        var game = $('#game');
 
 				// center of the circle, relative to the #game div
-				var cx = jGame.width()/2;
-				var cy = jGame.height()/2;
+				var cx = $game.width()/2;
+				var cy = $game.height()/2;
 
 				// move to center, then move bit more left so it meets "meet" point
 				var left = cx - width/2;
@@ -273,14 +317,17 @@
 					top : .025*height,
 					left: .025*width
 				});
+        console.log("real top ", $('#gameTextDiv').css('top'));
 			}
 			positionGameText();
-
+			gameHelpers.recenterGameText = positionGameText;
+			
 	  });
 
-	  function radLine(paper, cx, cy, ir, or, rad) {
-		  var ops = ptOnCircle(cx, cy, or, rad); // outer end points
-		  var ips = ptOnCircle(cx, cy, ir, rad); // inner end points
+	  gameHelpers._drawSeparator = function(paper, cx, cy, ir, or, radian) {
+			var ptOnCircle = gameHelpers._ptOnCircle;
+		  var ops = ptOnCircle(cx, cy, or, radian); // outer end points
+		  var ips = ptOnCircle(cx, cy, ir, radian); // inner end points
 
 		  var ix = ips[0];
 		  var iy = ips[1];
@@ -296,7 +343,7 @@
 			return paper.path(path);
 	  }
 
-	  function drawUser(paper, cx, cy, ir, or, startRad, endRad, name) {
+	  gameHelpers._drawUser = function(paper, cx, cy, ir, or, startRad, endRad, name) {
 		  // if it's too close to a circle, Raphael won't draw anything
 		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
 			  if (Raphael.vml) { // VML needs this offset
@@ -306,6 +353,7 @@
 				  endRad -= 0.0001; // other browsers can have a smaller offset
 			  }
 		  }
+			var ptOnCircle = gameHelpers._ptOnCircle;
 		  var osps = ptOnCircle(cx, cy, or, startRad); // outer start points
 		  var isps = ptOnCircle(cx, cy, ir, startRad); // inner start points
 		  var oeps = ptOnCircle(cx, cy, or, endRad); // outer end points
@@ -361,13 +409,12 @@
 			}
 	  }
 
-	  function ptOnCircle(cx, cy, r, Rad) {
-		  return [cx+r*Math.cos(Rad), cy+r*Math.sin(Rad)];
+	  gameHelpers._ptOnCircle = function(cx, cy, r, radian) {
+		  return [cx+r*Math.cos(radian), cy+r*Math.sin(radian)];
 	  }
 
-	  // generates gradient angles so the circle has
-	  // a near radial gradient
-	  function gradientAngleArray(numPieces) {
+		// generates gradient angles so the circle has a near radial gradient
+	  gameHelpers._gradientAngleArray = function(numPieces) {
 		  // We start with the right side of the circle, taking the bottom piece of
 		  // the two rightmost ones. 
 		  var pi = Math.PI,
@@ -833,6 +880,15 @@
   var createView;
   var gameHandler;
   $(document).ready(function() {
+    var holyGrailHeight = $('body').height() - $('#header').height();
+    $('#holyGrailContainer').height(holyGrailHeight).css({
+      minHeight : holyGrailHeight
+    });
+    $(window).resize(function() {
+      gameHelpers.recenterGameText();
+    });
+    $(window).resize();
+
     $("#roomChat").css({ 'visibility' : 'hidden' });
     lobby = new Collection.Lobby;
     lobbyView = new View.Lobby({ 
