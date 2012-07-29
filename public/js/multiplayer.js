@@ -115,7 +115,7 @@
     onAnswer : function(user, message){
     },
     onNewWord : function(word) {
-			$('#gameText').append(word);
+			$('#gameText').append(word+" ");
     },
     onSystemBroadcast : function(message){
     },
@@ -296,7 +296,7 @@
       // SHARAD CHECK: should buzzing be handled here? What should be called
      //                 when buzz button is clicked?
       $('#gameBuzz').click(function() {
-        mHandler.onBuzz('???');
+        roomHandler.buzz();
       });
 
 			// we want the div's top to start somewhere at the upper half of the
