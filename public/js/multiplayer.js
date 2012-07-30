@@ -156,7 +156,8 @@
 	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
-    console.log(joinedRoom);
+    console.log(room);
+    console.log("Load room");
     joinedRoom = room;
     window.joinedRoom = room;
     
@@ -488,6 +489,7 @@
   }
 
   var joinRoom = function(name, id, callback) {
+    console.log("join room");
     multi.joinRoom(name, user.id, mHandler, function(rh, partial, gh) {
       if (oldRoomName) {
         lobby.setUnjoined(oldRoomName);
@@ -533,8 +535,7 @@
             oldRoomName = curRoom.get('name');
           }
           if (!curRoom || this.get("id") != curRoom.get("id")) {
-            curRoom = new Model.CurrentRoom({id: this.get("id"), callback : callback });
-            loadRoom(self.toJSON());
+            curRoom = new Model.CurrentRoom({id: this.get("id"), callback : callback, room : self.toJSON()});
           } else {
             callback({status:true});
           }
@@ -566,6 +567,7 @@
         this.fetch({
           success : function(room, response) {
             if (user) {
+              loadRoom(room.toJSON());
               joinRoom(id, user.id, callback);
             }
           }
@@ -883,7 +885,8 @@
       obj.numPlayers = parseInt(this.$("#numPlayersBox").val());
       if (this.validate(obj)) {
         multi.createRoom(user.id, obj, function() {
-          joinRoom(obj.name, user.id,function(){});
+          var callback = function(){};
+          curRoom = new Model.CurrentRoom({id: obj.name,   callback : callback });
         }); 
       } else {
         alert("invalid");
