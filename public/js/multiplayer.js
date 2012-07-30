@@ -315,7 +315,7 @@
 			setUpTeams(room);
 			gameHelpers.redrawArcs = setUpTeams;
 
-			// set up the text div
+      // set up text/buzzing
 			$game.append('<div id="gameControlsContainer">'
                  +   '<div id="gameText"></div>'
                  +   '<div id="gameAnswerControl">'
@@ -327,8 +327,6 @@
         $('#gameText').html(room.game.partial+" ");
       }
 			
-      // SHARAD CHECK: should buzzing be handled here? What should be called
-     //                 when buzz button is clicked?
       $('#gameBuzz').click(function() {
         roomHandler.buzz(function(buzzed) {
           if (buzzed) {
@@ -344,12 +342,14 @@
           roomHandler.answer($("#gameAnswer").val().trim());
         }
       });
-
-			// we want the div's top to start somewhere at the upper half of the
-			// circle. 
 			
+      // set up positioning
+      
 			// this will have to be called every window resize
 			function positionGameText() {
+        // we want the div's top to start somewhere at the upper half of the
+        // circle. 
+        
 				// angle is the angle between the center of the circle and the top
 				// point at which the circle and square's corner meet (the "meet"
 				// point)
