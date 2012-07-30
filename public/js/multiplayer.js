@@ -127,6 +127,11 @@
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
+      for (var i in joinedRoom.users) {
+        if (joinedRoom.users[i] == user.id) {
+          joinedRoom.users.splice(i, 1);
+        }
+      }
       joinedRoom.users.push(user.id);
       //TODO achal can you create some sort of "this user joined" notification?
     },
