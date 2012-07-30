@@ -214,6 +214,22 @@
 			// be self contained (i.e. only access fn arguments, gameObjects, and
 			// gameHelpers)
 			function setUpTeams(room) {
+        // delete any old arcs/separators if there were any
+        var teams = gameObjects.teams;
+        var separators = gameObjects.separators;
+        for (var teamName in teams) {
+          var userArcs = teams[teamName];
+          for (var i = 0; i < userArcs.length; i++) {
+            userArcs[i].remove();
+          }
+          gameObjects.teams[teamName] = [];
+        }
+        for (var i = 0; i < separators.length; i++) {
+          separators[i].remove();
+        }
+        gameObjects.separators = [];
+        var i = null;
+
 				// draw as many arcs as we need
 				var numUsers = room.users.length;
 				var part = 2*pi/numUsers;
@@ -269,7 +285,9 @@
 									}
 								);
 
-								userArcs.push(userArc);
+                var userArcSet = paper.set();
+                userArcSet.push(userArc, text);
+								userArcs.push(userArcSet);
 								if (lastUser) {
 									var endRad = part*(i+1);
 									var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, endRad);
@@ -283,9 +301,6 @@
 						})(i, userId, lastUser);
 					}
 
-					gameObjects.separators = separators;
-					gameObjects.teamArcs = teamArcs;
-
 					// move the inner circle on top
 					// (the arc isn't perfect, so we have to hide it's arc parts)
 					innerCircle.toFront();
@@ -293,6 +308,8 @@
 					// this will only move the border up, since there is no fill
 					outerCircle.toFront();
 				}
+        gameObjects.teams = teamArcs;
+        gameObjects.separators = separators;
 			}
 			setUpTeams(room);
 			gameHelpers.redrawArcs = setUpTeams;
