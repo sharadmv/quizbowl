@@ -14,12 +14,13 @@
     redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
     recenterGameText : function(){}, // recenters text/buttons/etc (e.g. resize)
     // generates gradient angles for circle
-    _gradientAngleArr : function(cx, cy, r, radian) {},
+    _gradientAngleArr : function(numPieces) {},
     _drawSeparator : function(paper, cx, cy, ir, or, radian){}, 
     _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name){}, 
   }
 
   window.gameHelpers = gameHelpers;
+  window.gameObjects = gameObjects;
 
   var scope = this;
 
@@ -127,7 +128,7 @@
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
-      for (var i in joinedRoom.users) {
+      for (var i = 0; i < joinedRoom.users.length; i++) {
         if (joinedRoom.users[i] == user.id) {
           joinedRoom.users.splice(i, 1);
         }
@@ -143,7 +144,7 @@
 			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeave : function(user) {
-      for (var i in joinedRoom.users) {
+      for (var i = 0; i < joinedRoom.users.length; i++) {
         if (joinedRoom.users[i] == user.id) {
           joinedRoom.users.splice(i, 1);
         }
@@ -152,7 +153,7 @@
     },
     onLeaveTeam : function(user, team) {
       console.log(user, team);
-      for (var i in joinedRoom.teams[team].players) {
+      for (var i = 0; i < joinedRoom.teams[team].players; i++) {
         if (joinedRoom.teams[team].players[i] == user.id) {
           joinedRoom.teams[team].players.splice(i, 1);
         }
@@ -175,8 +176,6 @@
 
   var loadRoom = function(room) {
     window.room = room;
-    console.log(room);
-    console.log("Load room");
     joinedRoom = room;
     window.joinedRoom = room;
     
@@ -253,7 +252,7 @@
 				// draw as many arcs as we need
 				var numUsers = room.users.length;
 				var part = 2*pi/numUsers;
-				gradientArr = gameHelpers._gradientAngleArray(numUsers);
+				gradientArr = gameHelpers._gradientAngleArr(numUsers);
 
 				var s = gameObjects.s;
 				var ir = gameObjects.ir;
@@ -263,6 +262,7 @@
 				var separators = [];
 
         var userIndex = 0;
+        var numUsersDrawn = 0;
 
 				for (var teamName in room.teams) {
 					var team = room.teams[teamName];
@@ -274,7 +274,6 @@
 						var lastUser = false;
             if (teamUserIndex == players.length - 1) {
               lastUser = true;
-              console.log(teamUserIndex);
             }
 
 						(function(userIndex, userId, lastUser) {
@@ -283,7 +282,6 @@
 								var name = user.data.name;
 								var start = part*userIndex;
 								var end = part*(userIndex+1);
-                console.log("User " + userIndex + ": ", start, end);
 								var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
 								var centerAngle = gradientArr[userIndex];
 
@@ -291,19 +289,19 @@
 								// style the player arc
 								userArc.attr({
 									'stroke-width':2,
-									gradient	:	centerAngle+'-#00f:0-#000',
+                  stroke : '#fff',
+									gradient	:	centerAngle+'-#00f-#000',
 									opacity:1
 									// fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
 								});
 
 								var text = arc.text;
 								// text.attr({ transform: 'r'+centerAngle });
-                console.log(name, centerAngle);
 
 								// set up hover handlers for the player arc
 								userArc.hover(
 									function() { // hover in
-										this.attr({ gradient	:	centerAngle+'-#00f:40-#000' });
+										this.attr({ gradient	:	centerAngle+'-#00f-#000' });
 									}, 
 									function() { // hover out
 										this.attr({ gradient	:	centerAngle+'-#00f:0-#000' });
@@ -321,20 +319,28 @@
 									}).toFront();
 									separators.push(separator);
 								}
-							});
-						})(userIndex, userId, lastUser);
+                numUsersDrawn++;
+                if (numUsersDrawn == numUsers) {
+                  // this is the very last user (of all the teams)
+                  for (var i = 0; i < separators.length; i++) {
+                    separators[i].toFront();
+                  }
+                  gameObjects.teams = teamArcs;
+                  gameObjects.separators = separators;
+                  
+                  // move the inner circle on top
+                  // (the arc isn't perfect, so we have to hide it's arc parts)
+                  innerCircle.toFront();
+                  // move the outer circle on top
+                  // this will only move the border up, since there is no fill
+                  outerCircle.toFront();
+                }
+              });
+            })(userIndex, userId, lastUser);
             userIndex++;
 					}
 
-					// move the inner circle on top
-					// (the arc isn't perfect, so we have to hide it's arc parts)
-					innerCircle.toFront();
-					// move the outer circle on top
-					// this will only move the border up, since there is no fill
-					outerCircle.toFront();
 				}
-        gameObjects.teams = teamArcs;
-        gameObjects.separators = separators;
 			}
 			setUpTeams(room);
 			gameHelpers.redrawArcs = setUpTeams;
@@ -439,7 +445,6 @@
 		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
 			  if (Raphael.vml) { // VML needs this offset
 				  endRad -= 0.001; 
-				  console.log("VML!");
 			  } else {
 				  endRad -= 0.0001; // other browsers can have a smaller offset
 			  }
@@ -506,7 +511,7 @@
 	  }
 
 		// generates gradient angles so the circle has a near radial gradient
-	  gameHelpers._gradientAngleArray = function(numPieces) {
+	  gameHelpers._gradientAngleArr = function(numPieces) {
 		  // We start with the right side of the circle, taking the bottom piece of
 		  // the two rightmost ones. 
 		  var pi = Math.PI,
