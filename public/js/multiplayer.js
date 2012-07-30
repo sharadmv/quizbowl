@@ -30,6 +30,7 @@
   var curRoom;
   var joinedRoom;
   var oldRoomName;
+  var partial = "";
 
 
   bridge.connect();
@@ -124,10 +125,6 @@
     },
     onBuzz : function(u){
       //TODO achal can you create some sort of "this user buzzed" notification?
-      if (u.id == user.id) {
-        $('#gameBuzz').hide();
-        $('#gameAnswer').show();
-      }
     },
     onSit : function(user, team) {
 			gameHelpers.redrawArcs(joinedRoom);
@@ -300,11 +297,17 @@
                  +     '<input id="gameAnswer" type="text"></input>'
                  +   '</div>'
                  + '</div>');
+      $('#gameText').html(room.game.partial+" ");
 			
       // SHARAD CHECK: should buzzing be handled here? What should be called
      //                 when buzz button is clicked?
       $('#gameBuzz').click(function() {
-        roomHandler.buzz();
+        roomHandler.buzz(function(buzzed) {
+          if (buzzed) {
+            $('#gameBuzz').hide();
+            $('#gameAnswer').show();
+          }
+        });
       });
 
       $('#gameAnswer').keypress(function(e) {
