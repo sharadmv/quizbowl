@@ -118,6 +118,9 @@ var init = function(app) {
             team.players.splice(team.players.indexOf(user), 1);
             var ret = delete room.getUserToTeam()[user];
             ret = ret && delete score.user
+            if (ret) {
+              room.getChannel().onLeaveTeam(app.getUsers()[user], id);
+            }
             if (callback) {
               callback(ret);
             } 
@@ -195,7 +198,7 @@ var init = function(app) {
         var teams = {};
         
         //set up properties
-        if (!properties.numTeams) {
+        if (!properties.num) {
           properties.numTeams = 10;
         }
         if (!properties.numPlayers) {
@@ -302,7 +305,6 @@ var init = function(app) {
             if (team) {
               teams[team].unsit(user, function(left) {
                 if (left) {
-                  channel.onLeaveTeam(user);
                   callback(left);
                 }
               });
