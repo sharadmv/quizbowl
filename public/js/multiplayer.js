@@ -901,6 +901,7 @@
   var createView;
   var gameHandler;
   $(document).ready(function() {
+    // set up the holy grail stuffs
     var holyGrailHeight = $('body').height() - $('#header').height();
     $('#holyGrailContainer').height(holyGrailHeight).css({
       minHeight : holyGrailHeight
