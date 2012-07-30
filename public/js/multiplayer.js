@@ -127,18 +127,31 @@
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
+      joinedRoom.users.push(user.id);
       //TODO achal can you create some sort of "this user joined" notification?
     },
     onBuzz : function(u){
       //TODO achal can you create some sort of "this user buzzed" notification?
     },
     onSit : function(user, team) {
+      joinedRoom.teams[team].players.push(user.id);
 			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeave : function(user) {
 			gameHelpers.redrawArcs(joinedRoom);
+      for (var i in joinedRoom.users) {
+        if (joinedRoom.users[i] == user.id) {
+          joinedRoom.users.splice(i, 1);
+        }
+      }
     },
     onLeaveTeam : function(user, team) {
+      console.log(user, team);
+      for (var i in joinedRoom.teams[team].players) {
+        if (joinedRoom.teams[team].players[i] == user.id) {
+          joinedRoom.teams[team].players.splice(i, 1);
+        }
+      }
 			gameHelpers.redrawArcs(joinedRoom);
     },
     onStartQuestion : function(){
