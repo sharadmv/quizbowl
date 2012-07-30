@@ -9,7 +9,6 @@
     separators : [], // references to separators between teams
     teams : {} // teamName to userArc list
   }
-  window.gameObjects = gameObjects;
 
   var gameHelpers = {
     redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
@@ -19,6 +18,8 @@
     _drawSeparator : function(paper, cx, cy, ir, or, radian){}, 
     _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name){}, 
   }
+
+  window.gameHelpers = gameHelpers;
 
   var scope = this;
 
@@ -106,15 +107,19 @@
 
   var mHandler = {
     onGameStart : function() {
+      //TODO achal can you create some sort of "game started" notification
     },
     onAnswerTimeout : function(user) {
+      //TODO achal can you create some sort of "user timed out" notification
     },
     onQuestionTimeout : function() {
+      //TODO achal can you create some sort of "question timed out" notification
     },
     onChat : function(chat) {
       chatRoom.add(chat);
     },
     onAnswer : function(user, message){
+      //TODO achal can you create some sort of "user+message" notification?
     },
     onNewWord : function(word) {
 			$('#gameText').append(word+" ");
@@ -122,6 +127,7 @@
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
+      //TODO achal can you create some sort of "this user joined" notification?
     },
     onBuzz : function(u){
       //TODO achal can you create some sort of "this user buzzed" notification?
@@ -150,7 +156,9 @@
 	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
+    console.log(joinedRoom);
     joinedRoom = room;
+    window.joinedRoom = room;
     
 	  // clear the game
 	  $("#game").html("");
@@ -287,7 +295,7 @@
 				}
 			}
 			setUpTeams(room);
-			gameObjects.redrawArcs = setUpTeams;
+			gameHelpers.redrawArcs = setUpTeams;
 
 			// set up the text div
 			$game.append('<div id="gameControlsContainer">'
@@ -297,7 +305,9 @@
                  +     '<input id="gameAnswer" type="text"></input>'
                  +   '</div>'
                  + '</div>');
-      $('#gameText').html(room.game.partial+" ");
+      if (room.game.partial) {
+        $('#gameText').html(room.game.partial+" ");
+      }
 			
       // SHARAD CHECK: should buzzing be handled here? What should be called
      //                 when buzz button is clicked?
