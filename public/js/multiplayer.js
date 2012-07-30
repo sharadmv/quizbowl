@@ -28,6 +28,7 @@
   var auth, multi;
   var user;
   var curRoom;
+  var joinedRoom;
   var oldRoomName;
 
 
@@ -121,32 +122,39 @@
     },
     onJoin : function(user) {
     },
-    onBuzz : function(user){
-      $('#gameBuzz').hide();
-      $('#gameAnswer').show();
+    onBuzz : function(u){
+      //TODO achal can you create some sort of "this user buzzed" notification?
+      if (u.id == user.id) {
+        $('#gameBuzz').hide();
+        $('#gameAnswer').show();
+      }
     },
     onSit : function(user, team) {
-			// SHARAD TODO: the room has to be passed into this function
-			gameHandler.redrawArcs(room);
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeave : function(user) {
-			// SHARAD TODO: the room has to be passed into this function
-			gameHandler.redrawArcs(room);
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeaveTeam : function(user, team) {
-			// SHARAD TODO: the room has to be passed into this function
-			gameHandler.redrawArcs(room);
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onStartQuestion : function(){
+			$('#gameText').html("");
+      $('#gameBuzz').show();
+      $('#gameAnswer').hide();
+      $('#gameAnswer').val("");
     },
     onCompleteQuestion : function(question) {
+      $('#gameText').html(question.question);
     },
-	onUpdateScore : function(score){
-	}
+    onUpdateScore : function(score){
+    }
   };
 	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
+    joinedRoom = room;
+    
 	  // clear the game
 	  $("#game").html("");
 
@@ -297,6 +305,13 @@
      //                 when buzz button is clicked?
       $('#gameBuzz').click(function() {
         roomHandler.buzz();
+      });
+
+      $('#gameAnswer').keypress(function(e) {
+         var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+          roomHandler.answer($("#gameAnswer").val().trim());
+        }
       });
 
 			// we want the div's top to start somewhere at the upper half of the
