@@ -138,12 +138,12 @@
 			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeave : function(user) {
-			gameHelpers.redrawArcs(joinedRoom);
       for (var i in joinedRoom.users) {
         if (joinedRoom.users[i] == user.id) {
           joinedRoom.users.splice(i, 1);
         }
       }
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeaveTeam : function(user, team) {
       console.log(user, team);
