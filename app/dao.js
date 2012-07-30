@@ -116,15 +116,16 @@ var init = function(app) {
         }
         var queryValues = (Object.keys(query.params).map(function(param){return param+"=?"}).join(" AND "));
         var where;
+        var matchText = "MATCH("+match+") AGAINST ('"+query.value+"' IN NATURAL LANGUAGE MODE)";
         if (queryValues.length > 0) {
           if (query.value != "") {
-            where = ["round.id=tossup.round","tournament.id=tossup.tournament","MATCH("+match+") AGAINST ('"+query.value+"')", queryValues];
+            where = ["round.id=tossup.round","tournament.id=tossup.tournament",matchText, queryValues];
           } else {
             where = ["round.id=tossup.round","tournament.id=tossup.tournament",queryValues];
           }
         } else {
           if (query.value != "") {
-            where = ["round.id=tossup.round","tournament.id=tossup.tournament","MATCH("+match+") AGAINST ('"+query.value+"')"];
+            where = ["round.id=tossup.round","tournament.id=tossup.tournament", matchText];
           } else {
             where = ["round.id=tossup.round","tournament.id=tossup.tournament"];
           }
@@ -144,7 +145,7 @@ var init = function(app) {
           if (query.value == "" && query.limit == 1){
             client.query(""+"SELECT COUNT(*) FROM "+Constants.Table.TOSSUP+"", function(err, result, fields) {
               if (err) throw err;
-              querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?";
+              querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer, "+matchText+" as score FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY score DESC LIMIT ? OFFSET ?";
               query.offset = Math.floor(Math.random()*result[0]['COUNT(*)']);
               values.push(query.offset);
               client.query(querys,values, function(err, results, fields) {
@@ -154,7 +155,7 @@ var init = function(app) {
             });
           } else {
             values.push(query.offset);
-            querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY RAND() LIMIT ? OFFSET ?";
+            querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer, "+matchText+" as score FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY RAND() LIMIT ? OFFSET ?";
             console.log(querys, values);
             client.query(querys,values, function(err, results, fields) {
               if (err) throw err;
@@ -165,7 +166,7 @@ var init = function(app) {
           values.push(query.offset);
           console.log(query);
           console.log(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?");
-          client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?", values ,function(err, results, fields) {
+          client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer, "+matchText+" as score FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY score desc LIMIT ? OFFSET ?", values ,function(err, results, fields) {
             if (err) throw err;
             convertResultToTossups(results, callback);
           });

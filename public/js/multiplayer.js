@@ -9,7 +9,6 @@
     separators : [], // references to separators between teams
     teams : {} // teamName to userArc list
   }
-  window.gameObjects = gameObjects;
 
   var gameHelpers = {
     redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
@@ -20,6 +19,8 @@
     _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name){}, 
   }
 
+  window.gameHelpers = gameHelpers;
+
   var scope = this;
 
   var BASE_URL = "";//"http://www.quizbowldb.com:1337";
@@ -28,7 +29,9 @@
   var auth, multi;
   var user;
   var curRoom;
+  var joinedRoom;
   var oldRoomName;
+  var partial = "";
 
 
   bridge.connect();
@@ -104,49 +107,59 @@
 
   var mHandler = {
     onGameStart : function() {
+      //TODO achal can you create some sort of "game started" notification
     },
     onAnswerTimeout : function(user) {
+      //TODO achal can you create some sort of "user timed out" notification
     },
     onQuestionTimeout : function() {
+      //TODO achal can you create some sort of "question timed out" notification
     },
     onChat : function(chat) {
       chatRoom.add(chat);
     },
     onAnswer : function(user, message){
+      //TODO achal can you create some sort of "user+message" notification?
     },
     onNewWord : function(word) {
-			$('#gameText').append(word);
+			$('#gameText').append(word+" ");
     },
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
+      //TODO achal can you create some sort of "this user joined" notification?
     },
-    onBuzz : function(user){
-      $('#gameBuzz').hide();
-      $('#gameAnswer').show();
+    onBuzz : function(u){
+      //TODO achal can you create some sort of "this user buzzed" notification?
     },
     onSit : function(user, team) {
-			// SHARAD TODO: the room has to be passed into this function
-			gameHandler.redrawArcs(room);
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeave : function(user) {
-			// SHARAD TODO: the room has to be passed into this function
-			gameHandler.redrawArcs(room);
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onLeaveTeam : function(user, team) {
-			// SHARAD TODO: the room has to be passed into this function
-			gameHandler.redrawArcs(room);
+			gameHelpers.redrawArcs(joinedRoom);
     },
     onStartQuestion : function(){
+			$('#gameText').html("");
+      $('#gameBuzz').show();
+      $('#gameAnswer').hide();
+      $('#gameAnswer').val("");
     },
     onCompleteQuestion : function(question) {
+      $('#gameText').html(question.question);
     },
-	onUpdateScore : function(score){
-	}
+    onUpdateScore : function(score){
+    }
   };
 	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
+    console.log(joinedRoom);
+    joinedRoom = room;
+    window.joinedRoom = room;
+    
 	  // clear the game
 	  $("#game").html("");
 
@@ -282,7 +295,7 @@
 				}
 			}
 			setUpTeams(room);
-			gameObjects.redrawArcs = setUpTeams;
+			gameHelpers.redrawArcs = setUpTeams;
 
 			// set up the text div
 			$game.append('<div id="gameControlsContainer">'
@@ -292,11 +305,26 @@
                  +     '<input id="gameAnswer" type="text"></input>'
                  +   '</div>'
                  + '</div>');
+      if (room.game.partial) {
+        $('#gameText').html(room.game.partial+" ");
+      }
 			
       // SHARAD CHECK: should buzzing be handled here? What should be called
      //                 when buzz button is clicked?
       $('#gameBuzz').click(function() {
-        mHandler.onBuzz('???');
+        roomHandler.buzz(function(buzzed) {
+          if (buzzed) {
+            $('#gameBuzz').hide();
+            $('#gameAnswer').show();
+          }
+        });
+      });
+
+      $('#gameAnswer').keypress(function(e) {
+         var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+          roomHandler.answer($("#gameAnswer").val().trim());
+        }
       });
 
 			// we want the div's top to start somewhere at the upper half of the

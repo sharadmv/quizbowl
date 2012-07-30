@@ -102,8 +102,8 @@
   });
   View.ResultControl = Backbone.View.extend({
     events : {
-      "click #next" : "next",
-      "click #previous" : "previous"
+      "click .next" : "next",
+      "click .previous" : "previous"
     },
     next : function() {
       results.next();
@@ -178,7 +178,7 @@
     })
   }
   var results;
-  var resultView, searchBox, resultControl;
+  var resultView, searchBox, topResultControl, bottomResultControl;
 
     //entry point
   $(document).ready(function() {
@@ -186,7 +186,8 @@
     results = new Collection.Results;
     resultView = new View.Results({ el : $("#results"), collection : results });
     searchBox = new View.SearchBox({ el : $("#searchBoxWrapper") });
-    resultControl = new View.ResultControl({ el : $("#resultControl") });
+    topResultControl = new View.ResultControl({ el : $("#topResultControl") });
+    bottomResultControl = new View.ResultControl({ el : $("#bottomResultControl") });
     Backbone.history.start();
   });
 })();
