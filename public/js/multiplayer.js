@@ -156,6 +156,7 @@
 	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
+    window.room = room;
     console.log(room);
     console.log("Load room");
     joinedRoom = room;
@@ -229,7 +230,7 @@
           separators[i].remove();
         }
         gameObjects.separators = [];
-        var i = null;
+        delete i;
 
 				// draw as many arcs as we need
 				var numUsers = room.users.length;
@@ -243,26 +244,30 @@
 				var teamArcs = {};
 				var separators = [];
 
+        var userIndex = 0;
+
 				for (var teamName in room.teams) {
 					var team = room.teams[teamName];
 					var players = team.players;
 					var userArcs = teamArcs[teamName] = [];
 					var last = 0;
-					for (var i in players) {
-						var userId = players[i];
+					for (var teamUserIndex = 0; teamUserIndex < players.length; teamUserIndex++) {
+						var userId = players[teamUserIndex];
 						var lastUser = false;
-						if (!(i+1 in players)) {
-							// last user
-							lastUser = true;
-						}
-						(function(i, userId, lastUser) {
+            if (teamUserIndex == players.length - 1) {
+              lastUser = true;
+              console.log(teamUserIndex);
+            }
+
+						(function(userIndex, userId, lastUser) {
 							$.get('/api/user/'+userId, function(user) {
 								var fbId = user.data.fbId;
 								var name = user.data.name;
-								var start = part*i;
-								var end = part*(i+1);
+								var start = part*userIndex;
+								var end = part*(userIndex+1);
+                console.log("User " + userIndex + ": ", start, end);
 								var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
-								var centerAngle = gradientArr[i];
+								var centerAngle = gradientArr[userIndex];
 
 								var userArc = arc.shape;
 								// style the player arc
@@ -274,7 +279,8 @@
 								});
 
 								var text = arc.text;
-								text.attr({ transform: 'r'+centerAngle });
+								// text.attr({ transform: 'r'+centerAngle });
+                console.log(name, centerAngle);
 
 								// set up hover handlers for the player arc
 								userArc.hover(
@@ -290,8 +296,7 @@
                 userArcSet.push(userArc, text);
 								userArcs.push(userArcSet);
 								if (lastUser) {
-									var endRad = part*(i+1);
-									var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, endRad);
+									var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
 									separator.attr({
 										'stroke-width':5,
 										stroke: '#f00'
@@ -299,7 +304,8 @@
 									separators.push(separator);
 								}
 							});
-						})(i, userId, lastUser);
+						})(userIndex, userId, lastUser);
+            userIndex++;
 					}
 
 					// move the inner circle on top
@@ -468,7 +474,8 @@
 			var textX = textPts[0];
 			var textY = textPts[1];
 			var text = paper.text(textX, textY, name.split(' ')[0]);
-			text.attr({fill:'#fff', font:22+'px Segoe UI, sans-serif', 'font-weight':'300'});
+      var fontSize = (or - ir)/4; // about a fourth looks decent
+			text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
 			return {
 				shape	:	shape,
