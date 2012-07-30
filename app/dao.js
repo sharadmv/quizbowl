@@ -201,7 +201,7 @@ var init = function(app) {
       },
       list:function(id, callback) {
         app.log(app.Constants.Tag.DAO, ["tournament.list", id]);
-        client.query(""+"SELECT round.id AS id FROM "+Constants.Table.ROUND+" round, "+Constants.Table.TOURNAMENT+" tournament WHERE round.tournament = tournament.id AND tournament.id=?",[id] ,function(err, rows, fields) {
+        client.query(""+"SELECT round.id AS id, round.round AS name FROM "+Constants.Table.ROUND+" round, "+Constants.Table.TOURNAMENT+" tournament WHERE round.tournament = tournament.id AND tournament.id=?",[id] ,function(err, rows, fields) {
           if (err) throw err;
           if (rows.length == 0) {
             callback(null);
@@ -228,7 +228,7 @@ var init = function(app) {
       }, 
       list:function(id, callback) {
         app.log(app.Constants.Tag.DAO, ["round.list", id]);
-        client.query(""+"SELECT tossup.id AS id FROM "+Constants.Table.TOSSUP+" tossup, "+Constants.Table.ROUND+" round WHERE tossup.round = round.id AND round.id=?",[id] ,function(err, rows, fields) {
+        client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE tournament.id=tossup.tournament AND tossup.round = round.id AND round.id=?",[id] ,function(err, rows, fields) {
           if (err) throw err;
           if (rows.length == 0) {
             callback(null);

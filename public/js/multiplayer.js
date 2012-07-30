@@ -54,6 +54,9 @@
       multi.on("game_start", function(ev) {
         lobby.setStarted(new Model.Room(ev.message));
       });
+      multi.on("ticker_event", function(ev) {
+        console.log("TICKER", ev.message);
+      });
     });
     bridge.getService("quizbowl-"+namespace+"-auth", function(a) {
       auth = a;
