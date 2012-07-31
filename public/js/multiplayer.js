@@ -214,7 +214,8 @@
 
 		  outerCircle.attr({
 			  'stroke-width'	: s*.025,
-			  stroke	:	'#555'
+			  stroke	:	'#555',
+        gradient: 'r(.5,.5)#00f-#00f:50-#000'
 		  });
 
 		  innerCircle.attr({
@@ -250,7 +251,7 @@
         delete i;
 
 				// draw as many arcs as we need
-				var numUsers = room.users.length;
+				var numUsers = room.properties.numTeams * room.properties.numPlayers;
 				var part = 2*pi/numUsers;
 				gradientArr = gameHelpers._gradientAngleArr(numUsers);
 
@@ -290,21 +291,37 @@
 								userArc.attr({
 									'stroke-width':2,
                   stroke : '#fff',
-									gradient	:	centerAngle+'-#00f-#000',
+                  fill: '#000', 
+                  'fill-opacity':0,
 									opacity:1
 									// fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
 								});
 
 								var text = arc.text;
-								// text.attr({ transform: 'r'+centerAngle });
+								//text.attr({ transform: 'r'+(Math.abs(180-centerAngle)-90)});
+                /*
+                var tmp = centerAngle;
+                var centerAngle = centerAngle <= 270 ? centerAngle + 90 : centerAngle-270;
+                if (centerAngle > 90 && centerAngle <= 180) {
+                  var rotator = Math.abs(centerAngle-180);
+                } else if (centerAngle > 180 && centerAngle < 270) {
+                  var rotator = -Math.abs(centerAngle-180);
+                } else if (centerAngle >= 270 && centerAngle < 360) {
+                  var rotator = centerAngle-330;
+                } else {
+                  var rotator = -centerAngle;
+                }
+                console.log(name, tmp, '==>', centerAngle, '==>', rotator);
+								text.attr({ transform: 'r'+rotator});
+                */
 
 								// set up hover handlers for the player arc
 								userArc.hover(
 									function() { // hover in
-										this.attr({ gradient	:	centerAngle+'-#00f-#000' });
+										this.attr({ 'fill-opacity':0.5});
 									}, 
 									function() { // hover out
-										this.attr({ gradient	:	centerAngle+'-#00f:0-#000' });
+										this.attr({ 'fill-opacity':0});
 									}
 								);
 
@@ -333,7 +350,7 @@
                   innerCircle.toFront();
                   // move the outer circle on top
                   // this will only move the border up, since there is no fill
-                  outerCircle.toFront();
+                  // outerCircle.toFront();
                 }
               });
             })(userIndex, userId, lastUser);
