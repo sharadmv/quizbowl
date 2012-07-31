@@ -24,8 +24,7 @@
     },
     search : function(term) {
       results.search(term);
-    }
-  });
+    } });
 
   var Super = {
     UpdateView : Backbone.View.extend({
@@ -107,6 +106,8 @@
       results.bind("reset", this.show, this);
     },
     show : function() {
+      var showStr = "Showing "+ (results.currentPage*results.perPage+1) + "-"+(results.currentPage*results.perPage+results.length)+" results of "+results.count;
+      this.$(".pages").html(showStr);
       if (results.currentPage == 0) {
         this.$(".previous").css("visibility","hidden");
         if (results.totalPages > 0) {
@@ -165,7 +166,8 @@
         offset : function() { return this.currentPage * this.perPage },
       },
       parse : function(response) {
-        this.totalPages = Math.floor(response.data.count / this.perPage);
+        this.count = response.data.count;
+        this.totalPages = Math.floor(this.count / this.perPage);
         console.log(this.totalPages);
         return response.data.tossups;
       },
