@@ -101,6 +101,24 @@
     }
   });
   View.ResultControl = Backbone.View.extend({
+    initialize : function() {
+      results.bind("change", this.show, this);
+      results.bind("add", this.show, this);
+      results.bind("reset", this.show, this);
+    },
+    show : function() {
+      if (results.currentPage == 0) {
+        this.$(".previous").css("visibility","hidden");
+        if (results.totalPages > 0) {
+          this.$(".next").css("visibility","visible");
+        }
+      } else if (results.currentPage > 0 && results.currentPage < results.totalPages) {
+        this.$(".previous").css("visibility","visible");
+        this.$(".next").css("visibility","visible");
+      } else {
+        this.$(".next").css("visibility","hidden");
+      }
+    },
     events : {
       "click .next" : "next",
       "click .previous" : "previous"
@@ -147,6 +165,8 @@
         offset : function() { return this.currentPage * this.perPage },
       },
       parse : function(response) {
+        this.totalPages = Math.floor(response.data.count / this.perPage);
+        console.log(this.totalPages);
         return response.data.tossups;
       },
       search : function(term, params) {
@@ -163,17 +183,21 @@
       },
       next : function() {
         var self = this;
-        this.requestNextPage()
-          .done(function(data, textStatus, jqXHR) {
-            self.trigger("change");
-          });
+        if (this.currentPage < this.totalPages) {
+          this.requestNextPage()
+            .done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        }
       },
       previous : function() {
         var self = this;
-        this.requestPreviousPage()
-          .done(function(data, textStatus, jqXHR) {
-            self.trigger("change");
-          });
+        if (this.currentPage >= 0) {
+          this.requestPreviousPage()
+            .done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        }
       }
     })
   }
