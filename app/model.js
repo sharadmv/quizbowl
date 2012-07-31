@@ -200,7 +200,7 @@ var init = function(app) {
         var teams = {};
         
         //set up properties
-        if (!properties.num) {
+        if (!properties.numTeams) {
           properties.numTeams = 10;
         }
         if (!properties.numPlayers) {
