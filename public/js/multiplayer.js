@@ -14,12 +14,13 @@
     redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
     recenterGameText : function(){}, // recenters text/buttons/etc (e.g. resize)
     // generates gradient angles for circle
-    _gradientAngleArr : function(cx, cy, r, radian) {},
+    _gradientAngleArr : function(numPieces) {},
     _drawSeparator : function(paper, cx, cy, ir, or, radian){}, 
     _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name){}, 
   }
 
   window.gameHelpers = gameHelpers;
+  window.gameObjects = gameObjects;
 
   var scope = this;
 
@@ -55,7 +56,6 @@
         lobby.setStarted(new Model.Room(ev.message));
       });
       multi.on("ticker_event", function(ev) {
-        console.log("TICKER", ev.message);
       });
     });
     bridge.getService("quizbowl-"+namespace+"-auth", function(a) {
@@ -130,7 +130,7 @@
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
-      for (var i in joinedRoom.users) {
+      for (var i = 0; i < joinedRoom.users.length; i++) {
         if (joinedRoom.users[i] == user.id) {
           joinedRoom.users.splice(i, 1);
         }
@@ -142,11 +142,11 @@
       //TODO achal can you create some sort of "this user buzzed" notification?
     },
     onSit : function(user, team) {
-      joinedRoom.teams[team].players.push(user.id);
-			gameHelpers.redrawArcs(joinedRoom);
+     // joinedRoom.teams[team].players.push(user.id);
+      console.log(user, team);
     },
     onLeave : function(user) {
-      for (var i in joinedRoom.users) {
+      for (var i = 0; i < joinedRoom.users.length; i++) {
         if (joinedRoom.users[i] == user.id) {
           joinedRoom.users.splice(i, 1);
         }
@@ -155,7 +155,7 @@
     },
     onLeaveTeam : function(user, team) {
       console.log(user, team);
-      for (var i in joinedRoom.teams[team].players) {
+      for (var i = 0; i < joinedRoom.teams[team].players; i++) {
         if (joinedRoom.teams[team].players[i] == user.id) {
           joinedRoom.teams[team].players.splice(i, 1);
         }
@@ -178,16 +178,11 @@
 
   var loadRoom = function(room) {
     window.room = room;
-    console.log(room);
-    console.log("Load room");
     joinedRoom = room;
     window.joinedRoom = room;
     
 	  // clear the game
 	  $("#game").html("");
-
-	  var numTeams = 0;
-	  $.each(room.teams, function(){ numTeams++ });
 
 	  // slide left wrapper
 	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
@@ -202,7 +197,7 @@
 		  // remove padding left on holy grail container
 		  $('#holyGrailContainer').css({paddingLeft : 0 });
 
-			$game = $('#game');
+			var $game = $('#game');
 		  var height	= $game.height();
 		  var width		= $game.width();
 
@@ -210,20 +205,20 @@
 		  var s = height < width ? height : width;
 		  var or = .9*s/2;  // outer radius
 		  var ir = .75*or;  // inner radius
+      var outerBorder = .025*s;
 		  var pi = Math.PI; // mmm... pi...
 
 		  var paper = Raphael('game', s, s);
-		  var outerCircle = paper.circle(s/2, s/2, or);
+		  var outerCircle = paper.circle(s/2, s/2, or+outerBorder/2);
 		  var innerCircle = paper.circle(s/2, s/2, ir);
 
 		  outerCircle.attr({
-			  'stroke-width'	: s*.025,
-			  stroke	:	'#555'
+			  'stroke-width'	: outerBorder,
+			  stroke	:	'#555',
+        gradient: 'r(.5,.5)#00f-#00f:50-#000'
 		  });
 
-		  innerCircle.attr({
-			  gradient		:	'r(.5, .5)#fff-#aaa',
-		  });
+		  innerCircle.attr({ gradient		:	'r(.5, .5)#fff-#aaa' });
 
 			// set references from gameObjects
 			gameObjects.paper = paper;
@@ -233,114 +228,93 @@
 			gameObjects.ir = ir;
 			gameObjects.or = or;
 
-			// this will be called outside of loadRoom as well, so this function must
-			// be self contained (i.e. only access fn arguments, gameObjects, and
-			// gameHelpers)
-			function setUpTeams(room) {
-        // delete any old arcs/separators if there were any
-        var teams = gameObjects.teams;
-        var separators = gameObjects.separators;
-        for (var teamName in teams) {
-          var userArcs = teams[teamName];
-          for (var i = 0; i < userArcs.length; i++) {
-            userArcs[i].remove();
+      // draw as many arcs as we need
+      var numTeams = room.properties.numTeams;
+      var numPlayersPerTeam = room.properties.numPlayers;
+      var numUsers = numTeams * numPlayersPerTeam;
+      var part = 2*pi/numUsers;
+      var gradientArr = gameHelpers._gradientAngleArr(numUsers);
+
+      var teamArcs = {};
+      var separators = [];
+
+      var userIndex = 0;
+      for (var teamName in room.teams) {
+        var team = room.teams[teamName];
+        var players = team.players;
+        var userArcs = teamArcs[teamName] = [];
+        var last = 0;
+        for (var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
+          var start = part*userIndex;
+          var end = part*(userIndex+1);
+          var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
+          var centerAngle = gradientArr[userIndex];
+
+          var userArc = arc.shape;
+          // style the player arc
+          userArc.attr({
+            fill: '#000', 
+            'fill-opacity':0.8,
+            opacity:1,
+            'stroke-width':0
+            // fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
+          });
+
+          // set up hover handlers for the player arc
+          function hoverIn() { this.attr({ 'fill-opacity':0.5 }); }
+          function hoverOut() { this.attr({ 'fill-opacity': 0.8  }); } 
+          userArc.hover(hoverIn, hoverOut, userArc, userArc);
+
+          var elemData = {
+            team : teamName,
+            user : teamUserIndex,
+            hoverInFn : hoverIn,
+            hoverOutFn: hoverOut
           }
-          gameObjects.teams[teamName] = [];
+          $.each(elemData, function(key, val) { userArc.data(key, val); });
+
+          userArc.click(function() {
+            this.attr({ 'fill-opacity': 0  });
+            var aHoverIn = this.data('hoverInFn');
+            var aHoverOut = this.data('hoverOutFn');
+            this.unhover(aHoverIn, aHoverOut);
+            console.log("Joining " + this.data('team'));
+            roomHandler.sit(this.data('team'));
+          });
+
+          var userSeparator = arc.separator;
+          userSeparator.attr({
+            stroke : '#C3B5E8',
+            'stroke-width':1,
+            'stroke-opacity':0.3
+          }).toFront();
+
+          // arc = { shape : {(Raphael Element)}, text : {(Raphael Element)} };
+          userArcs.push(arc);
+
+          // draw a separator on the last user
+          console.log(teamUserIndex, numPlayersPerTeam);
+          if (teamUserIndex == numPlayersPerTeam - 1) {
+            var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
+            separator.attr({
+                'stroke-width':5,
+                stroke: '#f00'
+                }).toFront();
+            separators.push(separator);
+          }
+          userIndex++;
         }
-        for (var i = 0; i < separators.length; i++) {
-          separators[i].remove();
-        }
-        gameObjects.separators = [];
-        delete i;
+      }
+      // all the arcs have been drawn
+      for (var i = 0; i < separators.length; i++) {
+        separators[i].toFront();
+      }
+      gameObjects.teams = teamArcs;
+      gameObjects.separators = separators;
 
-				// draw as many arcs as we need
-				var numUsers = room.users.length;
-				var part = 2*pi/numUsers;
-				gradientArr = gameHelpers._gradientAngleArray(numUsers);
-
-				var s = gameObjects.s;
-				var ir = gameObjects.ir;
-				var or = gameObjects.or;
-
-				var teamArcs = {};
-				var separators = [];
-
-        var userIndex = 0;
-
-				for (var teamName in room.teams) {
-					var team = room.teams[teamName];
-					var players = team.players;
-					var userArcs = teamArcs[teamName] = [];
-					var last = 0;
-					for (var teamUserIndex = 0; teamUserIndex < players.length; teamUserIndex++) {
-						var userId = players[teamUserIndex];
-						var lastUser = false;
-            if (teamUserIndex == players.length - 1) {
-              lastUser = true;
-              console.log(teamUserIndex);
-            }
-
-						(function(userIndex, userId, lastUser) {
-							$.get('/api/user/'+userId, function(user) {
-								var fbId = user.data.fbId;
-								var name = user.data.name;
-								var start = part*userIndex;
-								var end = part*(userIndex+1);
-                console.log("User " + userIndex + ": ", start, end);
-								var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
-								var centerAngle = gradientArr[userIndex];
-
-								var userArc = arc.shape;
-								// style the player arc
-								userArc.attr({
-									'stroke-width':2,
-									gradient	:	centerAngle+'-#00f:0-#000',
-									opacity:1
-									// fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
-								});
-
-								var text = arc.text;
-								// text.attr({ transform: 'r'+centerAngle });
-                console.log(name, centerAngle);
-
-								// set up hover handlers for the player arc
-								userArc.hover(
-									function() { // hover in
-										this.attr({ gradient	:	centerAngle+'-#00f:40-#000' });
-									}, 
-									function() { // hover out
-										this.attr({ gradient	:	centerAngle+'-#00f:0-#000' });
-									}
-								);
-
-                var userArcSet = paper.set();
-                userArcSet.push(userArc, text);
-								userArcs.push(userArcSet);
-								if (lastUser) {
-									var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
-									separator.attr({
-										'stroke-width':5,
-										stroke: '#f00'
-									}).toFront();
-									separators.push(separator);
-								}
-							});
-						})(userIndex, userId, lastUser);
-            userIndex++;
-					}
-
-					// move the inner circle on top
-					// (the arc isn't perfect, so we have to hide it's arc parts)
-					innerCircle.toFront();
-					// move the outer circle on top
-					// this will only move the border up, since there is no fill
-					outerCircle.toFront();
-				}
-        gameObjects.teams = teamArcs;
-        gameObjects.separators = separators;
-			}
-			setUpTeams(room);
-			gameHelpers.redrawArcs = setUpTeams;
+      // move the inner circle on top (the arc isn't perfect, so we have to
+      // hide it's arc parts)
+      innerCircle.toFront();
 
       // set up text/buzzing
 			$game.append('<div id="gameControlsContainer">'
@@ -442,7 +416,6 @@
 		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
 			  if (Raphael.vml) { // VML needs this offset
 				  endRad -= 0.001; 
-				  console.log("VML!");
 			  } else {
 				  endRad -= 0.0001; // other browsers can have a smaller offset
 			  }
@@ -489,6 +462,7 @@
 		  path += 'Z';
 			var shape = paper.path(path);
 
+      // write the text
 			var midRadian = (endRad + startRad)/2;
 			var midRadius = (or + ir)/2;
 			var textPts = ptOnCircle(cx, cy, midRadius, midRadian);
@@ -498,9 +472,12 @@
       var fontSize = (or - ir)/4; // about a fourth looks decent
 			text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
+      // draw the separators
+      var separator = gameHelpers._drawSeparator(paper, cx, cy, ir, or, endRad);
 			return {
 				shape	:	shape,
-				text	: text
+				text	: text,
+        separator : separator
 			}
 	  }
 
@@ -509,7 +486,7 @@
 	  }
 
 		// generates gradient angles so the circle has a near radial gradient
-	  gameHelpers._gradientAngleArray = function(numPieces) {
+	  gameHelpers._gradientAngleArr = function(numPieces) {
 		  // We start with the right side of the circle, taking the bottom piece of
 		  // the two rightmost ones. 
 		  var pi = Math.PI,
@@ -528,6 +505,7 @@
 	  }
 
   }
+
   var loadGM = function(gm) {
     gameHandler = gm;
     window.gameHandler = gm;
