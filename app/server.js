@@ -58,6 +58,11 @@ var init = function(app) {
     res.json({ userId : req.session.userId, namespace : app.namespace() });
   });
 
+  application.get('/api/ticker', function(req, res) {
+    var res = app.router.wrap(req, res);
+    res.json(app.ticker.getTicker());
+  });
+
   application.get('/api/search/:term?', function(req, res) {
     var res = app.router.wrap(req, res);
     var pars = { value : req.params.term, limit : req.query.limit, offset : req.query.offset, params : { category : req.query.category, difficulty : req.query.difficulty } };
@@ -148,16 +153,6 @@ var init = function(app) {
     });
   });
 
-  application.get('/api/tournament/:tournament', authorize, function(req, res) {
-    var res = app.router.wrap(req, res);
-    app.dao.tournament.get(req.params.tournament, function(tournament) {
-      if (tournament) {
-        res.json(tournament);
-      } else { 
-        res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
-      }
-    });
-  });
   application.get('/api/tossup/:tossup', authorize, function(req, res) {
     var res = app.router.wrap(req, res);
     app.dao.tossup.get(req.params.tossup, function(tossup) {
@@ -180,7 +175,7 @@ var init = function(app) {
     });
   });
 
-  application.get('/api/tournament/list', authorize, function(req, res) {
+  application.get('/api/tournament/', authorize, function(req, res) {
     var res = app.router.wrap(req, res);
     app.dao.tournament.tournaments(function(tournament) {
       if (tournament) {
@@ -191,6 +186,16 @@ var init = function(app) {
     });
   });
 
+  application.get('/api/tournament/:tournament/', authorize, function(req, res) {
+    var res = app.router.wrap(req, res);
+    app.dao.tournament.list(req.params.tournament, function(tournament) {
+      if (tournament) {
+        res.json(tournament);
+      } else { 
+        res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
+      }
+    });
+  });
   application.get('/api/tournament/:tournament', authorize, function(req, res) {
     var res = app.router.wrap(req, res);
     app.dao.tournament.get(req.params.tournament, function(tournament) {
@@ -202,13 +207,14 @@ var init = function(app) {
     });
   });
 
-  application.get('/api/tournament/:tournament/list', authorize, function(req, res) {
+
+  application.get('/api/tournament/:tournament/:round/', authorize, function(req, res) {
     var res = app.router.wrap(req, res);
-    app.dao.tournament.list(req.params.tournament, function(tournament) {
-      if (tournament) {
-        res.json(tournament);
+    app.dao.round.list(req.params.round, function(round) {
+      if (round) {
+        res.json(round);
       } else { 
-        res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
+        res.error(app.Constants.Error.ROUND_NOT_FOUND);
       }
     });
   });
@@ -224,16 +230,6 @@ var init = function(app) {
     });
   });
 
-  application.get('/api/tournament/:tournament/:round/list', authorize, function(req, res) {
-    var res = app.router.wrap(req, res);
-    app.dao.round.list(req.params.round, function(round) {
-      if (round) {
-        res.json(round);
-      } else { 
-        res.error(app.Constants.Error.ROUND_NOT_FOUND);
-      }
-    });
-  });
 
   application.get('/api/tournament/:tournament/:round/:tossup', authorize, function(req, res) {
     var res = app.router.wrap(req, res);

@@ -1,0 +1,47 @@
+#topWrapper {
+  height : 100%;
+}
+#bottomWrapper {
+  margin-bottom:-30px;
+}
+#searchBoxWrapper {
+  width:100%;
+  background:rgba(10, 157, 264, 1);
+  height:50px;
+  line-height:50px;
+}
+#searchBox {
+  float : left;
+  width : 500px;
+  margin-top:14px;
+  margin-bottom:14px;
+}
+#searchBox {
+  margin-left:20px;
+}
+#searchButton {
+  float : left;
+  margin-top:9px;
+  margin-bottom:9px;
+  margin-left:10px;
+}
+#topResultControl, #bottomResultControl {
+  position : relative;
+  bottom : 0px;
+  text-align:center;
+}
+
+#results {
+  width:900px;
+  margin:auto;
+}
+
+.tossup {
+  padding-top:15px;
+  padding-bottom:15px;
+  padding-left:15px;
+  padding-right:15px;
+  margin-top:10px;
+  margin-bottom:10px;
+  background-color:rgba(109,214,222,1);
+}

@@ -7,7 +7,9 @@ var init = function(app) {
           USER_LOGGED_OUT:"user_logout",
           ROOM_CREATED:"room_create",
           ROOM_DELETED:"room_delete",
-          GAME_STARTED:"game_start"
+          GAME_STARTED:"game_start",
+          USER_ANSWER:"user_answer",
+          TICKER_EVENT:"ticker_event"
         },
         Level:{
           VERBOSE:"verbose",
@@ -198,7 +200,7 @@ var init = function(app) {
         var teams = {};
         
         //set up properties
-        if (!properties.num) {
+        if (!properties.numTeams) {
           properties.numTeams = 10;
         }
         if (!properties.numPlayers) {

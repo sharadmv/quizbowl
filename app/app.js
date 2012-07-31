@@ -11,15 +11,19 @@ var timeouts = {};
 app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
-app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "sandbox");
+app.Constants = app.model.Constants;
+app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "test");
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
 app.router = require('./router.js')(this);
 app.service = require('./service.js')(this);
 app.events = require('./events.js')(this);
+app.ticker = require('./ticker.js')(this);
 
-app.Constants = app.model.Constants;
+app.events.on(app.Constants.Events.Type.TICKER_EVENT, function(ev) {
+  console.log(ev);
+});
 
 var userToRoom = {};
 var rooms = {};
