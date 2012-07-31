@@ -24,7 +24,8 @@
     },
     search : function(term) {
       results.search(term);
-    } });
+    } 
+  });
 
   var Super = {
     UpdateView : Backbone.View.extend({
@@ -102,11 +103,15 @@
   View.ResultControl = Backbone.View.extend({
     initialize : function() {
       results.bind("change", this.show, this);
+      this.$(".previous").css("visibility","hidden");
+      this.$(".next").css("visibility","hidden");
+      this.$(".pages").css("visibility", "hidden");
       results.bind("add", this.show, this);
       results.bind("reset", this.show, this);
     },
     show : function() {
-      var showStr = "Showing "+ (results.currentPage*results.perPage+1) + "-"+(results.currentPage*results.perPage+results.length)+" results of "+results.count;
+      var showStr = "Fetched "+ (results.currentPage*results.perPage+1) + "-"+(results.currentPage*results.perPage+results.length)+" results of "+results.count+" in "+(results.elapsed/1000)+" seconds";
+      this.$(".pages").css("visibility", "visible");
       this.$(".pages").html(showStr);
       if (results.currentPage == 0) {
         this.$(".previous").css("visibility","hidden");
@@ -168,6 +173,7 @@
       parse : function(response) {
         this.count = response.data.count;
         this.totalPages = Math.floor(this.count / this.perPage);
+        this.elapsed = response.elapsed;
         console.log(this.totalPages);
         return response.data.tossups;
       },
