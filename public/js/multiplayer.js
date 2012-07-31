@@ -56,7 +56,6 @@
         lobby.setStarted(new Model.Room(ev.message));
       });
       multi.on("ticker_event", function(ev) {
-        console.log("TICKER", ev.message);
       });
     });
     bridge.getService("quizbowl-"+namespace+"-auth", function(a) {
@@ -143,8 +142,8 @@
       //TODO achal can you create some sort of "this user buzzed" notification?
     },
     onSit : function(user, team) {
-      joinedRoom.teams[team].players.push(user.id);
-			gameHelpers.redrawArcs(joinedRoom);
+     // joinedRoom.teams[team].players.push(user.id);
+      console.log(user, team);
     },
     onLeave : function(user) {
       for (var i = 0; i < joinedRoom.users.length; i++) {
@@ -206,14 +205,15 @@
 		  var s = height < width ? height : width;
 		  var or = .9*s/2;  // outer radius
 		  var ir = .75*or;  // inner radius
+      var outerBorder = .025*s;
 		  var pi = Math.PI; // mmm... pi...
 
 		  var paper = Raphael('game', s, s);
-		  var outerCircle = paper.circle(s/2, s/2, or);
+		  var outerCircle = paper.circle(s/2, s/2, or+outerBorder/2);
 		  var innerCircle = paper.circle(s/2, s/2, ir);
 
 		  outerCircle.attr({
-			  'stroke-width'	: s*.025,
+			  'stroke-width'	: outerBorder,
 			  stroke	:	'#555',
         gradient: 'r(.5,.5)#00f-#00f:50-#000'
 		  });
@@ -253,19 +253,41 @@
           var userArc = arc.shape;
           // style the player arc
           userArc.attr({
-            'stroke-width':2,
-            stroke : '#fff',
             fill: '#000', 
-            'fill-opacity':0,
-            opacity:1
+            'fill-opacity':0.8,
+            opacity:1,
+            'stroke-width':0
             // fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
           });
 
           // set up hover handlers for the player arc
-          userArc.hover(
-            function() { this.attr({ 'fill-opacity':0.5 }); }, // hover in 
-            function() { this.attr({ 'fill-opacity': 0  }); }  // hover out
-          );
+          function hoverIn() { this.attr({ 'fill-opacity':0.5 }); }
+          function hoverOut() { this.attr({ 'fill-opacity': 0.8  }); } 
+          userArc.hover(hoverIn, hoverOut, userArc, userArc);
+
+          var elemData = {
+            team : teamName,
+            user : teamUserIndex,
+            hoverInFn : hoverIn,
+            hoverOutFn: hoverOut
+          }
+          $.each(elemData, function(key, val) { userArc.data(key, val); });
+
+          userArc.click(function() {
+            this.attr({ 'fill-opacity': 0  });
+            var aHoverIn = this.data('hoverInFn');
+            var aHoverOut = this.data('hoverOutFn');
+            this.unhover(aHoverIn, aHoverOut);
+            console.log("Joining " + this.data('team'));
+            roomHandler.sit(this.data('team'));
+          });
+
+          var userSeparator = arc.separator;
+          userSeparator.attr({
+            stroke : '#C3B5E8',
+            'stroke-width':1,
+            'stroke-opacity':0.3
+          }).toFront();
 
           // arc = { shape : {(Raphael Element)}, text : {(Raphael Element)} };
           userArcs.push(arc);
@@ -440,6 +462,7 @@
 		  path += 'Z';
 			var shape = paper.path(path);
 
+      // write the text
 			var midRadian = (endRad + startRad)/2;
 			var midRadius = (or + ir)/2;
 			var textPts = ptOnCircle(cx, cy, midRadius, midRadian);
@@ -449,9 +472,12 @@
       var fontSize = (or - ir)/4; // about a fourth looks decent
 			text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
+      // draw the separators
+      var separator = gameHelpers._drawSeparator(paper, cx, cy, ir, or, endRad);
 			return {
 				shape	:	shape,
-				text	: text
+				text	: text,
+        separator : separator
 			}
 	  }
 
