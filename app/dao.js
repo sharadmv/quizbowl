@@ -1,4 +1,7 @@
 var init = function(app) {
+  String.prototype.caps = function () {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
     var solr = require('solr').createClient();
@@ -30,7 +33,7 @@ var init = function(app) {
             response = response.facet_counts.facet_fields.difficulty;
             var resp = [];
             for (var i = 0; i < response.length; i+=2) {
-              resp.push(response[i]);
+              resp.push(response[i].caps(););
             }
             callback(resp);
           }
@@ -55,7 +58,7 @@ var init = function(app) {
             response = response.facet_counts.facet_fields.category;
             var resp = [];
             for (var i = 0; i < response.length; i+=2) {
-              resp.push(response[i]);
+              resp.push(response[i].caps());
             }
             callback(resp);
           }

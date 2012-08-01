@@ -231,16 +231,6 @@
   var results;
   var resultView, searchBox, topResultControl, bottomResultControl;
 
-    //entry point
-  $(document).ready(function() {
-    new Router;
-    results = new Collection.Results;
-    resultView = new View.Results({ el : $("#results"), collection : results });
-    searchBox = new View.SearchBox({ el : $("#searchBoxWrapper") });
-    topResultControl = new View.ResultControl({ el : $("#topResultControl") });
-    bottomResultControl = new View.ResultControl({ el : $("#bottomResultControl") });
-    Backbone.history.start();
-  });
   var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "term", "question", "condition","sort"];
   var parseSearch = function(answer){
     var parameters = {};
@@ -282,5 +272,25 @@
       parameters.term = terms;
     return parameters;
   }
-  window.parseSearch = parseSearch;
+
+
+  //entry point
+  $(document).ready(function() {
+    new Router;
+    results = new Collection.Results;
+    resultView = new View.Results({ el : $("#results"), collection : results });
+    searchBox = new View.SearchBox({ el : $("#searchBoxWrapper") });
+    topResultControl = new View.ResultControl({ el : $("#topResultControl") });
+    bottomResultControl = new View.ResultControl({ el : $("#bottomResultControl") });
+    Backbone.history.start();
+    if (window.tournaments) {
+      console.log("SUP");
+    } else {
+      console.log("HI");
+    }
+    if (window.categories) {
+    }
+    if (window.difficulties) {
+    }
+  });
 })();
