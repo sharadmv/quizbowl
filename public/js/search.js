@@ -97,7 +97,26 @@
       "click #searchButton" : "search"
     },
     search : function() {
-      results.search(this.$("#searchBox").val());
+      var params = parseSearch(this.$("#searchBox").val());
+      var term = params.term;
+      var condition = params.condition;
+      var random = params.random;
+      var limit = params.limit;
+      delete params.term;
+      delete params.condition;
+      delete params.random;
+      delete params.limit;
+      var options = {};
+      if (condition) {
+        options.condition = condition;
+      }
+      if (random) {
+        options.random = random;
+      }
+      if (limit) {
+        options.limit = limit;
+      }
+      results.search(term, options, params);
     }
   });
   View.ResultControl = Backbone.View.extend({
@@ -174,17 +193,17 @@
         this.count = response.data.count;
         this.totalPages = Math.floor(this.count / this.perPage);
         this.elapsed = response.elapsed;
-        console.log(this.totalPages);
         return response.data.tossups;
       },
-      search : function(term, params) {
+      search : function(term, options, params) {
         searched = true;
         this.reset();
         if (!params) {
           params = {};
         }
         this.term = term;
-        this._params = params;
+        options.params = params;
+        this._params = options;
         this.fetch({ 
           add : true
         });
@@ -222,4 +241,46 @@
     bottomResultControl = new View.ResultControl({ el : $("#bottomResultControl") });
     Backbone.history.start();
   });
+  var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "term", "question", "condition","sort"];
+  var parseSearch = function(answer){
+    var parameters = {};
+    var terms = answer.trim(); term = /[a-zA-Z]+:/g;
+    params = terms.split(term);
+    if (params.length > 1)
+      for (i = 0; i < params.length; i++) {
+        value = params[i].trim();
+        if (value != "" && value.length != 0) {
+          param = terms.substring(0, terms.indexOf(":"))
+            .trim();
+          if (POSSIBLE_PARAMS.indexOf(param)!=-1) {
+            if (value.match('".*".*')) {
+
+              value = value.substring(1, value.indexOf("\"", 1));
+              terms = terms.substring(terms.indexOf("\"",
+                    terms.indexOf(value)) + 1);
+            } else {
+              if (value.indexOf(" ") != -1) {
+
+                value = value.substring(0, value.indexOf(" "));
+
+                terms = terms.substring(terms.indexOf(" ",
+                      terms.indexOf(value)));
+
+              } else {
+                terms = terms.substring(terms.indexOf(value)
+                    + value.length);
+
+              }
+
+            }
+
+            parameters[param] = value.trim();
+          }
+        }
+      }
+    if (parameters.term === undefined)
+      parameters.term = terms;
+    return parameters;
+  }
+  window.parseSearch = parseSearch;
 })();

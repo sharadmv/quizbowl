@@ -100,6 +100,7 @@ var init = function(app) {
         }
         var difficulties = [];
         if (query.params.difficulty) {
+          query.params.difficulty = query.params.difficulty.toLowerCase().replace(/hs/,"HS").replace(/ms/,"MS").replace(/college/,"College");
           difficulties = query.params.difficulty.split("|");
         }
         var finQuery = [];
