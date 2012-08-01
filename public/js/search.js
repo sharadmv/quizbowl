@@ -228,6 +228,7 @@
       }
     })
   }
+
   var results;
   var resultView, searchBox, topResultControl, bottomResultControl;
 
@@ -283,14 +284,5 @@
     topResultControl = new View.ResultControl({ el : $("#topResultControl") });
     bottomResultControl = new View.ResultControl({ el : $("#bottomResultControl") });
     Backbone.history.start();
-    if (window.tournaments) {
-      console.log("SUP");
-    } else {
-      console.log("HI");
-    }
-    if (window.categories) {
-    }
-    if (window.difficulties) {
-    }
   });
 })();

@@ -617,7 +617,6 @@ var init = function(app) {
             },
             function(tossups) {
               tossups = tossups.tossups;
-              console.log(tossups.length);
               if (tossups.length > 0) {
                 curTossups = tossups;
                 tossupLength = tossups.length;
