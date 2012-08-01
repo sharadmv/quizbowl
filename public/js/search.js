@@ -24,7 +24,7 @@
     },
     search : function(term) {
       results.search(term);
-    }
+    } 
   });
 
   var Super = {
@@ -97,10 +97,53 @@
       "click #searchButton" : "search"
     },
     search : function() {
-      results.search(this.$("#searchBox").val());
+      var params = parseSearch(this.$("#searchBox").val());
+      var term = params.term;
+      var condition = params.condition;
+      var random = params.random;
+      var limit = params.limit;
+      delete params.term;
+      delete params.condition;
+      delete params.random;
+      delete params.limit;
+      var options = {};
+      if (condition) {
+        options.condition = condition;
+      }
+      if (random) {
+        options.random = random;
+      }
+      if (limit) {
+        options.limit = limit;
+      }
+      results.search(term, options, params);
     }
   });
   View.ResultControl = Backbone.View.extend({
+    initialize : function() {
+      results.bind("change", this.show, this);
+      this.$(".previous").css("visibility","hidden");
+      this.$(".next").css("visibility","hidden");
+      this.$(".pages").css("visibility", "hidden");
+      results.bind("add", this.show, this);
+      results.bind("reset", this.show, this);
+    },
+    show : function() {
+      var showStr = "Fetched "+ (results.currentPage*results.perPage+1) + "-"+(results.currentPage*results.perPage+results.length)+" results of "+results.count+" in "+(results.elapsed/1000)+" seconds";
+      this.$(".pages").css("visibility", "visible");
+      this.$(".pages").html(showStr);
+      if (results.currentPage == 0) {
+        this.$(".previous").css("visibility","hidden");
+        if (results.totalPages > 0) {
+          this.$(".next").css("visibility","visible");
+        }
+      } else if (results.currentPage > 0 && results.currentPage < results.totalPages) {
+        this.$(".previous").css("visibility","visible");
+        this.$(".next").css("visibility","visible");
+      } else {
+        this.$(".next").css("visibility","hidden");
+      }
+    },
     events : {
       "click .next" : "next",
       "click .previous" : "previous"
@@ -147,40 +190,91 @@
         offset : function() { return this.currentPage * this.perPage },
       },
       parse : function(response) {
+        this.count = response.data.count;
+        this.totalPages = Math.floor(this.count / this.perPage);
+        this.elapsed = response.elapsed;
         return response.data.tossups;
       },
-      search : function(term, params) {
+      search : function(term, options, params) {
         searched = true;
         this.reset();
         if (!params) {
           params = {};
         }
         this.term = term;
-        this._params = params;
+        options.params = params;
+        this._params = options;
         this.fetch({ 
           add : true
         });
       },
       next : function() {
         var self = this;
-        this.requestNextPage()
-          .done(function(data, textStatus, jqXHR) {
-            self.trigger("change");
-          });
+        if (this.currentPage < this.totalPages) {
+          this.requestNextPage()
+            .done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        }
       },
       previous : function() {
         var self = this;
-        this.requestPreviousPage()
-          .done(function(data, textStatus, jqXHR) {
-            self.trigger("change");
-          });
+        if (this.currentPage >= 0) {
+          this.requestPreviousPage()
+            .done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        }
       }
     })
   }
   var results;
   var resultView, searchBox, topResultControl, bottomResultControl;
 
-    //entry point
+  var POSSIBLE_PARAMS=["year", "tournament", "difficulty", "round","category", "random", "limit", "term", "question", "condition","sort"];
+  var parseSearch = function(answer){
+    var parameters = {};
+    var terms = answer.trim(); term = /[a-zA-Z]+:/g;
+    params = terms.split(term);
+    if (params.length > 1)
+      for (i = 0; i < params.length; i++) {
+        value = params[i].trim();
+        if (value != "" && value.length != 0) {
+          param = terms.substring(0, terms.indexOf(":"))
+            .trim();
+          if (POSSIBLE_PARAMS.indexOf(param)!=-1) {
+            if (value.match('".*".*')) {
+
+              value = value.substring(1, value.indexOf("\"", 1));
+              terms = terms.substring(terms.indexOf("\"",
+                    terms.indexOf(value)) + 1);
+            } else {
+              if (value.indexOf(" ") != -1) {
+
+                value = value.substring(0, value.indexOf(" "));
+
+                terms = terms.substring(terms.indexOf(" ",
+                      terms.indexOf(value)));
+
+              } else {
+                terms = terms.substring(terms.indexOf(value)
+                    + value.length);
+
+              }
+
+            }
+
+            parameters[param] = value.trim();
+          }
+        }
+      }
+    if (parameters.term === undefined)
+      parameters.term = terms;
+    return parameters;
+  }
+
+
+  //entry point
   $(document).ready(function() {
     new Router;
     results = new Collection.Results;
@@ -189,5 +283,14 @@
     topResultControl = new View.ResultControl({ el : $("#topResultControl") });
     bottomResultControl = new View.ResultControl({ el : $("#bottomResultControl") });
     Backbone.history.start();
+    if (window.tournaments) {
+      console.log("SUP");
+    } else {
+      console.log("HI");
+    }
+    if (window.categories) {
+    }
+    if (window.difficulties) {
+    }
   });
 })();

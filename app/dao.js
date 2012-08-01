@@ -1,6 +1,10 @@
 var init = function(app) {
+  String.prototype.caps = function () {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
+    var solr = require('solr').createClient();
     var client = mysql.createClient({
       host     : host,
       user     : username,
@@ -10,7 +14,57 @@ var init = function(app) {
 
     var Model = app.model.Dao;
     var Constants = app.model.Constants.Dao;
-    var MySQL = require('mysql').Client;
+
+    this.difficulty = {
+      list : function(callback) {
+        var query = "*:*";
+        var options = {
+          facet : true,
+          "facet.field" : "difficulty",
+          start : 0,
+          rows : 0
+        };
+        solr.query(query, options, function(err, response) {
+          if (err) {
+            console.log(err);
+            callback(null);
+          } else {
+            var response = JSON.parse(response);
+            response = response.facet_counts.facet_fields.difficulty;
+            var resp = [];
+            for (var i = 0; i < response.length; i+=2) {
+              resp.push(response[i].caps(););
+            }
+            callback(resp);
+          }
+        });
+      }
+    };
+    this.category = {
+      list : function(callback) {
+        var query = "*:*";
+        var options = {
+          facet : true,
+          "facet.field" : "category",
+          start : 0,
+          rows : 0
+        };
+        solr.query(query, options, function(err, response) {
+          if (err) {
+            console.log(err);
+            callback(null);
+          } else {
+            var response = JSON.parse(response);
+            response = response.facet_counts.facet_fields.category;
+            var resp = [];
+            for (var i = 0; i < response.length; i+=2) {
+              resp.push(response[i].caps());
+            }
+            callback(resp);
+          }
+        });
+      }
+    };
     
     this.user = {
       get:function(id, callback) {
@@ -85,92 +139,94 @@ var init = function(app) {
       }, 
       search:function(query, callback) {
         app.log(app.Constants.Tag.DAO, ["tossup.search", JSON.stringify(query)]);  
-        if (!query.limit) {
-          query.limit = 9999999999;
+        var condition = "answer";
+        if (query.condition == "all" || query.condition == "question") {
+          var condition = query.condition;
         }
-        if (!query.random) {
-          query.random = false;
-        } else {
+        var term = "";
+        if (query.term) {
+          term = query.term;
         }
-        if (!query.offset) {
-          query.offset = 0;
+        var categories = [];
+        if (query.params.category) {
+          categories = query.params.category.split("|");
         }
-        if (!query.params) {
-          query.params = {};
+        var difficulties = [];
+        if (query.params.difficulty) {
+          difficulties = query.params.difficulty.split("|");
         }
-        if (!query.params.category) {
-          delete query.params.category;
+        var finQuery = [];
+        if (categories.length > 0) {
+          finQuery.push("category:(\""+categories.join("\" \"")+"\")");
         }
-        if (!query.params.difficulty) {
-          delete query.params.difficulty;
+        if (difficulties.length > 0) {
+          finQuery.push("difficulty:("+difficulties.join(" ")+")");
         }
-        if (query.params.tournament) {
-          query.params["tournament.id"] = query.params.tournament;
-          delete query.params.tournament;
-        }
-        var match = "answer";
-        if (query.condition == "all") {
-          match = "question, answer";
-        } else if (query.condition == "question") {
-          match = "question";
-        }
-        var queryValues = (Object.keys(query.params).map(function(param){return param+"=?"}).join(" AND "));
-        var where;
-        var matchText = "MATCH("+match+") AGAINST ('"+query.value+"' IN NATURAL LANGUAGE MODE)";
-        if (queryValues.length > 0) {
-          if (query.value != "") {
-            where = ["round.id=tossup.round","tournament.id=tossup.tournament",matchText, queryValues];
+        if (term && term != "") {
+          if (condition == "answer") {
+            finQuery.push("(answer:"+term+")");
+          } else if (condition == "question") {
+            finQuery.push("(question:"+term+")");
           } else {
-            where = ["round.id=tossup.round","tournament.id=tossup.tournament",queryValues];
+            finQuery.push("(question:"+term+" answer:"+term+")");
           }
-        } else {
-          if (query.value != "") {
-            where = ["round.id=tossup.round","tournament.id=tossup.tournament", matchText];
+        }
+        var limit = 10;
+        if (query.limit) {
+          if (parseInt(query.limit) > 0) {
+            limit = query.limit;
+          }
+        }
+        var offset = 0;
+        if (query.offset) {
+          if (parseInt(query.offset) > 0) {
+            offset = query.offset;
+          }
+        }
+        var sort = [];
+        var random = false;
+        var seed = 0;
+        if (query.random) {
+          if (typeof(query.random) != "boolean") {
+            if (query.random == "false") {
+              random = false;
+            } else {
+              random = true;
+            }
           } else {
-            where = ["round.id=tossup.round","tournament.id=tossup.tournament"];
+            random = query.random;
+          }
+          console.log(random);
+
+          if (random) {
+            seed = Math.floor(Math.random()*100000000000);
+            sort.push("random_"+seed+" desc");
           }
         }
-        var values = Object.keys(query.params).map(function(param){return query.params[param]});
-        values.push(query.limit);
-        var convertResultToTossups = function(rows, callback) {
-          var tossups = [];
-          for (var result in rows) {
-            result = rows[result];
-            var tossup = new Model.Tossup(result.id, result.year, result.tournament, result.round, result.difficulty, result.category, result.question, result.answer);
-            tossups.push(tossup);
-          }
-          callback(tossups);
+        var options = {
+          fl: '*,score',
+          d: 10,
+          sort: sort,
+          start: offset,
+          rows: limit 
         }
-        if (query.random == 'true') {
-          if (query.value == "" && query.limit == 1){
-            client.query(""+"SELECT COUNT(*) FROM "+Constants.Table.TOSSUP+"", function(err, result, fields) {
-              if (err) throw err;
-              querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer, "+matchText+" as score FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY score DESC LIMIT ? OFFSET ?";
-              query.offset = Math.floor(Math.random()*result[0]['COUNT(*)']);
-              values.push(query.offset);
-              client.query(querys,values, function(err, results, fields) {
-                if (err) throw err;
-                convertResultToTossups(results, callback);
-              });
-            });
+        var querystring = finQuery.join(" AND ");
+        if (querystring == "") {
+          querystring = "*:*";
+        } 
+        console.log(querystring);
+        solr.query(querystring, options, function(err, response) {
+          if (err) {
+            console.log(err);
+            callback([]);
           } else {
-            values.push(query.offset);
-            querys = ""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer, "+matchText+" as score FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY RAND() LIMIT ? OFFSET ?";
-            console.log(querys, values);
-            client.query(querys,values, function(err, results, fields) {
-              if (err) throw err;
-              convertResultToTossups(results, callback);
-            });
+            var result = JSON.parse(response);
+            var resp = {};
+            resp.tossups = result.response.docs;
+            resp.count = result.response.numFound;
+            callback(resp);
           }
-        } else {
-          values.push(query.offset);
-          console.log(query);
-          console.log(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" LIMIT ? OFFSET ?");
-          client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, round.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer, "+matchText+" as score FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE "+where.join(" AND ")+" ORDER BY score desc LIMIT ? OFFSET ?", values ,function(err, results, fields) {
-            if (err) throw err;
-            convertResultToTossups(results, callback);
-          });
-        }
+        });
       }
     }
     this.tournament = {

@@ -100,7 +100,8 @@ var init = function(app) {
               previous.value = params.value;
               previous.params = params.params;
               var baseUrl = res.res.req.headers.host+res.res.req.url.substring(0,res.res.req.url.indexOf("?"));
-              ret.tossups = tossups;
+              ret.tossups = tossups.tossups;
+              ret.count = tossups.count;
               ret.next = baseUrl+"?"+querystring.stringify(next);
               ret.previous = baseUrl+"?"+querystring.stringify(previous);
               callback(ret)

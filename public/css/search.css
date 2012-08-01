@@ -25,15 +25,26 @@
   margin-bottom:9px;
   margin-left:10px;
 }
+.next {
+  position:relative;
+  float:right;
+}
+.previous{
+  position:relative;
+  float:left;
+}
 #topResultControl, #bottomResultControl {
+  width:100%;
   position : relative;
   bottom : 0px;
   text-align:center;
 }
 
-#results {
+#resultsWrapper {
   width:900px;
-  margin:auto;
+  margin: auto;
+}
+#results {
 }
 
 .tossup {

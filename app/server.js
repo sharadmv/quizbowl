@@ -65,8 +65,23 @@ var init = function(app) {
 
   application.get('/api/search/:term?', function(req, res) {
     var res = app.router.wrap(req, res);
-    var pars = { value : req.params.term, limit : req.query.limit, offset : req.query.offset, params : { category : req.query.category, difficulty : req.query.difficulty } };
-    console.log(pars);
+    if (!req.query) {
+      req.query = {};
+    }
+    if (!req.query.params) {
+      req.query.params={};
+    }
+    var pars = { 
+      condition : req.query.condition,
+      random : req.query.random,
+      term : req.params.term, 
+      limit : req.query.limit, 
+      offset : req.query.offset, 
+      params : { 
+        category : req.query.params.category, 
+        difficulty : req.query.params.difficulty 
+      } 
+    };
     app.service.services.tossup.search(res, pars, function(ret) {
       if (ret) {
         res.json(ret);
@@ -98,6 +113,26 @@ var init = function(app) {
     }
   });
 
+  application.get('/api/difficulty', authorize, function(req, res) {
+    var res = app.router.wrap(req, res);
+    app.dao.difficulty.list(function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+  application.get('/api/category', authorize, function(req, res) {
+    var res = app.router.wrap(req, res);
+    app.dao.category.list(function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
   application.get('/api/user', authorize, function(req, res) {
     var res = app.router.wrap(req, res);
     app.service.services.user.list(res, req.query, function(ret) {
