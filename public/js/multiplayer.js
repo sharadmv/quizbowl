@@ -1,4 +1,165 @@
 (function() {
+  // obj properties: [shape, text, separator, teamName, teamUserIndex]
+  function TeamObj(name, maxPlayers) {
+    this.name = name;
+    this.arcs = []; // needs to be ordered to maintain positions
+    this.maxPlayers = maxPlayers;
+    this.numPlayers = 0;
+
+    this.addArc = function(userArc) {
+      this.arcs.push(userArc);
+    }
+
+    this.addUserById = function(userId) {
+      this._addUserHelper(userId, true);
+    }
+
+    this.addUser = function(userObj) {
+      this._addUserHelper(userObj, false);
+    }
+
+    this._addUserHelper = function(data, boolById) {
+      var fn = boolById ? 'addUserById' : 'addUser';
+      if (this.numPlayers < this.maxPlayers) {
+        var arc = this.arcs[this.numPlayers];
+        arc[fn](data);
+        this.numPlayers++;
+      }
+    }
+
+    this.removeUser = function(userId) {
+      var toRemoveArc = this._getArcByUserId(userId);
+      if (toRemoveArc) {
+        toRemoveArc.removeUser();
+        this.numPlayers--;
+      }
+    }
+
+    this._getArcByUserId = function(id) {
+      for (var i = 0; i < this.arcs.length; i++) {
+        var currId = this.arcs[i].userId;
+        // find the correct id
+        if (currId == id) {
+          return this.arcs[i];
+        }
+      }
+      return false;
+    }
+  }
+
+  function UserArc(obj) {
+    var rShape = this.rShape = obj.shape,
+        rText = this.rText = obj.text,
+        rSeparator = this.rSeparator = obj.separator;
+
+    var teamName = this.teamName = obj.teamName,
+        teamUserIndex = this.teamUserIndex = obj.teamUserIndex;
+    
+    var self = this;
+
+    //++++++++++++++++//
+    // INITIALIZATION //
+    //++++++++++++++++//
+
+    //  ATTRIBUTION
+    // --------------
+    
+    // separator attributes
+    rSeparator.attr({
+      stroke : '#C3B5E8',
+      'stroke-width' : 1,
+      'stroke-opacity':0.3
+    }).toFront();
+
+    // style the player arc
+    rShape.attr({
+      fill: '#000', 
+      'stroke-width':0
+    });
+
+    //  EVENT HANDLING
+    // ----------------
+
+    var hoverProp = {
+      'fill-opacity':0.5
+    }
+   
+    var defaultProp = {
+      'fill-opacity':0.8
+    }
+    
+    var activeProp = {
+      'fill-opacity':0
+    }
+    // arc hovers
+    // we want the entire team to look as one on hover
+    function hoverIn() { 
+      var teamArcs = gameObjects.teams[self.teamName];
+      for (var i = 0; i < teamArcs.arcs.length; i++) {
+        var shape = teamArcs.arcs[i].rShape;
+        shape.attr(shape.data('hoverProp'));
+      }
+    }
+    function hoverOut() { 
+      var teamArcs = gameObjects.teams[self.teamName];
+      for (var i = 0; i < teamArcs.arcs.length; i++) {
+        var shape = teamArcs.arcs[i].rShape,
+            currPropName = shape.data('currPropName');
+        shape.attr(shape.data(currPropName));
+      }
+    }
+    rShape.hover(hoverIn, hoverOut, rShape, rShape);
+
+    var elemData = {
+      hoverInFn : hoverIn,
+      hoverOutFn: hoverOut,
+      hoverProp : hoverProp,
+      defaultProp : defaultProp,
+      activeProp : activeProp,
+      currPropName : "defaultProp"
+    }
+    $.each(elemData, function(key, val) { rShape.data(key, val); });
+
+    // team joining
+    rShape.click(function() {
+      roomHandler.sit(self.teamName);
+    });
+
+    //++++++++++++++++//
+    //    METHODS     //
+    //++++++++++++++++//
+
+    this.addUserById = function(userId) {
+      this.userId = userId;
+      $.get('/api/user/'+userId, function(response) {
+        var name = response.data.name;
+        self._addUserByName(name.split(' ')[0]);
+      });
+    };
+
+    this.addUser = function(userObj) {
+      this.userId = userObj.id;
+      var name = userObj.name;
+      this._addUserByName(name.split(' ')[0]);
+    }
+
+    this._addUserByName = function(name) {
+      rText.attr('text', name).toFront();
+      var hoverIn = rShape.data('hoverInFn'),
+          hoverOut = rShape.data('hoverOutFn');
+      rShape.unhover(hoverIn, hoverOut);
+      rShape.attr(rShape.data('activeProp'));
+      rShape.data('currPropName', 'activeProp');
+    }
+
+    this.removeUser = function() {
+      this.userId = null;
+      rShape.data('currPropName', 'defaultProp');
+      rShape.attr(rShape.data('defaultProp'));
+      rText.attr('text', '');
+    }
+  }
+
   var gameObjects = {
     paper : {}, // Raphael's paper
     outerCircle : {}, 
@@ -7,16 +168,159 @@
     ir: 0, // radius of inner circle
     or: 0, // radius of outer circle
     separators : [], // references to separators between teams
-    teams : {} // teamName to userArc list
+    teams : {} // teamName to UserArc list
   }
 
   var gameHelpers = {
     redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
-    recenterGameText : function(){}, // recenters text/buttons/etc (e.g. resize)
+    recenterGameText : function() {
+      // we want the div's top to start somewhere at the upper half of the
+      // circle. 
+      
+      // angle is the angle between the center of the circle and the top
+      // point at which the circle and square's corner meet (the "meet"
+      // point)
+      var width, height;
+      var ir = gameObjects.ir;
+      var angle = Math.PI/4; 
+      var containerWidth = 2*ir*Math.cos(angle);
+      var containerHeight = ir + ir*Math.sin(angle);
+      var textWidth = .95*containerWidth;
+      var textHeight = 2*ir*Math.sin(angle);
+
+      var $game = $('#game');
+
+      // center of the circle, relative to the #game div
+      var cx = $game.width()/2;
+      var cy = $game.height()/2;
+
+      // move to center, then move bit more left so it meets "meet" point
+      var left = cx - containerWidth/2;
+      // move to center, then move bit higher so it meets "meet" point
+      var top = cy - containerWidth/2;
+      $('#gameControlsContainer').width(containerWidth).height(containerHeight).css({
+        // positioning is relative to #game div
+        left:left, top:top
+      });
+
+      $('#gameText').width(textWidth).height(textHeight).css({
+        // positioning is relative to #gameTextContainer div
+        // vertically center
+        left: .5*($('#gameControlsContainer').width() - textWidth)
+      });
+
+      $('#gameAnswerControl').width(.5*textWidth).css({
+        marginTop : (ir - (textHeight/2))/4
+      });
+    },
     // generates gradient angles for circle
-    _gradientAngleArr : function(numPieces) {},
-    _drawSeparator : function(paper, cx, cy, ir, or, radian){}, 
-    _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name){}, 
+    _gradientAngleArr : function(numPieces) {
+		  // We start with the right side of the circle, taking the bottom piece of
+		  // the two rightmost ones. 
+		  var pi = Math.PI,
+		  // this will be the angle difference between pieces
+		  interval = 2*pi/numPieces,
+		  // 'pi' angle is at the center of the start and the start-1 piece
+		  // angles. Draw this out; makes more sense
+		  curr = pi-(interval/2),
+		  arr = [];
+		  arr.push(curr/2/pi*360);
+		  for (var i = 1; i < numPieces; i++) {
+			  curr = (curr > interval) ? curr - interval : curr+2*pi-interval;
+			  arr.push(curr/2/pi*360);
+		  }
+		  return arr;
+	  },
+    _drawSeparator : function(paper, cx, cy, ir, or, radian) {
+			var ptOnCircle = gameHelpers._ptOnCircle;
+		  var ops = ptOnCircle(cx, cy, or, radian); // outer end points
+		  var ips = ptOnCircle(cx, cy, ir, radian); // inner end points
+
+		  var ix = ips[0];
+		  var iy = ips[1];
+		  var ox = ops[0];
+		  var oy = ops[1];
+			
+		  // move to the inner point
+		  var path = 'M'+ix+','+iy;
+
+		  // draw a line to the outer point
+		  path += 'L'+ox+','+oy;
+
+			return paper.path(path);
+	  }, 
+    _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name) {
+		  // if it's too close to a circle, Raphael won't draw anything
+		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
+			  if (Raphael.vml) { // VML needs this offset
+				  endRad -= 0.001; 
+			  } else {
+				  endRad -= 0.0001; // other browsers can have a smaller offset
+			  }
+		  }
+			var ptOnCircle = gameHelpers._ptOnCircle;
+		  var osps = ptOnCircle(cx, cy, or, startRad); // outer start points
+		  var isps = ptOnCircle(cx, cy, ir, startRad); // inner start points
+		  var oeps = ptOnCircle(cx, cy, or, endRad); // outer end points
+		  var ieps = ptOnCircle(cx, cy, ir, endRad); // inner end points
+
+		  var osx = osps[0];	// outer start x
+		  var osy = osps[1];	// outer start y
+
+		  var oex = oeps[0];	// outer end x
+		  var oey = oeps[1];	// outer end y
+
+		  // inner calculations
+		  var isx = isps[0];	// inner start x
+		  var isy = isps[1];	// inner start y
+
+		  var iex = ieps[0];		// outer end x
+		  var iey = ieps[1];		// outer end y
+
+		  // larger arc?
+		  var la = endRad - startRad > Math.PI ? 1 : 0;
+
+		  // CREATE THE ARC OBJECT
+		  // move to the inner start point
+		  var path = 'M'+isx+','+isy;
+
+		  // draw a line to the outer start point
+		  path += 'L'+osx+','+osy;
+
+		  // arc to the outer end point
+		  path += 'A'+or+','+or+' 0 '+la+' 1 '+oex+','+oey;
+
+		  // draw a line back to the inner end point
+		  path += 'L'+iex+','+iey;
+
+		  // arc back to the start point
+		  path += 'A'+ir+','+ir+' 0 '+la+' 0 '+isx+','+isy;
+
+		  // close the path
+		  path += 'Z';
+			var shape = paper.path(path);
+
+      // write the text
+			var midRadian = (endRad + startRad)/2;
+			var midRadius = (or + ir)/2;
+			var textPts = ptOnCircle(cx, cy, midRadius, midRadian);
+			var textX = textPts[0];
+			var textY = textPts[1];
+			var text = paper.text(textX, textY, name.split(' ')[0]);
+      var fontSize = (or - ir)/4; // about a fourth looks decent
+			text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
+
+      // draw the separators
+      var separator = gameHelpers._drawSeparator(paper, cx, cy, ir, or, endRad);
+			return {
+				shape	:	shape,
+				text	: text,
+        separator : separator
+			}
+	  },
+    _ptOnCircle : function(cx, cy, r, radian) {
+		  return [cx+r*Math.cos(radian), cy+r*Math.sin(radian)];
+    }
   }
 
   window.gameHelpers = gameHelpers;
@@ -142,8 +446,9 @@
       //TODO achal can you create some sort of "this user buzzed" notification?
     },
     onSit : function(user, team) {
-     // joinedRoom.teams[team].players.push(user.id);
+      // joinedRoom.teams[team].players.push(user.id);
       console.log(user, team);
+      gameObjects.teams[team].addUser(user);
     },
     onLeave : function(user) {
       for (var i = 0; i < joinedRoom.users.length; i++) {
@@ -151,16 +456,15 @@
           joinedRoom.users.splice(i, 1);
         }
       }
-			gameHelpers.redrawArcs(joinedRoom);
+      
     },
     onLeaveTeam : function(user, team) {
-      console.log(user, team);
       for (var i = 0; i < joinedRoom.teams[team].players; i++) {
         if (joinedRoom.teams[team].players[i] == user.id) {
           joinedRoom.teams[team].players.splice(i, 1);
         }
       }
-			gameHelpers.redrawArcs(joinedRoom);
+      gameObjects.teams[team].removeUser(user.id);
     },
     onStartQuestion : function(){
 			$('#gameText').html("");
@@ -197,20 +501,20 @@
 		  // remove padding left on holy grail container
 		  $('#holyGrailContainer').css({paddingLeft : 0 });
 
-			var $game = $('#game');
-		  var height	= $game.height();
-		  var width		= $game.width();
+			var $game = $('#game'),
+		      height	= $game.height(),
+		      width		= $game.width();
 
 			// Paper should be a square with the smaller dimension
-		  var s = height < width ? height : width;
-		  var or = .9*s/2;  // outer radius
-		  var ir = .75*or;  // inner radius
-      var outerBorder = .025*s;
-		  var pi = Math.PI; // mmm... pi...
+		  var s = height < width ? height : width,
+		      or = .9*s/2,  // outer radius
+		      ir = .75*or,  // inner radius
+          outerBorder = .025*s,
+		      pi = Math.PI; // mmm... pi...
 
-		  var paper = Raphael('game', s, s);
-		  var outerCircle = paper.circle(s/2, s/2, or+outerBorder/2);
-		  var innerCircle = paper.circle(s/2, s/2, ir);
+		  var paper = Raphael('game', s, s),
+		      outerCircle = paper.circle(s/2, s/2, or+outerBorder/2),
+		      innerCircle = paper.circle(s/2, s/2, ir);
 
 		  outerCircle.attr({
 			  'stroke-width'	: outerBorder,
@@ -229,71 +533,38 @@
 			gameObjects.or = or;
 
       // draw as many arcs as we need
-      var numTeams = room.properties.numTeams;
-      var numPlayersPerTeam = room.properties.numPlayers;
-      var numUsers = numTeams * numPlayersPerTeam;
-      var part = 2*pi/numUsers;
-      var gradientArr = gameHelpers._gradientAngleArr(numUsers);
+      var numTeams = room.properties.numTeams,
+          numPlayersPerTeam = room.properties.numPlayers,
+          numUsers = numTeams * numPlayersPerTeam,
+          part = 2*pi/numUsers,
+          gradientArr = gameHelpers._gradientAngleArr(numUsers);
 
-      var teamArcs = {};
-      var separators = [];
+      var teamArcs = {},
+          separators = [];
 
       var userIndex = 0;
       for (var teamName in room.teams) {
-        var team = room.teams[teamName];
-        var players = team.players;
-        var userArcs = teamArcs[teamName] = [];
-        var last = 0;
-        for (var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
-          var start = part*userIndex;
-          var end = part*(userIndex+1);
+        var team = room.teams[teamName],
+            players = team.players,
+            teamObj = teamArcs[teamName] = new TeamObj(teamName, numPlayersPerTeam),
+            last = 0;
+        for(var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
+          var start = part*userIndex,
+              end = part*(userIndex+1);
+
+          // draw the actual arc
           var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
-          var centerAngle = gradientArr[userIndex];
 
-          var userArc = arc.shape;
-          // style the player arc
-          userArc.attr({
-            fill: '#000', 
-            'fill-opacity':0.8,
-            opacity:1,
-            'stroke-width':0
-            // fill:"url('http://graph.facebook.com/"+fbId+"/picture?type=large')"
-          });
-
-          // set up hover handlers for the player arc
-          function hoverIn() { this.attr({ 'fill-opacity':0.5 }); }
-          function hoverOut() { this.attr({ 'fill-opacity': 0.8  }); } 
-          userArc.hover(hoverIn, hoverOut, userArc, userArc);
-
-          var elemData = {
-            team : teamName,
-            user : teamUserIndex,
-            hoverInFn : hoverIn,
-            hoverOutFn: hoverOut
+          var userArcProperties = {
+            shape : arc.shape,
+            text  : arc.text,
+            separator : arc.separator,
+            teamName : teamName,
+            teamUserIndex : teamUserIndex
           }
-          $.each(elemData, function(key, val) { userArc.data(key, val); });
-
-          userArc.click(function() {
-            this.attr({ 'fill-opacity': 0  });
-            var aHoverIn = this.data('hoverInFn');
-            var aHoverOut = this.data('hoverOutFn');
-            this.unhover(aHoverIn, aHoverOut);
-            console.log("Joining " + this.data('team'));
-            roomHandler.sit(this.data('team'));
-          });
-
-          var userSeparator = arc.separator;
-          userSeparator.attr({
-            stroke : '#C3B5E8',
-            'stroke-width':1,
-            'stroke-opacity':0.3
-          }).toFront();
-
-          // arc = { shape : {(Raphael Element)}, text : {(Raphael Element)} };
-          userArcs.push(arc);
-
+          teamObj.addArc(new UserArc(userArcProperties));
+         
           // draw a separator on the last user
-          console.log(teamUserIndex, numPlayersPerTeam);
           if (teamUserIndex == numPlayersPerTeam - 1) {
             var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
             separator.attr({
@@ -312,9 +583,13 @@
       gameObjects.teams = teamArcs;
       gameObjects.separators = separators;
 
-      // move the inner circle on top (the arc isn't perfect, so we have to
-      // hide it's arc parts)
-      innerCircle.toFront();
+      // if there are already users in the game, load their names
+      for (var teamName in room.teams) {
+        var team = room.teams[teamName];
+        for (var i = 0; i < team.players.length; i++) {
+          gameObjects.teams[teamName].addUserById(team.players[i]);
+        }
+      }
 
       // set up text/buzzing
 			$game.append('<div id="gameControlsContainer">'
@@ -328,6 +603,7 @@
         $('#gameText').html(room.game.partial+" ");
       }
 			
+      // set up buzz event handling
       $('#gameBuzz').click(function() {
         roomHandler.buzz(function(buzzed) {
           if (buzzed) {
@@ -338,172 +614,15 @@
       });
 
       $('#gameAnswer').keypress(function(e) {
-         var code = (e.keyCode ? e.keyCode : e.which);
-        if(code == 13) {
+        if(e.which == 13) {
           roomHandler.answer($("#gameAnswer").val().trim());
         }
       });
 			
       // set up positioning
-      
-			// this will have to be called every window resize
-			function positionGameText() {
-        // we want the div's top to start somewhere at the upper half of the
-        // circle. 
-        
-				// angle is the angle between the center of the circle and the top
-				// point at which the circle and square's corner meet (the "meet"
-				// point)
-        var width, height;
-        var ir = gameObjects.ir;
-				var angle = Math.PI/4; 
-				var containerWidth = 2*ir*Math.cos(angle);
-				var containerHeight = ir + ir*Math.sin(angle);
-        var textWidth = .95*containerWidth;
-        var textHeight = 2*ir*Math.sin(angle);
-
-        var game = $('#game');
-
-				// center of the circle, relative to the #game div
-				var cx = $game.width()/2;
-				var cy = $game.height()/2;
-
-				// move to center, then move bit more left so it meets "meet" point
-				var left = cx - containerWidth/2;
-				// move to center, then move bit higher so it meets "meet" point
-				var top = cy - containerWidth/2;
-				$('#gameControlsContainer').width(containerWidth).height(containerHeight).css({
-					// positioning is relative to #game div
-					left:left, top:top
-				});
-
-				$('#gameText').width(textWidth).height(textHeight).css({
-					// positioning is relative to #gameTextContainer div
-					// vertically center
-					left: .5*($('#gameControlsContainer').width() - textWidth)
-				});
-
-        $('#gameAnswerControl').width(.5*textWidth).css({
-          marginTop : (ir - (textHeight/2))/4
-        });
-			}
-			positionGameText();
-			gameHelpers.recenterGameText = positionGameText;
+			gameHelpers.recenterGameText();
 			
 	  });
-
-	  gameHelpers._drawSeparator = function(paper, cx, cy, ir, or, radian) {
-			var ptOnCircle = gameHelpers._ptOnCircle;
-		  var ops = ptOnCircle(cx, cy, or, radian); // outer end points
-		  var ips = ptOnCircle(cx, cy, ir, radian); // inner end points
-
-		  var ix = ips[0];
-		  var iy = ips[1];
-		  var ox = ops[0];
-		  var oy = ops[1];
-			
-		  // move to the inner point
-		  var path = 'M'+ix+','+iy;
-
-		  // draw a line to the outer point
-		  path += 'L'+ox+','+oy;
-
-			return paper.path(path);
-	  }
-
-	  gameHelpers._drawUser = function(paper, cx, cy, ir, or, startRad, endRad, name) {
-		  // if it's too close to a circle, Raphael won't draw anything
-		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
-			  if (Raphael.vml) { // VML needs this offset
-				  endRad -= 0.001; 
-			  } else {
-				  endRad -= 0.0001; // other browsers can have a smaller offset
-			  }
-		  }
-			var ptOnCircle = gameHelpers._ptOnCircle;
-		  var osps = ptOnCircle(cx, cy, or, startRad); // outer start points
-		  var isps = ptOnCircle(cx, cy, ir, startRad); // inner start points
-		  var oeps = ptOnCircle(cx, cy, or, endRad); // outer end points
-		  var ieps = ptOnCircle(cx, cy, ir, endRad); // inner end points
-
-		  var osx = osps[0];	// outer start x
-		  var osy = osps[1];	// outer start y
-
-		  var oex = oeps[0];	// outer end x
-		  var oey = oeps[1];	// outer end y
-
-		  // inner calculations
-		  var isx = isps[0];	// inner start x
-		  var isy = isps[1];	// inner start y
-
-		  var iex = ieps[0];		// outer end x
-		  var iey = ieps[1];		// outer end y
-
-		  // larger arc?
-		  var la = endRad - startRad > Math.PI ? 1 : 0;
-
-		  // CREATE THE ARC OBJECT
-		  // move to the inner start point
-		  var path = 'M'+isx+','+isy;
-
-		  // draw a line to the outer start point
-		  path += 'L'+osx+','+osy;
-
-		  // arc to the outer end point
-		  path += 'A'+or+','+or+' 0 '+la+' 1 '+oex+','+oey;
-
-		  // draw a line back to the inner end point
-		  path += 'L'+iex+','+iey;
-
-		  // arc back to the start point
-		  path += 'A'+ir+','+ir+' 0 '+la+' 0 '+isx+','+isy;
-
-		  // close the path
-		  path += 'Z';
-			var shape = paper.path(path);
-
-      // write the text
-			var midRadian = (endRad + startRad)/2;
-			var midRadius = (or + ir)/2;
-			var textPts = ptOnCircle(cx, cy, midRadius, midRadian);
-			var textX = textPts[0];
-			var textY = textPts[1];
-			var text = paper.text(textX, textY, name.split(' ')[0]);
-      var fontSize = (or - ir)/4; // about a fourth looks decent
-			text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
-
-      // draw the separators
-      var separator = gameHelpers._drawSeparator(paper, cx, cy, ir, or, endRad);
-			return {
-				shape	:	shape,
-				text	: text,
-        separator : separator
-			}
-	  }
-
-	  gameHelpers._ptOnCircle = function(cx, cy, r, radian) {
-		  return [cx+r*Math.cos(radian), cy+r*Math.sin(radian)];
-	  }
-
-		// generates gradient angles so the circle has a near radial gradient
-	  gameHelpers._gradientAngleArr = function(numPieces) {
-		  // We start with the right side of the circle, taking the bottom piece of
-		  // the two rightmost ones. 
-		  var pi = Math.PI,
-		  // this will be the angle difference between pieces
-		  interval = 2*pi/numPieces,
-		  // 'pi' angle is at the center of the start and the start-1 piece
-		  // angles. Draw this out; makes more sense
-		  curr = pi-(interval/2),
-		  arr = [];
-		  arr.push(curr/2/pi*360);
-		  for (var i = 1; i < numPieces; i++) {
-			  curr = (curr > interval) ? curr - interval : curr+2*pi-interval;
-			  arr.push(curr/2/pi*360);
-		  }
-		  return arr;
-	  }
-
   }
 
   var loadGM = function(gm) {
@@ -519,7 +638,7 @@
       }
       lobby.setJoined(name);
       oldRoomName = name;
-      if (gh) {
+      if (gh) { // NOTE: put a start button (gameHandler.start)
         loadGM(gh);
       }
       new View.ChatRoom({ id : name, el : $("#roomChat") });
