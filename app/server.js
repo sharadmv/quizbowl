@@ -113,6 +113,26 @@ var init = function(app) {
     }
   });
 
+  application.get('/api/difficulty', authorize, function(req, res) {
+    var res = app.router.wrap(req, res);
+    app.dao.difficulty.list(function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
+  application.get('/api/category', authorize, function(req, res) {
+    var res = app.router.wrap(req, res);
+    app.dao.category.list(function(ret) {
+      if (ret) {
+        res.json(ret);
+      } else {
+        res.error(app.model.Constants.Error.SERVICE_FAILED);
+      }
+    });
+  });
   application.get('/api/user', authorize, function(req, res) {
     var res = app.router.wrap(req, res);
     app.service.services.user.list(res, req.query, function(ret) {

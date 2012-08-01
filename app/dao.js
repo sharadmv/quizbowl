@@ -11,7 +11,57 @@ var init = function(app) {
 
     var Model = app.model.Dao;
     var Constants = app.model.Constants.Dao;
-    var MySQL = require('mysql').Client;
+
+    this.difficulty = {
+      list : function(callback) {
+        var query = "*:*";
+        var options = {
+          facet : true,
+          "facet.field" : "difficulty",
+          start : 0,
+          rows : 0
+        };
+        solr.query(query, options, function(err, response) {
+          if (err) {
+            console.log(err);
+            callback(null);
+          } else {
+            var response = JSON.parse(response);
+            response = response.facet_counts.facet_fields.difficulty;
+            var resp = [];
+            for (var i = 0; i < response.length; i+=2) {
+              resp.push(response[i]);
+            }
+            callback(resp);
+          }
+        });
+      }
+    };
+    this.category = {
+      list : function(callback) {
+        var query = "*:*";
+        var options = {
+          facet : true,
+          "facet.field" : "category",
+          start : 0,
+          rows : 0
+        };
+        solr.query(query, options, function(err, response) {
+          if (err) {
+            console.log(err);
+            callback(null);
+          } else {
+            var response = JSON.parse(response);
+            response = response.facet_counts.facet_fields.category;
+            var resp = [];
+            for (var i = 0; i < response.length; i+=2) {
+              resp.push(response[i]);
+            }
+            callback(resp);
+          }
+        });
+      }
+    };
     
     this.user = {
       get:function(id, callback) {
