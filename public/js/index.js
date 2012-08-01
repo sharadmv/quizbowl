@@ -45,7 +45,7 @@ if(!getQueryStrings()["fb"] == "false")  {
       $.ajax("/api/difficulty",{
         success : function(response) {
           window.difficulties = response.data;
-          events.trigger("difficulty_loaded");
+          events.trigger("difficulties_loaded");
         }
       });
       $.ajax("/api/category",{
