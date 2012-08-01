@@ -33,7 +33,11 @@ var init = function(app) {
             response = response.facet_counts.facet_fields.difficulty;
             var resp = [];
             for (var i = 0; i < response.length; i+=2) {
-              resp.push(response[i].caps(););
+              var temp = response[i];
+              if (temp.length == 2) {
+                temp = temp.toUpperCase();
+              }
+              resp.push(temp.caps());
             }
             callback(resp);
           }
