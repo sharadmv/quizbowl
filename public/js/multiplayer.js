@@ -1040,6 +1040,11 @@
       new View.ChatList({ el : this.$("#roomChatBox"), collection : chatRoom });
       chatRoom.meta("id", this.id);
       chatRoom.fetch({ add : true });
+      chatRoom.bind("add", function(model) {
+        console.log("added");
+        var div = this.$("#roomChatBox");
+        div.animate({ scrollTop: div.prop("scrollHeight") - div.height() }, 100);
+      }, this);
     },
     events : {
       "click #roomChatSend" : "chat",
@@ -1165,6 +1170,7 @@
               if (buzzed) {
                 $('#gameBuzz').hide();
                 $('#gameAnswer').show();
+                $('#gameAnswer').focus();
               }
             });
           }
