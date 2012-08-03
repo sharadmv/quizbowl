@@ -573,17 +573,17 @@ var init = function(app) {
               var team = room.getTeams()[room.getUserToTeam()[user]];
               if (obj) {
                 team.addScore(user, 10);
-                room.getChannel().onAnswer(app.getUsers()[user],"answered correctly with "+answer+" for 10 points");
+                room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:true, message:"for 10 points"});
                 room.getChannel().onUpdateScore(game.getScore());
                 room.getChannel().onCompleteQuestion(currentTossup);
                 nextQuestion();
               } else {
                 if (numBuzzes == getNumTeams()) {
-                  room.getChannel().onAnswer(app.getUsers()[user],"answered incorrectly with "+answer+" for no penalty");
+                  room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:false, message:"for no penalty"});
                   nextQuestion();
                 } else {
                   team.addScore(user, -5);
-                  room.getChannel().onAnswer(app.getUsers()[user],"negged with "+answer);
+                  room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:false, message:"for -5 points"});
                   room.getChannel().onUpdateScore(game.getScore());
                   resumeReading()
                 }
