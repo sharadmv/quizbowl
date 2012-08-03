@@ -4,6 +4,13 @@ var init = function(app) {
   }
   var Service = {
     services:{
+      answer : {
+        check : function(req, query, callback) {
+          app.util.question.check(query.answer, query.canon, function(correct) {
+            callback({ correct : correct  });
+          });
+        }
+      },
       user: {
         get : function(res, query, callback) {
           app.dao.user.get(query.user, function(user) {

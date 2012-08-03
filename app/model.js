@@ -609,14 +609,14 @@ var init = function(app) {
             {
               random:'true',
               limit:room.getProperties().numQuestions,
-              value:'',
+              term:'',
               params:{
                 difficulty:room.getProperties().difficulty,
                 category:room.getProperties().category
               }
             },
             function(tossups) {
-              console.log(tossups.length);
+              tossups = tossups.tossups;
               if (tossups.length > 0) {
                 curTossups = tossups;
                 tossupLength = tossups.length;

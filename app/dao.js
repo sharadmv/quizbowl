@@ -33,7 +33,11 @@ var init = function(app) {
             response = response.facet_counts.facet_fields.difficulty;
             var resp = [];
             for (var i = 0; i < response.length; i+=2) {
-              resp.push(response[i].caps(););
+              var temp = response[i];
+              if (temp.length == 2) {
+                temp = temp.toUpperCase();
+              }
+              resp.push(temp.caps());
             }
             callback(resp);
           }
@@ -196,7 +200,6 @@ var init = function(app) {
           } else {
             random = query.random;
           }
-          console.log(random);
 
           if (random) {
             seed = Math.floor(Math.random()*100000000000);
@@ -214,7 +217,6 @@ var init = function(app) {
         if (querystring == "") {
           querystring = "*:*";
         } 
-        console.log(querystring);
         solr.query(querystring, options, function(err, response) {
           if (err) {
             console.log(err);
