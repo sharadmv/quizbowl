@@ -9,21 +9,26 @@
   background:rgba(10, 157, 264, 1);
   height:50px;
   line-height:50px;
+  text-align:center;
 }
 #searchBox {
-  float : left;
   width : 500px;
   margin-top:14px;
   margin-bottom:14px;
-}
-#searchBox {
+  vertical-align:middle;
   margin-left:20px;
 }
+.searchLoader {
+  width:25px;
+  vertical-align:middle;
+  height:25px;
+  visibility:hidden;
+}
 #searchButton {
-  float : left;
   margin-top:9px;
   margin-bottom:9px;
   margin-left:10px;
+  vertical-align:middle;
 }
 .next {
   position:relative;

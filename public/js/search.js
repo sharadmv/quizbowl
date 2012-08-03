@@ -93,8 +93,24 @@
     View : View.Tossup
   });
   View.SearchBox = Backbone.View.extend({
+    initialize : function() {
+      results.bind("search", this.load, this);
+      results.bind("change", this.unload, this);
+    },
+    load : function() {
+      this.$(".searchLoader").css({ "visibility" : "visible" });
+    },
+    unload : function() {
+      this.$(".searchLoader").css({ "visibility" : "hidden" });
+    },
     events : {
-      "click #searchButton" : "search"
+      "click #searchButton" : "search",
+      "keydown #searchBox" : "keydown"
+    },
+    keydown : function(e) {
+      if (e.which == 13) {
+        this.search();
+      }
     },
     search : function() {
       var params = parseSearch(this.$("#searchBox").val());
@@ -126,7 +142,6 @@
       this.$(".next").css("visibility","hidden");
       this.$(".pages").css("visibility", "hidden");
       results.bind("add", this.show, this);
-      results.bind("reset", this.show, this);
     },
     show : function() {
       var showStr = "Fetched "+ (results.currentPage*results.perPage+1) + "-"+(results.currentPage*results.perPage+results.length)+" results of "+results.count+" in "+(results.elapsed/1000)+" seconds";
@@ -165,10 +180,6 @@
     Results : Backbone.Paginator.requestPager.extend({ 
       model : Model.Tossup,
 
-      events : {
-        "add" : "blah"
-      },
-
       initialize : function() {
         this.term = "";
         this._params = {};
@@ -204,9 +215,13 @@
         this.term = term;
         options.params = params;
         this._params = options;
+        var self = this;
         this.fetch({ 
           add : true
-        });
+        }).done(function(data, textStatus, jqXHR) {
+              self.trigger("change");
+            });
+        this.trigger("search");
       },
       next : function() {
         var self = this;
@@ -215,6 +230,7 @@
             .done(function(data, textStatus, jqXHR) {
               self.trigger("change");
             });
+          this.trigger("search");
         }
       },
       previous : function() {
@@ -224,6 +240,7 @@
             .done(function(data, textStatus, jqXHR) {
               self.trigger("change");
             });
+          this.trigger("search");
         }
       }
     })

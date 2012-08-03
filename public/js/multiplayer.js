@@ -423,6 +423,7 @@
       //TODO achal can you create some sort of "question timed out" notification
     },
     onChat : function(chat) {
+      console.log(chat);
       chatRoom.add(chat);
     },
     onAnswer : function(user, message){
@@ -478,7 +479,6 @@
     onUpdateScore : function(score){
     }
   };
-	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
     window.room = room;
@@ -613,7 +613,7 @@
         });
       });
 
-      $('#gameAnswer').keypress(function(e) {
+      $('#gameAnswer').bind("keydown.global", function(e) {
         if(e.which == 13) {
           roomHandler.answer($("#gameAnswer").val().trim());
         }
@@ -632,6 +632,7 @@
 
   var joinRoom = function(name, id, callback) {
     console.log("join room");
+    bridge.storeService("handler", mHandler);
     multi.joinRoom(name, user.id, mHandler, function(rh, partial, gh) {
       if (oldRoomName) {
         lobby.setUnjoined(oldRoomName);
@@ -643,6 +644,9 @@
       }
       new View.ChatRoom({ id : name, el : $("#roomChat") });
       roomHandler = rh;
+      $(document).bind('keydown.global', function(e) {
+        roomHandler.buzz();
+      });
 			window.roomHandler = roomHandler;
       callback({ status : true });
     });
@@ -986,7 +990,7 @@
     },
     events : {
       "click #roomChatSend" : "chat",
-      "keypress #roomChatMessage" : "keychat"
+      "keydown.global #roomChatMessage" : "keychat"
     },
     keychat : function(e) {
       if (e.charCode == 13) {
@@ -1104,4 +1108,6 @@
       ? this.before(s).remove()
       : jQuery("<p>").append(this.eq(0).clone()).html();
   };
+
+
 })();

@@ -366,6 +366,9 @@ var init = function(app) {
                 partial = game.partial;
               }
               onJoin(h, partial);
+              app.bridge.context().getService("handler", function(obj) {
+                obj.onChat({ time:(new Date().getTime()), user:room.getHost(), message:"ROOM MESSAGE: "+room.properties.message });
+              });
               channel.onJoin(app.getUsers()[user]);
             }
           );
