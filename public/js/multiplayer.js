@@ -501,7 +501,6 @@
     onUpdateScore : function(score){
     }
   };
-	window.mHandler = mHandler;
 
   var loadRoom = function(room) {
     window.room = room;
@@ -636,7 +635,7 @@
         });
       });
 
-      $('#gameAnswer').keypress(function(e) {
+      $('#gameAnswer').bind("keydown", function(e) {
         if(e.which == 13) {
           roomHandler.answer($("#gameAnswer").val().trim());
         }
@@ -655,6 +654,7 @@
 
   var joinRoom = function(name, id, callback) {
     console.log("join room");
+    bridge.storeService("handler", mHandler);
     multi.joinRoom(name, user.id, mHandler, function(rh, partial, gh) {
       if (oldRoomName) {
         lobby.setUnjoined(oldRoomName);
@@ -1096,6 +1096,8 @@
   var chatRoomView;
   var createView;
   var gameHandler;
+  var roomHandler;
+  var unbind = false;
   $(document).ready(function() {
     // set up the holy grail stuffs
     var holyGrailHeight = $('body').height() - $('#header').height();
@@ -1121,10 +1123,38 @@
     createView = new View.Create({
       el : $("#create")
     });
+    $(document).keydown(function(e) {
+      if (!unbind)  {
+        if (e.which == 32) {
+          if (roomHandler) {
+            roomHandler.buzz(function(buzzed) {
+              if (buzzed) {
+                $('#gameBuzz').hide();
+                $('#gameAnswer').show();
+              }
+            });
+          }
+        }
+      }
+    });
+    $("#gameAnswer").focus(function(e) {
+      unbind = true;
+    });
+    $("#gameAnswer").blur(function(e) {
+      unbind = false;
+    });
+    $("#roomChatMessage").focus(function(e) {
+      unbind = true;
+    });
+    $("#roomChatMessage").blur(function(e) {
+      unbind = false;
+    });
   });
   jQuery.fn.outerHTML = function(s) {
     return s
       ? this.before(s).remove()
       : jQuery("<p>").append(this.eq(0).clone()).html();
   };
+
+
 })();

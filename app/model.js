@@ -252,8 +252,8 @@ var init = function(app) {
           this.onStartQuestion = function() {
             properties.onStartQuestion();
           }
-          this.onBuzz = function(user) {
-            properties.onBuzz(user);
+          this.onBuzz = function(user, team) {
+            properties.onBuzz(user, team);
           }
           this.onNewWord = function(word) {
             properties.onNewWord(word);
@@ -366,6 +366,9 @@ var init = function(app) {
                 partial = game.partial;
               }
               onJoin(h, partial);
+              app.bridge.context().getService("handler", function(obj) {
+                obj.onChat({ time:(new Date().getTime()), user:room.getHost(), message:"ROOM MESSAGE: "+room.properties.message });
+              });
               channel.onJoin(app.getUsers()[user]);
             }
           );
@@ -482,7 +485,7 @@ var init = function(app) {
             },
             onStartQuestion : function() {
             },
-            onBuzz : function(user) {
+            onBuzz : function(user, team) {
               app.log(app.Constants.Tag.MULTIPLAYER, [user.name, "buzzed in"]);
             },
             onNewWord : function(word) {
@@ -546,7 +549,7 @@ var init = function(app) {
             clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
-            room.getChannel().onBuzz(app.getUsers()[user]);
+            room.getChannel().onBuzz(app.getUsers()[user], team.getId());
             team.setBuzzed(true);
             pauseReading();
             answerTimeout = setTimeout(function(){
@@ -570,17 +573,17 @@ var init = function(app) {
               var team = room.getTeams()[room.getUserToTeam()[user]];
               if (obj) {
                 team.addScore(user, 10);
-                room.getChannel().onAnswer(app.getUsers()[user],"answered correctly with "+answer+" for 10 points");
+                room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:true, message:"for 10 points"});
                 room.getChannel().onUpdateScore(game.getScore());
                 room.getChannel().onCompleteQuestion(currentTossup);
                 nextQuestion();
               } else {
                 if (numBuzzes == getNumTeams()) {
-                  room.getChannel().onAnswer(app.getUsers()[user],"answered incorrectly with "+answer+" for no penalty");
+                  room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:false, message:"for no penalty"});
                   nextQuestion();
                 } else {
                   team.addScore(user, -5);
-                  room.getChannel().onAnswer(app.getUsers()[user],"negged with "+answer);
+                  room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:false, message:"for -5 points"});
                   room.getChannel().onUpdateScore(game.getScore());
                   resumeReading()
                 }

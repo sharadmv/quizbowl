@@ -1,0 +1,19 @@
+#filterBox {
+  margin:auto;
+  width:100%;
+  display:block;
+}
+#readerControl{
+  position:relative;
+}
+#questionControl{
+  position:relative;
+}
+.category, .difficulty, .tournament {
+  position:relative;
+  float:left;
+  line-height:100%;
+}
+.categorySelect, .difficultySelect, .tournamentSelect {
+  vertical-align:middle;
+}

@@ -15,6 +15,10 @@ window.events = {
     }
   }
 }
+window.events.on("auth", function() {
+});
+window.events.on("login", function() {
+});
 function getQueryStrings() { 
   var assoc  = {};
   var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };

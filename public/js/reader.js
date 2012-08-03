@@ -1,6 +1,6 @@
 (function() {
   $(document).keypress(function(e) {
-    if (e.keyCode == 32) {
+    if (e.which == 32) {
       if (!question.reading) {
         if (!question.answering) {
           question.begin();

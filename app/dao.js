@@ -4,7 +4,7 @@ var init = function(app) {
   }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
-    // var solr = require('solr').createClient();
+    var solr = require('solr').createClient();
     var client = mysql.createClient({
       host     : host,
       user     : username,
