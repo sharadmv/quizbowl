@@ -150,6 +150,9 @@ var init = function(app) {
         var term = "";
         if (query.term) {
           term = query.term;
+          term = term.split(" ");
+          term = term.map(function(e){return "+"+e}).join(" ");
+          term = "("+term+")";
         }
         var categories = [];
         if (query.params.category) {
@@ -217,6 +220,7 @@ var init = function(app) {
         if (querystring == "") {
           querystring = "*:*";
         } 
+        console.log(querystring);
         solr.query(querystring, options, function(err, response) {
           if (err) {
             console.log(err);
