@@ -2,11 +2,11 @@
   // obj properties: [shape, text, separator, teamName, teamUserIndex]
   function TeamObj(name, maxPlayers) {
     this.name = name;
-    this.arcs = []; // needs to be ordered to maintain positions
+    this.userArcs = []; // needs to be ordered to maintain positions
     this.maxPlayers = maxPlayers;
 
     this.addArc = function(userArc) {
-      this.arcs.push(userArc);
+      this.userArcs.push(userArc);
     }
 
     this.addUserById = function(userId) {
@@ -21,7 +21,7 @@
       var fn = boolById ? 'addUserById' : 'addUser',
           nextIndex = this._getFirstEmptyIndex();
       if (nextIndex < this.maxPlayers) {
-        var arc = this.arcs[nextIndex];
+        var arc = this.userArcs[nextIndex];
         arc[fn](data);
       }
     }
@@ -30,24 +30,28 @@
       var toRemoveArc = this._getArcByUserId(userId);
       if (toRemoveArc !== false) {
         toRemoveArc.removeUser();
-        this.arcs[toRemoveArc] = null;
+        this.userArcs[toRemoveArc] = null;
       }
     }
 
+    this.buzzUser = function(id) {
+      this._getArcByUserId(id).buzzUser();
+    }
+
     this._getArcByUserId = function(id) {
-      for (var i = 0; i < this.arcs.length; i++) {
-        var currId = this.arcs[i].userId;
+      for (var i = 0; i < this.userArcs.length; i++) {
+        var currId = this.userArcs[i].userId;
         // find the correct id
         if (currId == id) {
-          return this.arcs[i];
+          return this.userArcs[i];
         }
       }
       return false;
     }
 
     this._getFirstEmptyIndex = function() {
-      for (var i = 0; i < this.arcs.length; i++) {
-        if (!this.arcs[i].hasUser) {
+      for (var i = 0; i < this.userArcs.length; i++) {
+        if (!this.userArcs[i].hasUser) {
           break;
         }
       }
@@ -90,30 +94,20 @@
     //  EVENT HANDLING
     // ----------------
 
-    var hoverProp = {
-      'fill-opacity':0.5
-    }
-   
-    var defaultProp = {
-      'fill-opacity':0.8
-    }
-    
-    var activeProp = {
-      'fill-opacity':0
-    }
     // arc hovers
     // we want the entire team to look as one on hover
     function hoverIn() { 
       var teamArcs = gameObjects.teams[self.teamName];
-      for (var i = 0; i < teamArcs.arcs.length; i++) {
-        var shape = teamArcs.arcs[i].rShape;
+      for (var i = 0; i < teamArcs.userArcs.length; i++) {
+        var shape = teamArcs.userArcs[i].rShape;
         shape.attr(shape.data('hoverProp'));
       }
     }
+
     function hoverOut() { 
       var teamArcs = gameObjects.teams[self.teamName];
-      for (var i = 0; i < teamArcs.arcs.length; i++) {
-        var shape = teamArcs.arcs[i].rShape,
+      for (var i = 0; i < teamArcs.userArcs.length; i++) {
+        var shape = teamArcs.userArcs[i].rShape,
             currPropName = shape.data('currPropName');
         shape.attr(shape.data(currPropName));
       }
@@ -123,9 +117,19 @@
     var elemData = {
       hoverInFn : hoverIn,
       hoverOutFn: hoverOut,
-      hoverProp : hoverProp,
-      defaultProp : defaultProp,
-      activeProp : activeProp,
+      hoverProp : {
+        'fill-opacity':0.5
+      },
+      defaultProp : {
+        'fill-opacity':0.8
+      },
+      activeProp : {
+        'fill-opacity':0
+      },
+      buzzedUser : {
+        fill: 'yellow',
+        'fill-opacity':0.3
+      },
       currPropName : "defaultProp"
     }
     $.each(elemData, function(key, val) { rShape.data(key, val); });
@@ -161,6 +165,11 @@
       this.hasUser = false;
     }
 
+    this.buzzUser = function() {
+      rShape.data('currPropName', 'buzzedUser');
+      rShape.attr(buzzedUser);
+    }
+
     this._addUserByName = function(name) {
       rText.attr('text', name).toFront();
       var hoverIn = rShape.data('hoverInFn'),
@@ -171,7 +180,7 @@
       this.hasUser = true;
     }
   }
-
+   
   var gameObjects = {
     paper : {}, // Raphael's paper
     outerCircle : {}, 
@@ -437,7 +446,8 @@
     onChat : function(chat) {
       chatRoom.add(chat);
     },
-    onAnswer : function(user, message){
+    // message params: answer: their answer, correct: bool, message: state of answer on game
+    onAnswer : function(user, message) {
       //TODO achal can you create some sort of "user+message" notification?
     },
     onNewWord : function(word) {
@@ -454,12 +464,13 @@
       joinedRoom.users.push(user.id);
       //TODO achal can you create some sort of "this user joined" notification?
     },
-    onBuzz : function(u){
+    onBuzz : function(user, team) {
       //TODO achal can you create some sort of "this user buzzed" notification?
+      console.log(user, team);
+      gameObjects.teams[team].buzzUser(user);
     },
     onSit : function(user, team) {
       // joinedRoom.teams[team].players.push(user.id);
-      console.log(user, team);
       gameObjects.teams[team].addUser(user);
     },
     onLeave : function(user) {
