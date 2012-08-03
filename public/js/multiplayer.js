@@ -4,7 +4,6 @@
     this.name = name;
     this.arcs = []; // needs to be ordered to maintain positions
     this.maxPlayers = maxPlayers;
-    this.numPlayers = 0;
 
     this.addArc = function(userArc) {
       this.arcs.push(userArc);
@@ -19,31 +18,40 @@
     }
 
     this._addUserHelper = function(data, boolById) {
-      var fn = boolById ? 'addUserById' : 'addUser';
-      if (this.numPlayers < this.maxPlayers) {
-        var arc = this.arcs[this.numPlayers];
+      var fn = boolById ? 'addUserById' : 'addUser',
+          nextIndex = this._getFirstEmptyIndex();
+      if (this._getFirstEmptyIndex < this.maxPlayers) {
+        var arc = this.arcs[nextIndex];
         arc[fn](data);
-        this.numPlayers++;
       }
     }
 
     this.removeUser = function(userId) {
-      var toRemoveArc = this._getArcByUserId(userId);
-      if (toRemoveArc) {
+      var toRemoveArc = this._getArcIndexByUserId(userId);
+      if (toRemoveArc !== false) {
         toRemoveArc.removeUser();
-        this.numPlayers--;
+        this.arcs[toRemoveArc] = null;
       }
     }
 
-    this._getArcByUserId = function(id) {
+    this._getArcIndexByUserId = function(id) {
       for (var i = 0; i < this.arcs.length; i++) {
         var currId = this.arcs[i].userId;
         // find the correct id
         if (currId == id) {
-          return this.arcs[i];
+          return i;
         }
       }
       return false;
+    }
+
+    this._getFirstEmptyIndex = function() {
+      for (var i = 0; i < this.arcs.length; i++) {
+        if (this.arcs[i] == null) {
+          break;
+        }
+      }
+      return i;
     }
   }
 
