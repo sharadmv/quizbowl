@@ -261,11 +261,11 @@ var init = function(app) {
           this.onUpdateScore = function(scores) {
             properties.onUpdateScore(scores);
           }
-          this.onAnswer = function(user, answer) {
-            properties.onAnswer(user, answer);
+          this.onAnswer = function(user, team, answer) {
+            properties.onAnswer(user, team, answer);
           }
-          this.onAnswerTimeout  = function(user) {
-            properties.onAnswerTimeout(user);
+          this.onAnswerTimeout  = function(user, team) {
+            properties.onAnswerTimeout(user, team);
           }
           this.onQuestionTimeout = function(){
             properties.onQuestionTimeout();
@@ -492,9 +492,9 @@ var init = function(app) {
             },
             onUpdateScore : function(scores) {
             },
-            onAnswer : function(user, answer) {
+            onAnswer : function(user, team, answer) {
             },
-            onAnswerTimeout : function(user) {
+            onAnswerTimeout : function(user, team) {
             },
             onQuestionTimeout : function(){
             },
@@ -573,17 +573,17 @@ var init = function(app) {
               var team = room.getTeams()[room.getUserToTeam()[user]];
               if (obj) {
                 team.addScore(user, 10);
-                room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:true, message:"for 10 points"});
+                room.getChannel().onAnswer(app.getUsers()[user],team.getId(), {answer:answer, correct:true, message:"for 10 points"});
                 room.getChannel().onUpdateScore(game.getScore());
                 room.getChannel().onCompleteQuestion(currentTossup);
                 nextQuestion();
               } else {
                 if (numBuzzes == getNumTeams()) {
-                  room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:false, message:"for no penalty"});
+                  room.getChannel().onAnswer(app.getUsers()[user], team.getId(), {answer:answer, correct:false, message:"for no penalty"});
                   nextQuestion();
                 } else {
                   team.addScore(user, -5);
-                  room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:false, message:"for -5 points"});
+                  room.getChannel().onAnswer(app.getUsers()[user], team.getId(), {answer:answer, correct:false, message:"for -5 points"});
                   room.getChannel().onUpdateScore(game.getScore());
                   resumeReading()
                 }
@@ -681,7 +681,8 @@ var init = function(app) {
           },app.Constants.Multiplayer.Game.DEFAULT_READ_SPEED);
         }
         var answerTimer = function(user){
-          room.getChannel().onAnswerTimeout(app.getUsers()[user]);
+          var team = room.getTeams()[room.getUserToTeam()[user]];
+          room.getChannel().onAnswerTimeout(app.getUsers()[user], team.getId());
           if (numBuzzes == getNumTeams()) {
             nextQuestion();
             room.getChannel().onCompleteQuestion(currentTossup);
