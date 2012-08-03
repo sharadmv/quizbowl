@@ -612,7 +612,7 @@ var init = function(app) {
             {
               random:'true',
               limit:room.getProperties().numQuestions,
-              value:'',
+              term:'',
               params:{
                 difficulty:room.getProperties().difficulty,
                 category:room.getProperties().category

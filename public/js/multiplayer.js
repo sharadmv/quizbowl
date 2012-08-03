@@ -4,7 +4,6 @@
     this.name = name;
     this.arcs = []; // needs to be ordered to maintain positions
     this.maxPlayers = maxPlayers;
-    this.numPlayers = 0;
 
     this.addArc = function(userArc) {
       this.arcs.push(userArc);
@@ -19,19 +18,19 @@
     }
 
     this._addUserHelper = function(data, boolById) {
-      var fn = boolById ? 'addUserById' : 'addUser';
-      if (this.numPlayers < this.maxPlayers) {
-        var arc = this.arcs[this.numPlayers];
+      var fn = boolById ? 'addUserById' : 'addUser',
+          nextIndex = this._getFirstEmptyIndex();
+      if (nextIndex < this.maxPlayers) {
+        var arc = this.arcs[nextIndex];
         arc[fn](data);
-        this.numPlayers++;
       }
     }
 
     this.removeUser = function(userId) {
       var toRemoveArc = this._getArcByUserId(userId);
-      if (toRemoveArc) {
+      if (toRemoveArc !== false) {
         toRemoveArc.removeUser();
-        this.numPlayers--;
+        this.arcs[toRemoveArc] = null;
       }
     }
 
@@ -45,6 +44,15 @@
       }
       return false;
     }
+
+    this._getFirstEmptyIndex = function() {
+      for (var i = 0; i < this.arcs.length; i++) {
+        if (!this.arcs[i].hasUser) {
+          break;
+        }
+      }
+      return i;
+    }
   }
 
   function UserArc(obj) {
@@ -55,6 +63,8 @@
     var teamName = this.teamName = obj.teamName,
         teamUserIndex = this.teamUserIndex = obj.teamUserIndex;
     
+    this.hasUser = rText.attr('text') !== '';
+
     var self = this;
 
     //++++++++++++++++//
@@ -143,6 +153,14 @@
       this._addUserByName(name.split(' ')[0]);
     }
 
+    this.removeUser = function() {
+      this.userId = null;
+      rShape.data('currPropName', 'defaultProp');
+      rShape.attr(rShape.data('defaultProp'));
+      rText.attr('text', '');
+      this.hasUser = false;
+    }
+
     this._addUserByName = function(name) {
       rText.attr('text', name).toFront();
       var hoverIn = rShape.data('hoverInFn'),
@@ -150,13 +168,7 @@
       rShape.unhover(hoverIn, hoverOut);
       rShape.attr(rShape.data('activeProp'));
       rShape.data('currPropName', 'activeProp');
-    }
-
-    this.removeUser = function() {
-      this.userId = null;
-      rShape.data('currPropName', 'defaultProp');
-      rShape.attr(rShape.data('defaultProp'));
-      rText.attr('text', '');
+      this.hasUser = true;
     }
   }
 
