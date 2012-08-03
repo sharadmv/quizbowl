@@ -4,7 +4,7 @@ var init = function(app) {
   }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
-    // var solr = require('solr').createClient();
+    var solr = require('solr').createClient();
     var client = mysql.createClient({
       host     : host,
       user     : username,
@@ -151,8 +151,7 @@ var init = function(app) {
         if (query.term) {
           term = query.term;
           term = term.split(" ");
-          term = term.map(function(e){return "+"+e}).join(" ");
-          term = "("+term+")";
+          term = term.map(function(e){return "answer:"+e}).join(" ");
         }
         var categories = [];
         if (query.params.category) {
@@ -171,7 +170,7 @@ var init = function(app) {
         }
         if (term && term != "") {
           if (condition == "answer") {
-            finQuery.push("(answer:"+term+")");
+            finQuery.push("("+term+")");
           } else if (condition == "question") {
             finQuery.push("(question:"+term+")");
           } else {
