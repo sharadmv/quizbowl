@@ -252,8 +252,8 @@ var init = function(app) {
           this.onStartQuestion = function() {
             properties.onStartQuestion();
           }
-          this.onBuzz = function(user) {
-            properties.onBuzz(user);
+          this.onBuzz = function(user, team) {
+            properties.onBuzz(user, team);
           }
           this.onNewWord = function(word) {
             properties.onNewWord(word);
@@ -485,7 +485,7 @@ var init = function(app) {
             },
             onStartQuestion : function() {
             },
-            onBuzz : function(user) {
+            onBuzz : function(user, team) {
               app.log(app.Constants.Tag.MULTIPLAYER, [user.name, "buzzed in"]);
             },
             onNewWord : function(word) {
@@ -549,7 +549,7 @@ var init = function(app) {
             clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
-            room.getChannel().onBuzz(app.getUsers()[user]);
+            room.getChannel().onBuzz(app.getUsers()[user], team.getId());
             team.setBuzzed(true);
             pauseReading();
             answerTimeout = setTimeout(function(){

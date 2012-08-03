@@ -435,7 +435,6 @@
       //TODO achal can you create some sort of "question timed out" notification
     },
     onChat : function(chat) {
-      console.log(chat);
       chatRoom.add(chat);
     },
     onAnswer : function(user, message){
@@ -456,6 +455,7 @@
       //TODO achal can you create some sort of "this user joined" notification?
     },
     onBuzz : function(u){
+      console.log(arguments);
       //TODO achal can you create some sort of "this user buzzed" notification?
     },
     onSit : function(user, team) {
@@ -625,7 +625,7 @@
         });
       });
 
-      $('#gameAnswer').bind("keydown.global", function(e) {
+      $('#gameAnswer').bind("keydown", function(e) {
         if(e.which == 13) {
           roomHandler.answer($("#gameAnswer").val().trim());
         }
@@ -656,9 +656,6 @@
       }
       new View.ChatRoom({ id : name, el : $("#roomChat") });
       roomHandler = rh;
-      $(document).bind('keydown.global', function(e) {
-        roomHandler.buzz();
-      });
 			window.roomHandler = roomHandler;
       callback({ status : true });
     });
@@ -1002,7 +999,7 @@
     },
     events : {
       "click #roomChatSend" : "chat",
-      "keydown.global #roomChatMessage" : "keychat"
+      "keypress #roomChatMessage" : "keychat"
     },
     keychat : function(e) {
       if (e.charCode == 13) {
@@ -1089,6 +1086,8 @@
   var chatRoomView;
   var createView;
   var gameHandler;
+  var roomHandler;
+  var unbind = false;
   $(document).ready(function() {
     // set up the holy grail stuffs
     var holyGrailHeight = $('body').height() - $('#header').height();
@@ -1113,6 +1112,32 @@
     });
     createView = new View.Create({
       el : $("#create")
+    });
+    $(document).keydown(function(e) {
+      if (!unbind)  {
+        if (e.which == 32) {
+          if (roomHandler) {
+            roomHandler.buzz(function(buzzed) {
+              if (buzzed) {
+                $('#gameBuzz').hide();
+                $('#gameAnswer').show();
+              }
+            });
+          }
+        }
+      }
+    });
+    $("#gameAnswer").focus(function(e) {
+      unbind = true;
+    });
+    $("#gameAnswer").blur(function(e) {
+      unbind = false;
+    });
+    $("#roomChatMessage").focus(function(e) {
+      unbind = true;
+    });
+    $("#roomChatMessage").blur(function(e) {
+      unbind = false;
     });
   });
   jQuery.fn.outerHTML = function(s) {
