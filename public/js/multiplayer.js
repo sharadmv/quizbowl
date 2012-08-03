@@ -34,8 +34,13 @@
       }
     }
 
-    this.buzzUser = function(id) {
-      this._getArcByUserId(id).buzzUser();
+    this.buzzUser = function(user) {
+      this._getArcByUserId(user.id).buzzUser();
+    }
+
+    this.incorrectUser = function(user) {
+      console.log(user.id);
+      this._getArcByUserId(user.id).incorrectUser();
     }
 
     this._getArcByUserId = function(id) {
@@ -127,8 +132,16 @@
         'fill-opacity':0
       },
       buzzedUser : {
-        fill: 'yellow',
-        'fill-opacity':0.3
+        fill: '#FFFFFF',
+        'fill-opacity':0.5
+      },
+      incorrectUser : {
+        fill: '#A30000',
+        'fill-opacity':1
+      },
+      correctUser : {
+        fill: '#00D100',
+        'fill-opacity':1
       },
       currPropName : "defaultProp"
     }
@@ -167,7 +180,17 @@
 
     this.buzzUser = function() {
       rShape.data('currPropName', 'buzzedUser');
-      rShape.attr(buzzedUser);
+      rShape.attr(rShape.data('buzzedUser'));
+    }
+
+    this.incorrectUser = function() {
+      rShape.data('currPropName', 'incorrectUser');
+      rShape.attr(rShape.data('incorrectUser'));
+    }
+
+    this.correctUser = function() {
+      rShape.data('currPropName', 'correctUser');
+      rShape.attr(rShape.data('correctUser'));
     }
 
     this._addUserByName = function(name) {
@@ -437,18 +460,22 @@
     onGameStart : function() {
       //TODO achal can you create some sort of "game started" notification
     },
-    onAnswerTimeout : function(user) {
+    onAnswerTimeout : function(user, team) {
       //TODO achal can you create some sort of "user timed out" notification
+      gameObjects.teams[team][fn](user);
     },
     onQuestionTimeout : function() {
       //TODO achal can you create some sort of "question timed out" notification
+      gameObjects.innerCircle.attr({ background : '#A30000' });
     },
     onChat : function(chat) {
       chatRoom.add(chat);
     },
     // message params: answer: their answer, correct: bool, message: state of answer on game
-    onAnswer : function(user, message) {
+    onAnswer : function(user, team, message) {
       //TODO achal can you create some sort of "user+message" notification?
+      var fn = message.correct ? 'correctUser' : 'incorrectUser';
+      gameObjects.teams[team][fn](user);
     },
     onNewWord : function(word) {
 			$('#gameText').append(word+" ");
@@ -466,6 +493,12 @@
     },
     onBuzz : function(user, team) {
       //TODO achal can you create some sort of "this user buzzed" notification?
+      window.user = user;
+      window.team = team;
+      window.answer = {
+        answer  : 'whatever',
+        correct : false
+      };
       console.log(user, team);
       gameObjects.teams[team].buzzUser(user);
     },
@@ -496,11 +529,12 @@
       $('#gameAnswer').val("");
     },
     onCompleteQuestion : function(question) {
-      $('#gameText').html(question.question);
+      $('#gameText').html(''/*question.question*/);
     },
     onUpdateScore : function(score){
     }
   };
+  window.mHandler = mHandler;
 
   var loadRoom = function(room) {
     window.room = room;
