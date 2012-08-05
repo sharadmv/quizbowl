@@ -3,16 +3,34 @@
   var BASE_URL = "/api";
 
   $(document).scroll(function() {
-    if ($(document).scrollTop() > 80) {
+    if ($(document).scrollTop() > 60) {
       $('#searchBoxWrapper').css({ 
         'position':'fixed',
-        'top': '0px'
+        'top': '0px',
+        'left':'50%',
+        'margin-left':'-480px',
+        'margin-top':'0px'
+      });
+      $('#searchText').css({
+        "display":"none"
+      });
+      $('#searchBoxContainer').css({
+        'height':'49px'
       });
     }
 
-    if($(document).scrollTop() < 80) {
+    if($(document).scrollTop() < 60) {
       $('#searchBoxWrapper').css({ 
         'position':'relative',
+        'left':'0px',
+        'margin':'auto',
+        'margin-top':'20px'
+      });
+      $('#searchText').css({
+        "display":"block"
+      });
+      $('#searchBoxContainer').css({
+        'height':'115px'
       });
     }
   });
@@ -83,6 +101,7 @@
     },
     template : function(model) {
       return Mustache.render(
+      "<div class='tournament'>{{year}} {{tournament}}: {{round}}, Question #{{question_num}}</div>"+
       "<div class='question'>{{question}}</div>"+
       "<div class='answer'>ANSWER: {{answer}}</div>",
       model
@@ -175,7 +194,6 @@
     Tossup : Backbone.Model.extend({
     })
   }
-
   var Collection = {
     Results : Backbone.Paginator.requestPager.extend({ 
       model : Model.Tossup,

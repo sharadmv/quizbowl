@@ -5,18 +5,27 @@
   margin-bottom:-30px;
 }
 #searchBoxWrapper {
-  width:100%;
-  background:rgba(10, 157, 264, 1);
-  height:50px;
-  line-height:50px;
-  text-align:center;
+  width: 960px;
+  background: rgba(10, 157, 264, 1);
+  line-height: 50px;
+  margin: auto;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+#searchBoxContainer {
+  width:610px;
+  margin:auto;
+  height:115px;
+}
+#searchText {
+  height:2em;
+  line-height:3em;
+  font-size:2em;
 }
 #searchBox {
   width : 500px;
-  margin-top:14px;
-  margin-bottom:14px;
   vertical-align:middle;
-  margin-left:20px;
+  margin-bottom:0px;
 }
 .searchLoader {
   width:25px;
@@ -25,9 +34,6 @@
   visibility:hidden;
 }
 #searchButton {
-  margin-top:9px;
-  margin-bottom:9px;
-  margin-left:10px;
   vertical-align:middle;
 }
 .next {
@@ -46,12 +52,21 @@
 }
 
 #resultsWrapper {
-  width:900px;
+  width: 940px;
   margin: auto;
+  background: #fff;
+  padding: 11px 10px 0px 10px;
+  border-radius: 5px;
+  margin-top:10px;
+  border:1px solid #aaa;
 }
 #results {
 }
 
+.tournament {
+  font-size:1.2em;
+  font-weight:bold;
+}
 .tossup {
   padding-top:15px;
   padding-bottom:15px;
@@ -59,5 +74,11 @@
   padding-right:15px;
   margin-top:10px;
   margin-bottom:10px;
-  background-color:rgba(109,214,222,1);
+  font-family:Helvetica Neue, Helvetica, Arial, sans-serif
+}
+.answer {
+  font-style:italic;
+}
+.pages {
+  font-size:1.2em;
 }

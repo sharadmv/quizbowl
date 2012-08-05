@@ -2,6 +2,10 @@
   font-family: 'Junction';
   src: url('/font/Junction.eot?') format('eot'), url('/font/Junction.woff') format('woff'), url('/font/Junction.ttf') format('truetype');
 }
+@font-face {
+  font-family: 'League';
+  src: url('/font/League.eot?') format('eot'), url('/font/League.woff') format('woff'), url('/font/League.ttf') format('truetype');
+}
 
 html, body {
 	margin:0;
@@ -9,9 +13,21 @@ html, body {
 	font-family:"Junction","Segoe UI", Helvetica, "Open Sans", sans-serif;
 }
 
+body {
+  background-color:transparent;
+}
+
 html, body {
 	height:100%;
 	width:100%;
+}
+
+html {
+  height:100%;
+  background-color:#ccc;
+  background-image: -webkit-gradient(linear, left top, left bottm, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.2)));
+  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
 }
 
 .fbLoginButtonWrapper {
@@ -42,13 +58,10 @@ html, body {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-  height:12px;
+  height:13px;
 }
 
-#container {
-	height:100%;
-}
-
+/*
 .btn-small{
   cursor: pointer;
   border: none;
@@ -100,11 +113,15 @@ html, body {
   margin-right: 5px;
   margin-bottom: 5px;
 }
+*/
 
 #header {
 	width:100%;
   height:60px;
-	background:rgba(10, 112, 220, 1);
+	background:#0A70DC;
+  background-image: -webkit-gradient(linear, left bottom, left top, from(#0A9DFF), to(#0A72F2));
+  background-image: -moz-gradient(bottom, from(#0A01AB), to(#0A56DC));
+  background-image: -o-gradient(bottom, from(#0A01AB), to(#0A56DC))
 }
 
 #headerContainer {
@@ -128,9 +145,9 @@ html, body {
 	font-size:3em;
 	color:#ccc;
 	line-height:60px;
-	height:36px;
-  padding-top:12px;
-  padding-bottom:12px;
+  height: 49px;
+  padding-top: 5px;
+  padding-bottom: 6px;
 }
 #headerImg {
   height:40px;
@@ -153,6 +170,7 @@ html, body {
   text-decoration: none;
   color: white;
   margin-top: -20px;
+  font-size:1.3em;
 }
 
 #menu a:hover{
