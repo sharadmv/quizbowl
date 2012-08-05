@@ -19,27 +19,30 @@ html, body {
   padding-bottom: 21px !important;
   height: 38px;
   position:relative;
-  width:113px;
+  width:90px;
 }
 
 
 .fbLoginButtonImg {
   height:1.5em;
+  top: 39px;
+  position: absolute;
+  left: 24px;
 }
 
 #fbLoginDiv {
   position: absolute;
-  left: 55px;
-  top: 21px;
-  padding-bottom: 3px;
-  padding-top: 9px;
+  left: 48px;
+  top: 39px;
+  padding-bottom: 6px;
+  padding-top: 6px;
   background: #3B5B99;
   padding-left: 8px;
   padding-right: 8px;
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-  height:24px;
+  height:12px;
 }
 
 #container {
@@ -100,13 +103,18 @@ html, body {
 
 #header {
 	width:100%;
-	height:80px;
+  height:60px;
 	background:rgba(10, 112, 220, 1);
+}
+
+#headerContainer {
+  width:960px;
+  margin:auto;
+  height:60px;
 }
 
 #menu { 
 	height:100%; 
-	width:700px; 
   padding:0;
 	margin:0;
 	float:right;
@@ -119,40 +127,36 @@ html, body {
 				0px 0px 10px #00344b;
 	font-size:3em;
 	color:#ccc;
-	line-height:80px;
-	height:100%;
-	padding:15px 0 0 10px;
+	line-height:60px;
+	height:36px;
+  padding-top:12px;
+  padding-bottom:12px;
+}
+#headerImg {
+  height:40px;
 }
 #menu li {
 	list-style:none;
 	display:inline-block;
 }
 #menu a {
-	display:inline-block;
-	margin:0;
-	float:left;
-  padding-left:20px;
-  padding-right:20px;
-	padding-top:28px;
-	padding-bottom:28px;
-	background:#09F;
+  display: inline-block;
+  margin: 0;
+  float: left;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 25px;
+  padding-bottom: 19px;
+  background: #09F;
   -webkit-transition: background 0.3s ease-out;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: transparent;
+  text-decoration: none;
+  color: white;
+  margin-top: -20px;
 }
 
 #menu a:hover{
   background-color: rgba(0, 0, 0, 0.2);
-}
-
-#menu li a {
-	position:relative;
-	bottom:0;
-	vertical-align:bottom;
-	font-size:1.5em;
-	font-weight:300;
-	display:inline-block;
-	text-decoration:none;
-	color:#FFF;
 }
 
 #right {
