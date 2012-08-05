@@ -169,7 +169,8 @@
     initialize : function() {
       var self = this;
       this.model.bind("change", function() {
-        $(self.el).html("");
+        this.$("#question").html("");
+        this.$("#answer").html("");
       }, this);
       this.model.bind("new", function(word) {
         self.word(word);
@@ -185,7 +186,9 @@
       }, this);
     },
     word : function(word) {
-      $(this.el).append(word+" ");
+             console.log(word);
+             console.log(this.$("#question"));
+      this.$("#question").append(word+" ");
       return this;
     },
     render : function() {
@@ -193,7 +196,12 @@
       return this;
     },
     complete : function() {
-      $(this.el).html(this.model.get("question"));
+      $(this.el).html(
+          Mustache.render(
+          "<div id='question'>{{question}}</div><div id='answer'>ANSWER: {{answer}}</div>"
+          ,this.model.toJSON()
+          )
+      );
     }
   });
   var ReaderControl = Backbone.View.extend({
