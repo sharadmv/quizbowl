@@ -432,6 +432,7 @@
     },
     // message params: answer: their answer, correct: bool, message: state of answer on game
     onAnswer : function(user, message) {
+                 console.log(user, message);
       gameObjects.arcs[user.id].answer(message.correct);
       // TODO: output message
     },
