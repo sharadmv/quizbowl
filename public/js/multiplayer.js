@@ -596,13 +596,6 @@
       }
 
       // set up text/buzzing
-			$game.append('<div id="gameControlsContainer">'
-                 +   '<div id="gameText"></div>'
-                 +   '<div id="gameAnswerControl">'
-                 +     '<input id="gameBuzz" type="button" value="Buzz"></input>'
-                 +     '<input id="gameAnswer" type="text"></input>'
-                 +   '</div>'
-                 + '</div>');
       if (room.game.partial) {
         $('#gameText').html(room.game.partial+" ");
       }
@@ -1139,6 +1132,9 @@
     $("#roomChatMessage").blur(function(e) {
       unbind = false;
     });
+
+    // hide the default buttons
+    $('#gameControlsContainer').hide();
   });
   jQuery.fn.outerHTML = function(s) {
     return s
