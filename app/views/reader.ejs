@@ -1,38 +1,53 @@
 <div id='readerWrapper'>
   <div id='filterBox'>
-    <form>
+    <div id='filterText'>Filter your questions here:</div>
+    <form id='filter'>
       <div class="category">
-        <label>Category</label>
+        <label class='filterLabel'>Category</label>
         <select multiple="multiple" class="categorySelect">
         </select>
       </div> 
 
       <div class="difficulty">
-        <label>Difficulty</label>
+        <label class='filterLabel'>Difficulty</label>
         <select multiple="multiple" class="difficultySelect">
         </select>
       </div>
 
       <div class="tournament">
-        <label>Tournament</label>
+        <label class='filterLabel'>Tournament</label>
         <select multiple="multiple" class="tournamentSelect">
         </select>
       </div>
     </form>
   </div>
-  <div id='questionBox'>
-  </div>
-  <div id="readerControl">
-    <div id="readerScore">Score: <span id="readerScoreText">0</span></div>
-    <div id="readerSpeed">Reader Text Speed: <input id="readerSpeedInput" type="range" min="0" max="100" value="50"/></div>
-    <button id="readerToggleDifficulty" class="btn-small">Hide Difficulty</button>
-    <button id="readerToggleCategory" class="btn-small">Show Category</button>
-  </div>
-  <div id='questionControl'>
-    <button id="startButton" class="btn-medium">Start Question (Space)</button>
-    <button id="buzzButton" class="btn-medium">Buzz</button>
-    <button id="skipButton" class="btn-medium">Skip</button>
-    <input id="answerBox"/>
-    <span id="answerNotification"></span>
+  <div id='questionWrapper'>
+    <div id="readerControl">
+      <div id="readerScore">Score: <span id="readerScoreText">0</span></div>
+      <div id="readerSpeed">Reader Text Speed: <input id="readerSpeedInput" type="range" min="0" max="100" value="50"/></div>
+      <button id="readerToggleDifficulty" class="btn-small">Hide Difficulty</button>
+      <button id="readerToggleCategory" class="btn-small">Hide Category</button>
+    </div>
+    <div id='questionControl'>
+      <div id='questionBox'>
+        <div id='tournament'></div>
+        <div id='cdWrapper'>
+          <div id='category'></div>
+          <div id='difficulty'></div>
+        </div>
+        <div id='question'>
+          Start reading by pressing space
+        </div>
+        <div id='answer'>
+        </div>
+      </div>
+      <div id='questionControlWrapper'>
+        <button id="startButton" class="btn btn-primary">Start Question (Space)</button>
+        <button id="buzzButton" class="btn btn-primary">Buzz (Space)</button>
+        <button id="skipButton" class="btn btn-warning">Skip (Shift Space)</button>
+        <input id="answerBox"/>
+        <span id="answerNotification"></span>
+      </div>
+    </div>
   </div>
 </div>

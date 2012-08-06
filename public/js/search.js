@@ -3,16 +3,34 @@
   var BASE_URL = "/api";
 
   $(document).scroll(function() {
-    if ($(document).scrollTop() > 80) {
+    if ($(document).scrollTop() > 60) {
       $('#searchBoxWrapper').css({ 
         'position':'fixed',
-        'top': '0px'
+        'top': '0px',
+        'left':'50%',
+        'margin-left':'-480px',
+        'margin-top':'0px'
+      });
+      $('#searchText').css({
+        "display":"none"
+      });
+      $('#searchBoxContainer').css({
+        'height':'49px'
       });
     }
 
-    if($(document).scrollTop() < 80) {
+    if($(document).scrollTop() < 60) {
       $('#searchBoxWrapper').css({ 
         'position':'relative',
+        'left':'0px',
+        'margin':'auto',
+        'margin-top':'20px'
+      });
+      $('#searchText').css({
+        "display":"block"
+      });
+      $('#searchBoxContainer').css({
+        'height':'115px'
       });
     }
   });
@@ -37,23 +55,47 @@
         }, this);
         this.collection.bind("reset", function() {
           self.reset();
-          this.render();
+          self.render();
+          $("#resultsWrapper").css({ "height" : "26px" });
+          self._empty = true;
         }, this);
         this.collection.bind("remove", function(model) {
           self.remove(model);
         }, this);
+        this.collection.bind("change", function() {
+          if (self.collection.length > 0) {
+            self.update();
+          }
+        }, this);
+        this._empty = true;
       },
       render : function() {
+        var self = this;
+        $(this.el).html("No results to be displayed");
+        $(topResultControl.el).css({ "display" : "none" });
+        $(bottomResultControl.el).css({ "display" : "none" });
+        this._empty = true;
+        return this;
+      },
+      update : function() {
+        if (this._empty) {
+          $(this.el).html("");
+          $("#resultsWrapper").css({ "height" : "auto" });
+          $(topResultControl.el).css({ "display" : "block" });
+          $(bottomResultControl.el).css({ "display" : "block" });
+        }
         var self = this;
         this.collection.each(function(model) {
           self.add(model);
         });
-        return this;
+        this._empty = false;
       },
       add : function(model) {
+        console.log(model);
         var v = new this.View({ model : model });
         this._views[model.id] = v;
         $(this.el).append(v.render().el);
+        return this;
       },
       remove : function(model) {
         var v = new this.View({ model : model });
@@ -83,6 +125,7 @@
     },
     template : function(model) {
       return Mustache.render(
+      "<div class='tournament'>{{year}} {{tournament}}: {{round}}, Question #{{question_num}}</div>"+
       "<div class='question'>{{question}}</div>"+
       "<div class='answer'>ANSWER: {{answer}}</div>",
       model
@@ -175,7 +218,6 @@
     Tossup : Backbone.Model.extend({
     })
   }
-
   var Collection = {
     Results : Backbone.Paginator.requestPager.extend({ 
       model : Model.Tossup,
@@ -226,7 +268,7 @@
       next : function() {
         var self = this;
         if (this.currentPage < this.totalPages) {
-          this.requestNextPage()
+          this.requestNextPage({ })
             .done(function(data, textStatus, jqXHR) {
               self.trigger("change");
             });
@@ -236,7 +278,7 @@
       previous : function() {
         var self = this;
         if (this.currentPage >= 0) {
-          this.requestPreviousPage()
+          this.requestPreviousPage({ })
             .done(function(data, textStatus, jqXHR) {
               self.trigger("change");
             });
@@ -287,7 +329,7 @@
         }
       }
     if (parameters.term === undefined)
-      parameters.term = terms;
+      parameters.term = terms.trim();
     return parameters;
   }
 

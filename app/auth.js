@@ -13,7 +13,7 @@ var init = function(app) {
           app.getTimeouts()[userToken] = setTimeout(function() {
             app.log(app.Constants.Tag.AUTH, [app.getUsers()[userToken].name, "is dead"]);
             auth.handler.logout(userToken);
-          }, 10000);
+          }, 60000);
           if (callback) {
           }
         }

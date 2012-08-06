@@ -79,7 +79,8 @@ var init = function(app) {
       offset : req.query.offset, 
       params : { 
         category : req.query.params.category, 
-        difficulty : req.query.params.difficulty 
+        difficulty : req.query.params.difficulty, 
+        tournament: req.query.params.tournament
       } 
     };
     app.service.services.tossup.search(res, pars, function(ret) {

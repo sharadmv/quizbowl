@@ -1,19 +1,96 @@
 #filterBox {
   margin:auto;
-  width:100%;
   display:block;
+  width: 940px;
+  border: 10px rgba(10, 157, 264, 1) solid;
+  line-height: 50px;
+  margin: auto;
+  margin-top: 20px;
+  border-radius: 5px;
+  height:170px;
+  padding:5px;
+  background:white;
+}
+#readerControl {
+  width:350px;
+  background:white;
+  padding:10px;
+  border-radius:5px;
+}
+#questionWrapper {
+  width:970px;
+  margin:auto;
+  margin-top:20px;
+}
+#filterText {
+  height: 2em;
+  line-height: 3em;
+  font-size: 2em;
+  margin-left:20px;
+}
+#filter {
+  margin-top:20px;
 }
 #readerControl{
-  position:relative;
-}
-#questionControl{
-  position:relative;
-}
-.category, .difficulty, .tournament {
+  width:261px;
   position:relative;
   float:left;
+}
+#questionControl{
+  width: 669px;
+  position: relative;
+  float: left;
+  margin-left: 20px;
+  height: 500px;
+}
+#questionControlWrapper {
+  width:100%;
+  margin-top:20px;
+  text-align:center;
+}
+#questionBox {
+  height:350px;
+  padding: 15px;
+  background:white;
+  border-radius: 5px;
+  font-family:Helvetica Neue, Helvetica, Arial, sans-serif
+}
+#readerSpeedInput {
+  width:125px;
+}
+.category, .difficulty, .tournament {
+  float:left;
   line-height:100%;
+  padding-left:20px;
+}
+#tournament {
+  font-size:1.2em;
+  font-weight:bold;
+  padding-bottom:6px;
+}
+#question {
+  font-size:1.1em;
+}
+#answer {
+  font-size:1.1em;
+  font-style:italic;
+  padding-top:8px;
+}
+#answerNotification {
+  font-weight: bold;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size: 1.1em;
+  margin-left: 5px;
 }
 .categorySelect, .difficultySelect, .tournamentSelect {
   vertical-align:middle;
+}
+.filterLabel {
+  display:inline-block;
+}
+#category {
+  display:inline;
+}
+#difficulty {
+  display:inline;
 }

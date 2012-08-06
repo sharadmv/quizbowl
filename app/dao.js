@@ -4,7 +4,7 @@ var init = function(app) {
   }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
-    // var solr = require('solr').createClient();
+    var solr = require('solr').createClient();
     var client = mysql.createClient({
       host     : host,
       user     : username,
@@ -150,6 +150,15 @@ var init = function(app) {
         var term = "";
         if (query.term) {
           term = query.term;
+          term = term.split(" ");
+          console.log(term);
+          if (query.condition == "all") {
+            term = term.map(function(e){return "question:"+e+" answer:"+e}).join(" ");
+          } else if (query.condition == "question") {
+            term = term.map(function(e){return "question:"+e}).join(" ");
+          } else {
+            term = term.map(function(e){return "answer:"+e}).join(" ");
+          }
         }
         var categories = [];
         if (query.params.category) {
@@ -159,6 +168,10 @@ var init = function(app) {
         if (query.params.difficulty) {
           difficulties = query.params.difficulty.split("|");
         }
+        var tournaments= [];
+        if (query.params.tournament) {
+          tournaments = query.params.tournament.split("|");
+        }
         var finQuery = [];
         if (categories.length > 0) {
           finQuery.push("category:(\""+categories.join("\" \"")+"\")");
@@ -166,14 +179,13 @@ var init = function(app) {
         if (difficulties.length > 0) {
           finQuery.push("difficulty:("+difficulties.join(" ")+")");
         }
+        console.log(query);
+        if (tournaments.length > 0) {
+          finQuery.push("("+tournaments.map(function(t) {return "(year:"+t.substring(0,4)+" AND tournament:\""+t.substring(5).trim()+"\")" }).join(" ")+")");
+        }
+        console.log(term);
         if (term && term != "") {
-          if (condition == "answer") {
-            finQuery.push("(answer:"+term+")");
-          } else if (condition == "question") {
-            finQuery.push("(question:"+term+")");
-          } else {
-            finQuery.push("(question:"+term+" answer:"+term+")");
-          }
+            finQuery.push("("+term+")");
         }
         var limit = 10;
         if (query.limit) {
@@ -217,6 +229,7 @@ var init = function(app) {
         if (querystring == "") {
           querystring = "*:*";
         } 
+        console.log(querystring);
         solr.query(querystring, options, function(err, response) {
           if (err) {
             console.log(err);
