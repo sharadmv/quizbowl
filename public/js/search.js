@@ -329,7 +329,7 @@
         }
       }
     if (parameters.term === undefined)
-      parameters.term = terms;
+      parameters.term = terms.trim();
     return parameters;
   }
 

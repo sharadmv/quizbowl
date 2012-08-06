@@ -151,7 +151,14 @@ var init = function(app) {
         if (query.term) {
           term = query.term;
           term = term.split(" ");
-          term = term.map(function(e){return "answer:"+e}).join(" ");
+          console.log(term);
+          if (query.condition == "all") {
+            term = term.map(function(e){return "question:"+e+" answer:"+e}).join(" ");
+          } else if (query.condition == "question") {
+            term = term.map(function(e){return "question:"+e}).join(" ");
+          } else {
+            term = term.map(function(e){return "answer:"+e}).join(" ");
+          }
         }
         var categories = [];
         if (query.params.category) {
@@ -176,14 +183,9 @@ var init = function(app) {
         if (tournaments.length > 0) {
           finQuery.push("("+tournaments.map(function(t) {return "(year:"+t.substring(0,4)+" AND tournament:\""+t.substring(5).trim()+"\")" }).join(" ")+")");
         }
+        console.log(term);
         if (term && term != "") {
-          if (condition == "answer") {
             finQuery.push("("+term+")");
-          } else if (condition == "question") {
-            finQuery.push("(question:"+term+")");
-          } else {
-            finQuery.push("(question:"+term+" answer:"+term+")");
-          }
         }
         var limit = 10;
         if (query.limit) {
