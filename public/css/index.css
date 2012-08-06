@@ -124,6 +124,13 @@ html {
   background-image: -o-gradient(bottom, from(#0A01AB), to(#0A56DC))
 }
 
+#container {
+  min-height:100%;
+  height:auto !important;
+  height:100%;
+  margin:0 auto -40px;
+}
+
 #headerContainer {
   width:960px;
   margin:auto;
@@ -183,4 +190,13 @@ html {
 
 #left {
   float : left;
+}
+#footer, #push {
+  height:40px;
+}
+#footer {
+  background:white;
+  text-align:center;
+  font-family:Helvetica Neue, Helvetica, Arial, sans-serif;
+  line-height:40px;
 }
