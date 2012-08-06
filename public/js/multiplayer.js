@@ -204,6 +204,7 @@
     paper : {}, // Raphael's paper
     outerCircle : {}, 
     innerCircle : {},
+    startText : {},
     s : 0, // length of smaller dimension of game
     ir: 0, // radius of inner circle
     or: 0, // radius of outer circle
@@ -253,6 +254,7 @@
       $('#gameAnswerControl').width(.5*textWidth).css({
         marginTop : (ir - (textHeight/2))/4
       });
+
     },
     // generates gradient angles for circle
     _gradientAngleArr : function(numPieces) {
@@ -405,6 +407,13 @@
 
   var mHandler = {
     onGameStart : function() {
+      $('#gameControlsContainer').show();
+      var innerCircle = gameObjects.innerCircle,
+          events = innerCircle.data('events');
+      innerCircle.unhover(events.hoverIn, events.hoverOut);
+      innerCircle.unclick(events.click);
+      gameObjects.startText.remove();
+
       var num = 0;
       console.log(num);
       var circle = gameObjects.innerCircle;
@@ -453,6 +462,7 @@
     },
     onBuzz : function(user) {
       // debugging
+      window.user = user;
       window.answer = {
         answer  : 'whatever',
         correct : false
@@ -489,8 +499,6 @@
   window.mHandler = mHandler;
 
   var loadRoom = function(room) {
-	  // clear the game
-	  $("#game").html("");
 
 	  // slide left wrapper
 	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
@@ -520,6 +528,7 @@
 		  var paper = Raphael('game', s, s),
 		      outerCircle = paper.circle(s/2, s/2, or+outerBorder/2),
 		      innerCircle = paper.circle(s/2, s/2, ir);
+          startText = paper.text(s/2, s/2, "Start");
 
 		  outerCircle.attr({
 			  'stroke-width'	: outerBorder,
@@ -527,12 +536,27 @@
         gradient: 'r(.5,.5)#00f-#00f:50-#000'
 		  });
 
-		  innerCircle.attr({ gradient		:	'r(.5, .5)#fff-#aaa' });
+      innerCircle.data('defaultGradient', 'r(.5, .5)#fff-#aaa');
+      innerCircle.data('hoverGradient', 'r(.5, .5)#fff-#555');
+		  innerCircle.attr({ gradient		:	 innerCircle.data('defaultGradient')});
+
+      startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
+
+      var innerCircleMouse = {
+        click : function() { gameHandler.start(); },
+        hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
+        hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
+      }
+
+      innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
+      innerCircle.click(innerCircleMouse.click);
+      innerCircle.data('events', innerCircleMouse);
 
 			// set references from gameObjects
 			gameObjects.paper = paper;
 			gameObjects.outerCircle = outerCircle;
 			gameObjects.innerCircle = innerCircle;
+      gameObjects.startText = startText;
 			gameObjects.s = s;
 			gameObjects.ir = ir;
 			gameObjects.or = or;
@@ -615,16 +639,14 @@
           roomHandler.answer($("#gameAnswer").val().trim());
         }
       });
-			
-      // set up positioning
-			$(window).resize();
+      $(window).resize();
 	  });
+
   }
 
   var loadGM = function(gm) {
     gameHandler = gm;
     window.gameHandler = gm;
-    console.log(gameHandler.start);
   }
 
   var joinRoom = function(name, id, callback) {
