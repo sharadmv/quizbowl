@@ -161,12 +161,20 @@ var init = function(app) {
         if (query.params.difficulty) {
           difficulties = query.params.difficulty.split("|");
         }
+        var tournaments= [];
+        if (query.params.tournament) {
+          tournaments = query.params.tournament.split("|");
+        }
         var finQuery = [];
         if (categories.length > 0) {
           finQuery.push("category:(\""+categories.join("\" \"")+"\")");
         }
         if (difficulties.length > 0) {
           finQuery.push("difficulty:("+difficulties.join(" ")+")");
+        }
+        console.log(query);
+        if (tournaments.length > 0) {
+          finQuery.push("("+tournaments.map(function(t) {return "(year:"+t.substring(0,4)+" AND tournament:\""+t.substring(5).trim()+"\")" }).join(" ")+")");
         }
         if (term && term != "") {
           if (condition == "answer") {
