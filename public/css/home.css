@@ -1,13 +1,25 @@
 .intro{
+  width:100%;
+  text-align:center;
   font-size:2em;
+  padding-top:5px;
+  padding-bottom:5px;
+}
+#how {
+  font-size:1.5em;
+  margin-top:10px;
+}
+.item {
+  font-size:1.3em;
 }
 #topWrapper {
   width:910px;
-  height:300px;
+  height:150px;
   border-radius:5px;
   border: 10px rgba(10, 157, 264, 1) solid;
   background:white;
   margin:auto;
   margin-top:20px;
   padding:15px;
+  line-height:2em;
 }
