@@ -62,6 +62,11 @@
         this.collection.bind("remove", function(model) {
           self.remove(model);
         }, this);
+        this.collection.bind("change", function() {
+          if (self.collection.length > 0) {
+            self.update();
+          }
+        }, this);
         this._empty = true;
       },
       render : function() {
@@ -69,18 +74,26 @@
         $(this.el).html("No results to be displayed");
         $(topResultControl.el).css({ "display" : "none" });
         $(bottomResultControl.el).css({ "display" : "none" });
+        this._empty = true;
         return this;
       },
-      add : function(model) {
-        var v = new this.View({ model : model });
-        this._views[model.id] = v;
+      update : function() {
         if (this._empty) {
           $(this.el).html("");
           $("#resultsWrapper").css({ "height" : "auto" });
           $(topResultControl.el).css({ "display" : "block" });
           $(bottomResultControl.el).css({ "display" : "block" });
         }
+        var self = this;
+        this.collection.each(function(model) {
+          self.add(model);
+        });
         this._empty = false;
+      },
+      add : function(model) {
+        console.log(model);
+        var v = new this.View({ model : model });
+        this._views[model.id] = v;
         $(this.el).append(v.render().el);
         return this;
       },
@@ -255,7 +268,7 @@
       next : function() {
         var self = this;
         if (this.currentPage < this.totalPages) {
-          this.requestNextPage()
+          this.requestNextPage({ })
             .done(function(data, textStatus, jqXHR) {
               self.trigger("change");
             });
@@ -265,7 +278,7 @@
       previous : function() {
         var self = this;
         if (this.currentPage >= 0) {
-          this.requestPreviousPage()
+          this.requestPreviousPage({ })
             .done(function(data, textStatus, jqXHR) {
               self.trigger("change");
             });

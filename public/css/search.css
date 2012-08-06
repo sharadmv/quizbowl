@@ -5,6 +5,7 @@
   margin-bottom:-30px;
 }
 #searchBoxWrapper {
+  z-index:200;
   width: 940px;
   border: 10px rgba(10, 157, 264, 1) solid;
   background: white;
@@ -50,6 +51,11 @@
   position : relative;
   bottom : 0px;
   text-align:center;
+  z-index:100;
+}
+#bottomResultControl {
+  height:65px;
+  margin-bottom:20px;
 }
 
 #resultsWrapper {
