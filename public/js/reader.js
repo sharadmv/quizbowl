@@ -6,7 +6,11 @@
           question.begin();
         }
       } else {
-        question.buzz();
+        if (!e.shiftKey) {
+          question.buzz();
+        } else {
+          question.begin();
+        }
       }
     }
   });
@@ -132,7 +136,6 @@
       },
       pause : function() {
         clearInterval(this.interval);
-        this.reading = false;
       },
       buzz : function() {
         var self = this;
@@ -146,9 +149,11 @@
       },
       questionTimeout : function() {
         this.trigger("questionTimeout");
+        this.reading = false;
       },
       answerTimeout : function() {
         this.trigger("answerTimeout");
+        this.reading = false;
       },
       answer : function(answer) {
         clearTimeout(this.timeout);
@@ -160,6 +165,7 @@
           url : url,
         }).done(function(response) {
           self.trigger("answer", response.data.correct);
+          self.reading = false;
         });
       }
     })
@@ -171,6 +177,13 @@
       this.model.bind("change", function() {
         this.$("#question").html("");
         this.$("#answer").html("");
+        self._category = true;
+        self._difficulty = true;
+        self.update();
+        this.$("#tournament").html(Mustache.render(
+            "{{year}} {{tournament}}: {{round}}, Question #{{question_num}}"
+            ,
+            self.model.toJSON()))
       }, this);
       this.model.bind("new", function(word) {
         self.word(word);
@@ -186,8 +199,6 @@
       }, this);
     },
     word : function(word) {
-             console.log(word);
-             console.log(this.$("#question"));
       this.$("#question").append(word+" ");
       return this;
     },
@@ -196,12 +207,28 @@
       return this;
     },
     complete : function() {
-      $(this.el).html(
-          Mustache.render(
-          "<div id='question'>{{question}}</div><div id='answer'>ANSWER: {{answer}}</div>"
-          ,this.model.toJSON()
-          )
-      );
+      this.$("#question").html(this.model.get("question"));
+      this.$("#answer").html("ANSWER: "+this.model.get("answer"));
+    },
+    category : function(show) {
+      this._category = show;
+      this.update();
+    },
+    difficulty : function(show) {
+      this._difficulty = show;
+      this.update();
+    },
+    update : function() {
+      if (!this._category && this.model.get('category')) {
+        this.$("#category").html("");
+      } else {
+        this.$("#category").html("Category: "+this.model.get('category'));
+      }
+      if (!this._difficulty && this.model.get('difficulty')) {
+        this.$("#difficulty").html("");
+      } else {
+        this.$("#difficulty").html("Difficulty: "+this.model.get('difficulty'));
+      }
     }
   });
   var ReaderControl = Backbone.View.extend({
@@ -210,6 +237,12 @@
       question.bind("answer", function() {
         self.$("#readerScoreText").html(question.index);
       });
+      this.category = true;
+      this.difficulty = true;
+    },
+    events : {
+      "click #readerToggleCategory" : "toggleCategory",
+      "click #readerToggleDifficulty" : "toggleDifficulty"
     },
     speed : function() {
       var speedIncrement = this.$("#readerSpeedInput").val(); //insert here
@@ -217,6 +250,25 @@
       var speedPerIncrement = 5;
       var speed = startSpeed + speedPerIncrement * (speedIncrement-50) * -1;
       return speed;
+    },
+    toggleCategory : function() {
+      this.category = !this.category;
+      questionBox.category(this.category);
+      if (this.category) {
+        this.$("#readerToggleCategory").html("Hide Category");
+      } else {
+        this.$("#readerToggleCategory").html("Show Category");
+      }
+    },
+    toggleDifficulty : function() {
+      this.difficulty = !this.difficulty;
+      console.log(this);
+      questionBox.difficulty(this.difficulty);
+      if (this.difficulty) {
+        this.$("#readerToggleDifficulty").html("Hide Difficulty");
+      } else {
+        this.$("#readerToggleDifficulty").html("Show Difficulty");
+      }
     }
   });
   var QuestionControl = Backbone.View.extend({
@@ -247,14 +299,20 @@
       }, this);
       question.bind("answer", function(correct) {
         self.$("#answerNotification").css("display","inline");
+        self.$("#answerNotification").css("opacity",1);
+        if (correct) {
+          self.$("#answerNotification").css("color","green");
+        } else {
+          self.$("#answerNotification").css("color","red");
+        }
         self.$("#answerNotification").html(correct?"Correct":"Incorrect");
         self.$("#startButton").css("display","inline");
         self.$("#buzzButton").css("display","none");
         self.$("#skipButton").css("display","none");
         self.$("#answerBox").css("display","none");
         setTimeout(function() {
-          self.$("#answerNotification").animate({ opacity : 0 }, 1000);
-        }, 1000);
+          self.$("#answerNotification").animate({ opacity : 0 }, 2000);
+        }, 3000);
       }, this);
       question.bind("answerTimeout", function() {
         self.$("#answerNotification").css("display","inline");

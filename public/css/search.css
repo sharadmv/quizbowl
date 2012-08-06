@@ -59,6 +59,7 @@
   border-radius: 5px;
   margin-top:10px;
   border:1px solid #aaa;
+  height:26px;
 }
 #results {
 }
@@ -81,4 +82,7 @@
 }
 .pages {
   font-size:1.2em;
+}
+.next, .previous {
+  cursor:pointer;
 }

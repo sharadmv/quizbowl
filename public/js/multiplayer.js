@@ -949,7 +949,7 @@
       } else {
         join = "Join";
       }
-      var button = $("<button class='joinButton btn-small'></button>").html(join).outerHTML();
+      var button = $("<button class='joinButton btn'></button>").html(join).outerHTML();
       return Mustache.render(
         "<div class='roomWrapper'>" +
         "<div class='roomLoadingMask' style='visibility:hidden'><img class='roomLoadingImage' src='/img/loading.gif'></img></div>" +

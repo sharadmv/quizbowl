@@ -55,23 +55,34 @@
         }, this);
         this.collection.bind("reset", function() {
           self.reset();
-          this.render();
+          self.render();
+          $("#resultsWrapper").css({ "height" : "26px" });
+          self._empty = true;
         }, this);
         this.collection.bind("remove", function(model) {
           self.remove(model);
         }, this);
+        this._empty = true;
       },
       render : function() {
         var self = this;
-        this.collection.each(function(model) {
-          self.add(model);
-        });
+        $(this.el).html("No results to be displayed");
+        $(topResultControl.el).css({ "display" : "none" });
+        $(bottomResultControl.el).css({ "display" : "none" });
         return this;
       },
       add : function(model) {
         var v = new this.View({ model : model });
         this._views[model.id] = v;
+        if (this._empty) {
+          $(this.el).html("");
+          $("#resultsWrapper").css({ "height" : "auto" });
+          $(topResultControl.el).css({ "display" : "block" });
+          $(bottomResultControl.el).css({ "display" : "block" });
+        }
+        this._empty = false;
         $(this.el).append(v.render().el);
+        return this;
       },
       remove : function(model) {
         var v = new this.View({ model : model });

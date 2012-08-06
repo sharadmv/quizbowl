@@ -26,20 +26,25 @@
       <div id="readerScore">Score: <span id="readerScoreText">0</span></div>
       <div id="readerSpeed">Reader Text Speed: <input id="readerSpeedInput" type="range" min="0" max="100" value="50"/></div>
       <button id="readerToggleDifficulty" class="btn-small">Hide Difficulty</button>
-      <button id="readerToggleCategory" class="btn-small">Show Category</button>
+      <button id="readerToggleCategory" class="btn-small">Hide Category</button>
     </div>
     <div id='questionControl'>
       <div id='questionBox'>
+        <div id='tournament'></div>
+        <div id='cdWrapper'>
+          <div id='category'></div>
+          <div id='difficulty'></div>
+        </div>
         <div id='question'>
-          Start by pressing space
+          Start reading by pressing space
         </div>
         <div id='answer'>
         </div>
       </div>
       <div id='questionControlWrapper'>
         <button id="startButton" class="btn btn-primary">Start Question (Space)</button>
-        <button id="buzzButton" class="btn">Buzz</button>
-        <button id="skipButton" class="btn">Skip</button>
+        <button id="buzzButton" class="btn btn-primary">Buzz (Space)</button>
+        <button id="skipButton" class="btn btn-warning">Skip (Shift Space)</button>
         <input id="answerBox"/>
         <span id="answerNotification"></span>
       </div>
