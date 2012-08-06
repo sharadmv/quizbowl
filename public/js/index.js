@@ -22,7 +22,37 @@
   window.events.on("auth", function() {
   });
   window.events.on("login", function() {
+    $("#fbLoginDiv").html("Logged In");
+    $(".fbLoginButtonWrapper").css({ width : "128px" });
   });
+  var authenticate = function() {
+    events.trigger("auth");
+    auth.login(FB.getAccessToken(), function(u) {
+      $.ajax("/api/auth?userId="+u.id+"&callback=?",{
+        success : function(response) {
+          window.userId = u.id;
+        }
+      });
+      doneAuthentication(u);
+    });
+  }
+
+  var authenticateWithId = function(id) {
+    events.trigger("auth");
+    auth.loginWithId(id, function(u) {
+      doneAuthentication(u);
+    });
+  }
+
+  var doneAuthentication = function(u) {
+    window.user = u;
+    setInterval(alive, 30000);
+    events.trigger("login");
+    console.log("Authenticated with QuizbowlDB: ", user);
+  }
+  var alive = function() {
+    auth.alive(user.id);
+  }
   function getQueryStrings() { 
     var assoc  = {};
     var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
@@ -47,31 +77,6 @@
         FB.login();
       }
     };
-    var authenticate = function() {
-      auth.login(FB.getAccessToken(), function(u) {
-        $.ajax("/api/auth?userId="+u.id+"&callback=?",{
-          success : function(response) {
-            window.userId = u.id;
-          }
-        });
-        doneAuthentication(u);
-      });
-    }
-
-    var authenticateWithId = function(id) {
-      auth.loginWithId(id, function(u) {
-        doneAuthentication(u);
-      });
-    }
-
-    var doneAuthentication = function(u) {
-      window.user = u;
-      setInterval(alive, 30000);
-      console.log("Authenticated with QuizbowlDB: ", user);
-    }
-    var alive = function() {
-      auth.alive(user.id);
-    }
 
     $.ajax("/api/auth",{
       success : function(response) {
