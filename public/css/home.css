@@ -23,3 +23,25 @@
   padding:15px;
   line-height:2em;
 }
+#bottomWrapper {
+  width:960px;
+  height:400px;
+  margin:auto;
+  margin-top:20px;
+}
+#left {
+  padding:10px;
+  border-radius:5px;
+  background-color:white;
+  width:400px;
+  padding:10px;
+}
+#userTitle {
+  font-family:Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size:1.2em;
+  padding-bottom:5px;
+}
+.userImage {
+  width:25px;
+  border-radius:13px;
+}
