@@ -11,10 +11,10 @@
       multi = m;
 
       multi.on("user_login", function(ev) {
-        users[ev.message.message.id] = ev.message.message;
+        users.add(ev.message.message);
       });
       multi.on("user_logout",function(ev) {
-        delete users[ev.message.message.id];
+        users.remove(ev.message.message);
       });
     });
   });
