@@ -43,6 +43,11 @@
       this._getArcByUserId(user.id).incorrectUser();
     }
 
+    this.correctUser = function(user) {
+      console.log(user.id);
+      this._getArcByUserId(user.id).correctUser();
+    }
+
     this._getArcByUserId = function(id) {
       for (var i = 0; i < this.userArcs.length; i++) {
         var currId = this.userArcs[i].userId;
@@ -474,6 +479,7 @@
     // message params: answer: their answer, correct: bool, message: state of answer on game
     onAnswer : function(user, team, message) {
       //TODO achal can you create some sort of "user+message" notification?
+      console.log(user, message);
       var fn = message.correct ? 'correctUser' : 'incorrectUser';
       gameObjects.teams[team][fn](user);
     },
