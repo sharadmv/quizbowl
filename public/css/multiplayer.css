@@ -142,3 +142,13 @@
 #gameAnswerControl { margin: 0 auto; }
 
 #gameAnswer { display: none; }
+.userImage {
+  width:25px;
+  border-radius:13px;
+}
+.user {
+  position:relative;
+  float:left;
+  margin-right:3px;
+  display:block;
+}
