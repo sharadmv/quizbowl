@@ -374,16 +374,13 @@
 
   var BASE_URL = "";//"http://www.quizbowldb.com:1337";
   var BASE_URL_SUFFIX = "";//"?callback=?";
-  var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
-  var auth, multi;
-  var user;
+  var multi;
   var curRoom;
   var joinedRoom;
   var oldRoomName;
   var partial = "";
 
 
-  bridge.connect();
   bridge.ready(function() {
     bridge.getService("quizbowl-"+namespace+"-multiplayer", function(m) {
       multi = m;
@@ -406,55 +403,7 @@
       multi.on("ticker_event", function(ev) {
       });
     });
-    bridge.getService("quizbowl-"+namespace+"-auth", function(a) {
-      auth = a;
-      if (window.userId) {
-        authenticateWithId(window.userId);
-      } else {
-        if(window.FB){
-          if (window.FB.getAccessToken()) {
-            console.log("Successful FB Authentication");
-            authenticate();
-          } else {
-            window.onFbAuth = function() {
-              authenticate();
-            }
-          }
-        } else {
-          var self = this;
-          window.onFbAuth = function() {
-            authenticate();
-          }
-        }
-      }
-    });
   });
-
-  var authenticate = function() {
-    auth.login(FB.getAccessToken(), function(u) {
-      $.ajax("/api/auth?userId="+u.id+"&callback=?",{
-        success : function(response) {
-          window.userId = u.id;
-        }
-      });
-      doneAuthentication(u);
-    });
-  }
-
-  var authenticateWithId = function(id) {
-    auth.loginWithId(id, function(u) {
-      doneAuthentication(u);
-    });
-  }
-
-  var doneAuthentication = function(u) {
-    user = u;
-    setInterval(alive, 5000);
-    console.log("Authenticated with QuizbowlDB: ", user);
-  }
-  var alive = function() {
-    auth.alive(user.id);
-  }
 
   var mHandler = {
     onGameStart : function() {
@@ -729,7 +678,7 @@
       },
       join : function(callback) {
 				var self = this;
-        if (user) {
+        if (window.user) {
           if (curRoom) {
             oldRoomName = curRoom.get('name');
           }

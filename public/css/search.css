@@ -5,8 +5,9 @@
   margin-bottom:-30px;
 }
 #searchBoxWrapper {
-  width: 960px;
-  background: rgba(10, 157, 264, 1);
+  width: 940px;
+  border: 10px rgba(10, 157, 264, 1) solid;
+  background: white;
   line-height: 50px;
   margin: auto;
   margin-top: 20px;
