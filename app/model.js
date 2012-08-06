@@ -252,8 +252,8 @@ var init = function(app) {
           this.onStartQuestion = function() {
             properties.onStartQuestion();
           }
-          this.onBuzz = function(user, team) {
-            properties.onBuzz(user, team);
+          this.onBuzz = function(user) {
+            properties.onBuzz(user);
           }
           this.onNewWord = function(word) {
             properties.onNewWord(word);
@@ -261,11 +261,11 @@ var init = function(app) {
           this.onUpdateScore = function(scores) {
             properties.onUpdateScore(scores);
           }
-          this.onAnswer = function(user, team, answer) {
-            properties.onAnswer(user, team, answer);
+          this.onAnswer = function(user, answer) {
+            properties.onAnswer(user, answer);
           }
-          this.onAnswerTimeout  = function(user, team) {
-            properties.onAnswerTimeout(user, team);
+          this.onAnswerTimeout  = function(user) {
+            properties.onAnswerTimeout(user);
           }
           this.onQuestionTimeout = function(){
             properties.onQuestionTimeout();
@@ -485,16 +485,16 @@ var init = function(app) {
             },
             onStartQuestion : function() {
             },
-            onBuzz : function(user, team) {
+            onBuzz : function(user) {
               app.log(app.Constants.Tag.MULTIPLAYER, [user.name, "buzzed in"]);
             },
             onNewWord : function(word) {
             },
             onUpdateScore : function(scores) {
             },
-            onAnswer : function(user, team, answer) {
+            onAnswer : function(user, answer) {
             },
-            onAnswerTimeout : function(user, team) {
+            onAnswerTimeout : function(user) {
             },
             onQuestionTimeout : function(){
             },
@@ -549,7 +549,7 @@ var init = function(app) {
             clearTimeout(questionTimeout);
             answering = true;
             currentUser = user;
-            room.getChannel().onBuzz(app.getUsers()[user], team.getId());
+            room.getChannel().onBuzz(app.getUsers()[user]);
             team.setBuzzed(true);
             pauseReading();
             answerTimeout = setTimeout(function(){
@@ -567,23 +567,24 @@ var init = function(app) {
             answering = false;
             clearTimeout(answerTimeout);
             app.util.question.check(answer,currentTossup.answer, function(obj) {
+              console.log(obj);
               if (callback) {
                 callback(obj); 
               }
               var team = room.getTeams()[room.getUserToTeam()[user]];
               if (obj) {
                 team.addScore(user, 10);
-                room.getChannel().onAnswer(app.getUsers()[user],team.getId(), {answer:answer, correct:true, message:"for 10 points"});
+                room.getChannel().onAnswer(app.getUsers()[user],{answer:answer, correct:true, message:"for 10 points"});
                 room.getChannel().onUpdateScore(game.getScore());
                 room.getChannel().onCompleteQuestion(currentTossup);
                 nextQuestion();
               } else {
                 if (numBuzzes == getNumTeams()) {
-                  room.getChannel().onAnswer(app.getUsers()[user], team.getId(), {answer:answer, correct:false, message:"for no penalty"});
+                  room.getChannel().onAnswer(app.getUsers()[user], {answer:answer, correct:false, message:"for no penalty"});
                   nextQuestion();
                 } else {
                   team.addScore(user, -5);
-                  room.getChannel().onAnswer(app.getUsers()[user], team.getId(), {answer:answer, correct:false, message:"for -5 points"});
+                  room.getChannel().onAnswer(app.getUsers()[user],  {answer:answer, correct:false, message:"for -5 points"});
                   room.getChannel().onUpdateScore(game.getScore());
                   resumeReading()
                 }
@@ -682,7 +683,7 @@ var init = function(app) {
         }
         var answerTimer = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
-          room.getChannel().onAnswerTimeout(app.getUsers()[user], team.getId());
+          room.getChannel().onAnswerTimeout(app.getUsers()[user]);
           if (numBuzzes == getNumTeams()) {
             nextQuestion();
             room.getChannel().onCompleteQuestion(currentTossup);

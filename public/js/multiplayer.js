@@ -1,28 +1,21 @@
 (function() {
-  // obj properties: [shape, text, separator, teamName, teamUserIndex]
   function TeamObj(name, maxPlayers) {
     this.name = name;
-    this.userArcs = []; // needs to be ordered to maintain positions
+    this.userArcs = []; 
     this.maxPlayers = maxPlayers;
 
-    this.addArc = function(userArc) {
-      this.userArcs.push(userArc);
+    this.addArc = function(arcProperties) {
+      arcProperties.team = this;
+      this.userArcs.push(new UserArc(arcProperties));
     }
 
-    this.addUserById = function(userId) {
-      this._addUserHelper(userId, true);
-    }
+    // data can be a user object or a user ID
+    this.addUser = function(data) {
+      var nextIndex = this._getNextSeat();
 
-    this.addUser = function(userObj) {
-      this._addUserHelper(userObj, false);
-    }
-
-    this._addUserHelper = function(data, boolById) {
-      var fn = boolById ? 'addUserById' : 'addUser',
-          nextIndex = this._getFirstEmptyIndex();
       if (nextIndex < this.maxPlayers) {
-        var arc = this.userArcs[nextIndex];
-        arc[fn](data);
+        var userArc = this.userArcs[nextIndex];
+        userArc.addUser(data);
       }
     }
 
@@ -33,21 +26,7 @@
         this.userArcs[toRemoveArc] = null;
       }
     }
-
-    this.buzzUser = function(user) {
-      this._getArcByUserId(user.id).buzzUser();
-    }
-
-    this.incorrectUser = function(user) {
-      console.log(user.id);
-      this._getArcByUserId(user.id).incorrectUser();
-    }
-
-    this.correctUser = function(user) {
-      console.log(user.id);
-      this._getArcByUserId(user.id).correctUser();
-    }
-
+    
     this._getArcByUserId = function(id) {
       for (var i = 0; i < this.userArcs.length; i++) {
         var currId = this.userArcs[i].userId;
@@ -59,7 +38,7 @@
       return false;
     }
 
-    this._getFirstEmptyIndex = function() {
+    this._getNextSeat = function() {
       for (var i = 0; i < this.userArcs.length; i++) {
         if (!this.userArcs[i].hasUser) {
           break;
@@ -70,145 +49,157 @@
   }
 
   function UserArc(obj) {
-    var rShape = this.rShape = obj.shape,
-        rText = this.rText = obj.text,
-        rSeparator = this.rSeparator = obj.separator;
+    this.rShape = obj.shape,
+    this.rText = obj.text,
+    this.rSeparator = obj.separator;
+    this.team = obj.team,
+    this.teamUserIndex = obj.teamUserIndex;
+    this.hasUser = this.rText.attr('text') !== '';
+    this.currAttrName = 'inactive';
+    this._setAttr(this.currAttrName);
 
-    var teamName = this.teamName = obj.teamName,
-        teamUserIndex = this.teamUserIndex = obj.teamUserIndex;
-    
-    this.hasUser = rText.attr('text') !== '';
+    // MOUSE EVENT HANDLING
+    // always pass in the UserArc object as context for handlers
+    this.rShape.hover(this.onHoverIn, this.onHoverOut, this, this);
+    this.rShape.click(this.onClick, this);
+  }
 
-    var self = this;
-
-    //++++++++++++++++//
-    // INITIALIZATION //
-    //++++++++++++++++//
-
-    //  ATTRIBUTION
-    // --------------
-    
-    // separator attributes
-    rSeparator.attr({
-      stroke : '#C3B5E8',
-      'stroke-width' : 1,
-      'stroke-opacity':0.3
-    }).toFront();
-
-    // style the player arc
-    rShape.attr({
-      fill: '#000', 
-      'stroke-width':0
-    });
-
-    //  EVENT HANDLING
-    // ----------------
-
-    // arc hovers
-    // we want the entire team to look as one on hover
-    function hoverIn() { 
-      var teamArcs = gameObjects.teams[self.teamName];
-      for (var i = 0; i < teamArcs.userArcs.length; i++) {
-        var shape = teamArcs.userArcs[i].rShape;
-        shape.attr(shape.data('hoverProp'));
+  var userArcPrototypeExtender = {
+    // mouse event handlers
+    // "this" will always refer to a UserArc object
+    onHoverIn : function() {
+      var userArcs = gameObjects.teams[this.team.name].userArcs;
+      for (var i = 0; i < userArcs.length; i++) {
+        userArcs[i]._setAttr('hover', false);
       }
-    }
-
-    function hoverOut() { 
-      var teamArcs = gameObjects.teams[self.teamName];
-      for (var i = 0; i < teamArcs.userArcs.length; i++) {
-        var shape = teamArcs.userArcs[i].rShape,
-            currPropName = shape.data('currPropName');
-        shape.attr(shape.data(currPropName));
+    },
+    onHoverOut : function() {
+      var userArcs = gameObjects.teams[this.team.name].userArcs;
+      for (var i = 0; i < userArcs.length; i++) {
+        var curr = userArcs[i];
+        curr._setAttr(curr.currAttrName, false);
       }
-    }
-    rShape.hover(hoverIn, hoverOut, rShape, rShape);
+    },
+    onClick : function() {
+      roomHandler.sit(this.team.name);
+    },
+    // ADD/REMOVE EVENT HANDLERS
+    addUser : function(data) { // data can be an id or a user object
+      // if we have an id, call the function again with an object
+      if (typeof data == "number") {
+        var self = this;
+        $.get('/api/user/'+userId, function(response) {
+          self.addUser(response.data);
+        });
+        return;
+      }
 
-    var elemData = {
-      hoverInFn : hoverIn,
-      hoverOutFn: hoverOut,
-      hoverProp : {
-        'fill-opacity':0.5
-      },
-      defaultProp : {
-        'fill-opacity':0.8
-      },
-      activeProp : {
-        'fill-opacity':0
-      },
-      buzzedUser : {
-        fill: '#FFFFFF',
-        'fill-opacity':0.5
-      },
-      incorrectUser : {
-        fill: '#A30000',
-        'fill-opacity':1
-      },
-      correctUser : {
-        fill: '#00D100',
-        'fill-opacity':1
-      },
-      currPropName : "defaultProp"
-    }
-    $.each(elemData, function(key, val) { rShape.data(key, val); });
-
-    // team joining
-    rShape.click(function() {
-      roomHandler.sit(self.teamName);
-    });
-
-    //++++++++++++++++//
-    //    METHODS     //
-    //++++++++++++++++//
-
-    this.addUserById = function(userId) {
-      this.userId = userId;
-      $.get('/api/user/'+userId, function(response) {
-        var name = response.data.name;
-        self._addUserByName(name.split(' ')[0]);
-      });
-    };
-
-    this.addUser = function(userObj) {
-      this.userId = userObj.id;
-      var name = userObj.name;
-      this._addUserByName(name.split(' ')[0]);
-    }
-
-    this.removeUser = function() {
-      this.userId = null;
-      rShape.data('currPropName', 'defaultProp');
-      rShape.attr(rShape.data('defaultProp'));
-      rText.attr('text', '');
-      this.hasUser = false;
-    }
-
-    this.buzzUser = function() {
-      rShape.data('currPropName', 'buzzedUser');
-      rShape.attr(rShape.data('buzzedUser'));
-    }
-
-    this.incorrectUser = function() {
-      rShape.data('currPropName', 'incorrectUser');
-      rShape.attr(rShape.data('incorrectUser'));
-    }
-
-    this.correctUser = function() {
-      rShape.data('currPropName', 'correctUser');
-      rShape.attr(rShape.data('correctUser'));
-    }
-
-    this._addUserByName = function(name) {
-      rText.attr('text', name).toFront();
-      var hoverIn = rShape.data('hoverInFn'),
-          hoverOut = rShape.data('hoverOutFn');
-      rShape.unhover(hoverIn, hoverOut);
-      rShape.attr(rShape.data('activeProp'));
-      rShape.data('currPropName', 'activeProp');
+      this.userId = data.id;
       this.hasUser = true;
+      this.rText.attr('text', data.name.split(' ')[0]).toFront();
+      this.rShape.unhover(this.onHoverIn, this.onHoverOut);
+      this._setAttr('active');
+
+      // add to mapping
+      gameObjects.arcs[this.userId] = this;
+    },
+    removeUser : function() {
+      this.userId = null;
+      this.hasUser = false;
+      this.rText.attr('text', '');
+      this.rShape.hover(this.onHoverIn, this.onHoverOut, this, this);
+      this.rShape._setAttr('inactive');
+    },
+    // QUESTION/ANSWER EVENT HANDLERS
+    buzz : function() {
+      this._setAttr('buzzed');
+    },
+    answer : function(boolCorrect) {
+      var attr = boolCorrect == true ? 'correct' : 'incorrect';
+      this._setAttr(attr);
+      var self = this;
+      setTimeout(function() {
+        self._setAttr('active', true, true, 1000); 
+      }, 2000);
+    },
+    // ATTRIBUTE SET/GET
+    // boolChangeCurr ->  if true, change "currPropName" to this property; true
+    //                      by default
+    _setAttr : function(name, boolChangeCurr, boolAnimate, animDuration) {
+      var boolChangeCurr = typeof boolChangeCurr == "undefined" ? true : boolChangeCurr;
+      if (!(name in this._attributes)) { return; }
+      
+      var attr = this._attributes[name];
+      if (boolAnimate) {
+        this.rShape.animate(attr.shape, animDuration);
+        this.rText.animate(attr.text, animDuration);
+      } else { 
+        this.rShape.attr(attr.shape);
+        this.rText.attr(attr.text);
+      }
+      if (boolChangeCurr) {
+        this.currAttrName = name;
+      }
+    },
+    _attributes : {
+      hover : {
+        shape : {
+          fill  : '#000',
+          'fill-opacity':0.5
+        },
+        text  : {
+          fill : '#fff'
+        }
+      },
+      active : { // has a user
+        shape : {
+          fill  : '#000',
+          'fill-opacity':0
+        },
+        text  : {
+          fill : '#fff'
+        }
+      },
+      inactive : { // empty/doesn't have user
+        shape : {
+          fill  : '#000',
+          'fill-opacity':0.8
+        },
+        text  : {
+          fill : '#fff'
+        }
+      },
+      buzzed : {
+        shape : {
+          fill: '#FFFFFF',
+          'fill-opacity':0.5
+        },
+        text : {
+          fill : '#000'
+        }
+      },
+      incorrect : {
+        shape : {
+          fill: '#A30000',
+          'fill-opacity':1
+        },
+        text  : {
+          fill : '#fff'
+        }
+      },
+      correct : {
+        shape : {
+          fill: '#00D100',
+          'fill-opacity':1
+        },
+        text  : {
+          fill : '#fff'
+        }
+      }
     }
   }
-   
+  $.extend(UserArc.prototype, userArcPrototypeExtender, true);
+
   var gameObjects = {
     paper : {}, // Raphael's paper
     outerCircle : {}, 
@@ -217,11 +208,11 @@
     ir: 0, // radius of inner circle
     or: 0, // radius of outer circle
     separators : [], // references to separators between teams
-    teams : {} // teamName to UserArc list
+    teams : {},   // teamName to UserArc list
+    arcs : {}     // user ID to arc
   }
 
   var gameHelpers = {
-    redrawArcs : function(room){},   // redraws users/teams (e.g. on new user)
     recenterGameText : function() {
       // we want the div's top to start somewhere at the upper half of the
       // circle. 
@@ -230,31 +221,32 @@
       // point at which the circle and square's corner meet (the "meet"
       // point)
       var width, height;
-      var ir = gameObjects.ir;
-      var angle = Math.PI/4; 
-      var containerWidth = 2*ir*Math.cos(angle);
-      var containerHeight = ir + ir*Math.sin(angle);
-      var textWidth = .95*containerWidth;
-      var textHeight = 2*ir*Math.sin(angle);
+
+      var ir = gameObjects.ir,
+		      pi = Math.PI,
+          angle = Math.PI/4,
+          containerWidth = 2*ir*Math.cos(angle),
+          containerHeight = ir + ir*Math.sin(angle),
+          textWidth = .95*containerWidth,
+          textHeight = 2*ir*Math.sin(angle);
 
       var $game = $('#game');
 
       // center of the circle, relative to the #game div
-      var cx = $game.width()/2;
-      var cy = $game.height()/2;
+      var cx = $game.width()/2,
+          cy = $game.height()/2;
 
-      // move to center, then move bit more left so it meets "meet" point
-      var left = cx - containerWidth/2;
-      // move to center, then move bit higher so it meets "meet" point
-      var top = cy - containerWidth/2;
+      // move to center, then make it meet the "meet" point
+      var left = cx - containerWidth/2,
+          top = cy - containerWidth/2;
+
+      // positioning is relative to #game div
       $('#gameControlsContainer').width(containerWidth).height(containerHeight).css({
-        // positioning is relative to #game div
         left:left, top:top
       });
 
+      // positioning is relative to #gameTextContainer div
       $('#gameText').width(textWidth).height(textHeight).css({
-        // positioning is relative to #gameTextContainer div
-        // vertically center
         left: .5*($('#gameControlsContainer').width() - textWidth)
       });
 
@@ -299,8 +291,9 @@
 			return paper.path(path);
 	  }, 
     _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name) {
+      var pi = Math.PI;
 		  // if it's too close to a circle, Raphael won't draw anything
-		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
+		  if ((endRad - startRad).toFixed(3) == (2*pi).toFixed(3)) {
 			  if (Raphael.vml) { // VML needs this offset
 				  endRad -= 0.001; 
 			  } else {
@@ -327,7 +320,7 @@
 		  var iey = ieps[1];		// outer end y
 
 		  // larger arc?
-		  var la = endRad - startRad > Math.PI ? 1 : 0;
+		  var la = endRad - startRad > pi ? 1 : 0;
 
 		  // CREATE THE ARC OBJECT
 		  // move to the inner start point
@@ -412,25 +405,36 @@
 
   var mHandler = {
     onGameStart : function() {
-      //TODO achal can you create some sort of "game started" notification
+      var num = 0;
+      console.log(num);
+      var circle = gameObjects.innerCircle;
+      highlight(circle, 0);
+      num++;
+
+      var timer = setInterval(function() {
+        highlight(circle, num);
+        num++;
+      }, 500);
+      function highlight(circle, num) {
+        if (num == 4) { clearInterval(timer); }
+        var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
+        gameObjects.innerCircle.attr({ gradient : grad });
+      }
     },
-    onAnswerTimeout : function(user, team) {
-      //TODO achal can you create some sort of "user timed out" notification
-      gameObjects.teams[team][fn](user);
+    onAnswerTimeout : function(user) {
+      gameObjects.arcs[user.id].answer(false);
     },
     onQuestionTimeout : function() {
-      //TODO achal can you create some sort of "question timed out" notification
       gameObjects.innerCircle.attr({ background : '#A30000' });
     },
     onChat : function(chat) {
       chatRoom.add(chat);
     },
     // message params: answer: their answer, correct: bool, message: state of answer on game
-    onAnswer : function(user, team, message) {
-      //TODO achal can you create some sort of "user+message" notification?
-      console.log(user, message);
-      var fn = message.correct ? 'correctUser' : 'incorrectUser';
-      gameObjects.teams[team][fn](user);
+    onAnswer : function(user, message) {
+                 console.log(user, message);
+      gameObjects.arcs[user.id].answer(message.correct);
+      // TODO: output message
     },
     onNewWord : function(word) {
 			$('#gameText').append(word+" ");
@@ -438,27 +442,26 @@
     onSystemBroadcast : function(message){
     },
     onJoin : function(user) {
+      /*
       for (var i = 0; i < joinedRoom.users.length; i++) {
         if (joinedRoom.users[i] == user.id) {
           joinedRoom.users.splice(i, 1);
         }
       }
       joinedRoom.users.push(user.id);
+      */
       //TODO achal can you create some sort of "this user joined" notification?
     },
-    onBuzz : function(user, team) {
-      //TODO achal can you create some sort of "this user buzzed" notification?
-      window.user = user;
-      window.team = team;
+    onBuzz : function(user) {
+      // debugging
       window.answer = {
         answer  : 'whatever',
         correct : false
       };
-      console.log(user, team);
-      gameObjects.teams[team].buzzUser(user);
+
+      gameObjects.arcs[user.id].buzz();
     },
     onSit : function(user, team) {
-      // joinedRoom.teams[team].players.push(user.id);
       gameObjects.teams[team].addUser(user);
     },
     onLeave : function(user) {
@@ -469,12 +472,7 @@
       }
       
     },
-    onLeaveTeam : function(user, team) {
-      for (var i = 0; i < joinedRoom.teams[team].players; i++) {
-        if (joinedRoom.teams[team].players[i] == user.id) {
-          joinedRoom.teams[team].players.splice(i, 1);
-        }
-      }
+    onLeaveTeam : function(user) {
       gameObjects.teams[team].removeUser(user.id);
     },
     onStartQuestion : function(){
@@ -492,10 +490,6 @@
   window.mHandler = mHandler;
 
   var loadRoom = function(room) {
-    window.room = room;
-    joinedRoom = room;
-    window.joinedRoom = room;
-    
 	  // clear the game
 	  $("#game").html("");
 
@@ -516,12 +510,13 @@
 		      height	= $game.height(),
 		      width		= $game.width();
 
-			// Paper should be a square with the smaller dimension
-		  var s = height < width ? height : width,
-		      or = .9*s/2,  // outer radius
-		      ir = .75*or,  // inner radius
+      // CALCULATE DIMENSIONS
+         
+		  var s = height < width ? height : width,  // smaller dimension
+		      or = .9*s/2,                          // outer radius
+		      ir = .75*or,                          // inner radius
           outerBorder = .025*s,
-		      pi = Math.PI; // mmm... pi...
+		      pi = Math.PI;
 
 		  var paper = Raphael('game', s, s),
 		      outerCircle = paper.circle(s/2, s/2, or+outerBorder/2),
@@ -559,6 +554,7 @@
             players = team.players,
             teamObj = teamArcs[teamName] = new TeamObj(teamName, numPlayersPerTeam),
             last = 0;
+
         for(var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
           var start = part*userIndex,
               end = part*(userIndex+1);
@@ -569,11 +565,9 @@
           var userArcProperties = {
             shape : arc.shape,
             text  : arc.text,
-            separator : arc.separator,
-            teamName : teamName,
-            teamUserIndex : teamUserIndex
+            separator : arc.separator
           }
-          teamObj.addArc(new UserArc(userArcProperties));
+          teamObj.addArc(userArcProperties);
          
           // draw a separator on the last user
           if (teamUserIndex == numPlayersPerTeam - 1) {
@@ -598,7 +592,7 @@
       for (var teamName in room.teams) {
         var team = room.teams[teamName];
         for (var i = 0; i < team.players.length; i++) {
-          gameObjects.teams[teamName].addUserById(team.players[i]);
+          gameObjects.teams[teamName].addUser(team.players[i]);
         }
       }
 
@@ -631,14 +625,14 @@
       });
 			
       // set up positioning
-			gameHelpers.recenterGameText();
-			
+			$(window).resize();
 	  });
   }
 
   var loadGM = function(gm) {
     gameHandler = gm;
     window.gameHandler = gm;
+    console.log(gameHandler.start);
   }
 
   var joinRoom = function(name, id, callback) {
@@ -731,6 +725,7 @@
     User : Backbone.Model.extend({
     })
   }
+
   var Collection = {
     ChatRoom : Backbone.Collection.extend({
       initialize : function(options) {
@@ -826,6 +821,7 @@
       }
     })
   }
+
   var View = {};
   View.Chat = Backbone.View.extend({
     tagName : "div",
@@ -1150,6 +1146,5 @@
       ? this.before(s).remove()
       : jQuery("<p>").append(this.eq(0).clone()).html();
   };
-
 
 })();
