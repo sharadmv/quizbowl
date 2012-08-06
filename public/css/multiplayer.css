@@ -117,12 +117,10 @@
   width:20px;
 }
 #create {
-  /*margin-left: 30px;*/
-  /*width: 250px;*/
   width:100%;
   border-top: 1px solid black;
   border-bottom: 1px solid black;
-  max-height: 400px;
+  height: 485px;
   text-align: center;
   background-color: rgba(72, 160, 229, 0.4);
 }
