@@ -1170,8 +1170,10 @@
       el : $("#create")
     });
     $(document).keydown(function(e) {
-      if (!unbind)  {
-        if (e.which == 32) {
+      if (e.which == 32) {
+        var noBind = ['#gameAnswer', '#roomChatMessage'],
+            selector = noBind.join(', ');
+        if( $(selector).has(e.target).length === 0 && !$(selector).is(e.target) ) {
           if (roomHandler) {
             roomHandler.buzz(function(buzzed) {
               if (buzzed) {
@@ -1181,6 +1183,7 @@
               }
             });
           }
+          e.preventDefault();
         }
       }
     });
