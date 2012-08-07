@@ -504,6 +504,7 @@
 
   var loadRoom = function(room) {
 
+    window.room = room;
 	  // slide left wrapper
 	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
       
@@ -532,7 +533,6 @@
 		  var paper = Raphael('game', s, s),
 		      outerCircle = paper.circle(s/2, s/2, or+outerBorder/2),
 		      innerCircle = paper.circle(s/2, s/2, ir);
-          startText = paper.text(s/2, s/2, "Start");
 
 		  outerCircle.attr({
 			  'stroke-width'	: outerBorder,
@@ -542,22 +542,27 @@
 
       innerCircle.data('defaultGradient', 'r(.5, .5)#fff-#aaa');
       innerCircle.data('hoverGradient', 'r(.5, .5)#fff-#555');
-		  innerCircle.attr({ gradient		:	 innerCircle.data('defaultGradient')});
+      innerCircle.attr({ gradient		:	 innerCircle.data('defaultGradient')});
 
-      startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
+      if (!room.room.game.started) {
+        var startText = paper.text(s/2, s/2, "Start");
+        startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
-      var innerCircleMouse = {
-        click : function() { gameHandler.start(); },
-        hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
-        hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
+        var innerCircleMouse = {
+          click : function() { gameHandler.start(); },
+          hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
+          hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
+        }
+
+        innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
+        innerCircle.click(innerCircleMouse.click);
+        innerCircle.data('events', innerCircleMouse);
+
+        startText.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut, innerCircle, innerCircle);
+        startText.click(innerCircleMouse.click, innerCircle);
+      } else {
+        $('#gameControlsContainer').show();
       }
-
-      innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
-      innerCircle.click(innerCircleMouse.click);
-      innerCircle.data('events', innerCircleMouse);
-
-      startText.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut, innerCircle, innerCircle);
-      startText.click(innerCircleMouse.click, innerCircle);
 
 			// set references from gameObjects
 			gameObjects.paper = paper;
