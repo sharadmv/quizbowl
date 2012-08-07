@@ -409,9 +409,12 @@
     onGameStart : function() {
       $('#gameControlsContainer').show();
       var innerCircle = gameObjects.innerCircle,
+          startText = gameObjects.startText,
           events = innerCircle.data('events');
       innerCircle.unhover(events.hoverIn, events.hoverOut);
       innerCircle.unclick(events.click);
+      startText.unhover(events.hoverIn, events.hoverOut);
+      startText.unclick(events.click);
       gameObjects.startText.remove();
 
       var num = 0;
@@ -552,6 +555,9 @@
       innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
       innerCircle.click(innerCircleMouse.click);
       innerCircle.data('events', innerCircleMouse);
+
+      startText.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut, innerCircle, innerCircle);
+      startText.click(innerCircleMouse.click, innerCircle);
 
 			// set references from gameObjects
 			gameObjects.paper = paper;
