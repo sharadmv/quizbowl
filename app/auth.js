@@ -4,25 +4,27 @@ var init = function(app) {
     },
 		handler: {
       alive:function(userToken, callback) {
-        var update = function() {
-          app.log(app.Constants.Tag.AUTH, [app.getUsers()[userToken].name, "is alive"]);
-          if (app.getTimeouts()[userToken]) {
-            clearTimeout(app.getTimeouts()[userToken]);
-            delete app.getTimeouts()[userToken];
+        if (userToken) {
+          var update = function() {
+            app.log(app.Constants.Tag.AUTH, [app.getUsers()[userToken].name, "is alive"]);
+            if (app.getTimeouts()[userToken]) {
+              clearTimeout(app.getTimeouts()[userToken]);
+              delete app.getTimeouts()[userToken];
+            }
+            app.getTimeouts()[userToken] = setTimeout(function() {
+              app.log(app.Constants.Tag.AUTH, [app.getUsers()[userToken].name, "is dead"]);
+              auth.handler.logout(userToken);
+            }, 60000);
+            if (callback) {
+            }
           }
-          app.getTimeouts()[userToken] = setTimeout(function() {
-            app.log(app.Constants.Tag.AUTH, [app.getUsers()[userToken].name, "is dead"]);
-            auth.handler.logout(userToken);
-          }, 60000);
-          if (callback) {
-          }
-        }
-        if (app.getUsers()[userToken]) {
-          update();
-        } else { 
-          auth.handler.loginWithId(userToken, function(l) {
+          if (app.getUsers()[userToken]) {
             update();
-          });
+          } else { 
+            auth.handler.loginWithId(userToken, function(l) {
+              update();
+            });
+          }
         }
       },
       logout:function(userToken) {
@@ -54,11 +56,7 @@ var init = function(app) {
       },
       loginWithFb:function(fbObject, callback) {
         if (fbObject.id) {
-          app.dao.user.getFromFB(fbObject.id, function(user) {
-            if (user == null) {
-              user = new app.model.Dao.User(null, fbObject.name, fbObject.id, fbObject.email, null);
-            }
-            app.dao.user.save(user);
+          var update = function(user) {
             auth.handler.alive(user.id);
             var login = false;
             if (!app.getUsers()[user.id]) {
@@ -72,6 +70,16 @@ var init = function(app) {
             if (callback) {
               callback(user);
             }
+          }
+          app.dao.user.getFromFB(fbObject.id, function(user) {
+            if (!user) {
+              user = new app.model.Dao.User(null, fbObject.name, fbObject.id, fbObject.email, null);
+            }
+            app.dao.user.save(user, function(u) {
+              if (u) {
+                update(u);
+              }
+            });
           });
         } else {
           callback(null);

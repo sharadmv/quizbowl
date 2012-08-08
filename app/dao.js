@@ -4,7 +4,7 @@ var init = function(app) {
   }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
-    // var solr = require('solr').createClient();
+    var solr = require('solr').createClient();
     var client = mysql.createClient({
       host     : host,
       user     : username,
@@ -217,7 +217,7 @@ var init = function(app) {
         if (querystring == "") {
           querystring = "*:*";
         } 
-        /* solr.query(querystring, options, function(err, response) {
+        solr.query(querystring, options, function(err, response) {
           if (err) {
             console.log(err);
             callback([]);
@@ -229,7 +229,6 @@ var init = function(app) {
             callback(resp);
           }
         });
-        */
       }
     }
     this.tournament = {
