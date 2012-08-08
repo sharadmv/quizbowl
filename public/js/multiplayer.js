@@ -40,7 +40,7 @@
 
     this._getNextSeat = function() {
       for (var i = 0; i < this.userArcs.length; i++) {
-        if (!this.userArcs[i].hasUser) {
+        if (!this.userArcs[i].hasUser()) {
           break;
         }
       }
@@ -54,36 +54,59 @@
     this.rSeparator = obj.separator;
     this.team = obj.team,
     this.teamUserIndex = obj.teamUserIndex;
-    this.hasUser = this.rText.attr('text') !== '';
     this.currAttrName = 'inactive';
+    this.userName;
     this._setAttr(this.currAttrName);
 
     // MOUSE EVENT HANDLING
     // always pass in the UserArc object as context for handlers
     this.rShape.hover(this.onHoverIn, this.onHoverOut, this, this);
     this.rShape.click(this.onClick, this);
+    this.rText.hover(this.onHoverIn, this.onHoverOut, this, this);
+    this.rText.click(this.onClick, this);
   }
 
   var userArcPrototypeExtender = {
     // mouse event handlers
     // "this" will always refer to a UserArc object
     onHoverIn : function() {
-      var userArcs = gameObjects.teams[this.team.name].userArcs;
-      for (var i = 0; i < userArcs.length; i++) {
-        userArcs[i]._setAttr('hover', false);
+      if (this.hasUser()) {
+        this.rText.attr({
+          text: 'Leave',
+          fill: '#f00',
+          'font-weight':'900'
+        }).toFront();
+      } else {
+        var userArcs = gameObjects.teams[this.team.name].userArcs;
+        for (var i = 0; i < userArcs.length; i++) {
+          userArcs[i]._setAttr('hover', false);
+        }
       }
     },
     onHoverOut : function() {
-      var userArcs = gameObjects.teams[this.team.name].userArcs;
-      for (var i = 0; i < userArcs.length; i++) {
-        var curr = userArcs[i];
-        curr._setAttr(curr.currAttrName, false);
+      if (this.hasUser()) {
+        var self = this;
+        this.rText.attr({
+          text: self.userName,
+          fill: '#fff',
+          'font-weight':'normal'
+        }).toFront();
+      } else {
+        var userArcs = gameObjects.teams[this.team.name].userArcs;
+        for (var i = 0; i < userArcs.length; i++) {
+          var curr = userArcs[i];
+          curr._setAttr(curr.currAttrName, false);
+        }
       }
     },
     onClick : function() {
-      roomHandler.sit(this.team.name);
+      if (this.hasUser()) {
+        roomHandler.unsit();
+      } else {
+        roomHandler.sit(this.team.name);
+      }
     },
-    // ADD/REMOVE EVENT HANDLERS
+    // ADD/REMOVE USERS
     addUser : function(data) { // data can be an id or a user object
       // if we have an id, call the function again with an object
       if (typeof data == "number") {
@@ -95,9 +118,8 @@
       }
 
       this.userId = data.id;
-      this.hasUser = true;
-      this.rText.attr('text', data.name.split(' ')[0]).toFront();
-      this.rShape.unhover(this.onHoverIn, this.onHoverOut);
+      this._setUserName(data.name);
+
       this._setAttr('active');
 
       // add to mapping
@@ -105,10 +127,16 @@
     },
     removeUser : function() {
       this.userId = null;
-      this.hasUser = false;
-      this.rText.attr('text', '');
-      this.rShape.hover(this.onHoverIn, this.onHoverOut, this, this);
-      this.rShape._setAttr('inactive');
+      this._setUserName('');
+      this._setAttr('inactive');
+    },
+    hasUser : function() { 
+      console.log(this.userName);
+      return typeof this.userName !== "undefined" && this.userName !== ''; 
+    },
+    _setUserName : function(name) { 
+      var userName = this.userName = name.split(' ')[0];
+      this.rText.attr('text', userName).toFront();
     },
     // QUESTION/ANSWER EVENT HANDLERS
     buzz : function() {
@@ -126,6 +154,7 @@
     // boolChangeCurr ->  if true, change "currPropName" to this property; true
     //                      by default
     _setAttr : function(name, boolChangeCurr, boolAnimate, animDuration) {
+      console.log("changing to " + name);
       var boolChangeCurr = typeof boolChangeCurr == "undefined" ? true : boolChangeCurr;
       if (!(name in this._attributes)) { return; }
       
@@ -204,6 +233,7 @@
     paper : {}, // Raphael's paper
     outerCircle : {}, 
     innerCircle : {},
+    startText : {},
     s : 0, // length of smaller dimension of game
     ir: 0, // radius of inner circle
     or: 0, // radius of outer circle
@@ -253,6 +283,7 @@
       $('#gameAnswerControl').width(.5*textWidth).css({
         marginTop : (ir - (textHeight/2))/4
       });
+
     },
     // generates gradient angles for circle
     _gradientAngleArr : function(numPieces) {
@@ -405,6 +436,16 @@
 
   var mHandler = {
     onGameStart : function() {
+      $('#gameControlsContainer').show();
+      var innerCircle = gameObjects.innerCircle,
+          startText = gameObjects.startText,
+          events = innerCircle.data('events');
+      innerCircle.unhover(events.hoverIn, events.hoverOut);
+      innerCircle.unclick(events.click);
+      startText.unhover(events.hoverIn, events.hoverOut);
+      startText.unclick(events.click);
+      gameObjects.startText.remove();
+
       var num = 0;
       console.log(num);
       var circle = gameObjects.innerCircle;
@@ -454,6 +495,7 @@
     },
     onBuzz : function(user) {
       // debugging
+      window.user = user;
       window.answer = {
         answer  : 'whatever',
         correct : false
@@ -462,6 +504,7 @@
       gameObjects.arcs[user.id].buzz();
     },
     onSit : function(user, team) {
+      console.log("hi");
       gameObjects.teams[team].addUser(user);
     },
     onLeave : function(user) {
@@ -473,7 +516,7 @@
       
     },
     onLeaveTeam : function(user) {
-      gameObjects.teams[team].removeUser(user.id);
+      gameObjects.arcs[user.id].removeUser();
     },
     onStartQuestion : function(){
 			$('#gameText').html("");
@@ -490,9 +533,8 @@
   window.mHandler = mHandler;
 
   var loadRoom = function(room) {
-	  // clear the game
-	  $("#game").html("");
 
+    window.room = room;
 	  // slide left wrapper
 	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
       
@@ -528,12 +570,35 @@
         gradient: 'r(.5,.5)#00f-#00f:50-#000'
 		  });
 
-		  innerCircle.attr({ gradient		:	'r(.5, .5)#fff-#aaa' });
+      innerCircle.data('defaultGradient', 'r(.5, .5)#fff-#aaa');
+      innerCircle.data('hoverGradient', 'r(.5, .5)#fff-#555');
+      innerCircle.attr({ gradient		:	 innerCircle.data('defaultGradient')});
+
+      if (!room.game.started) {
+        var startText = paper.text(s/2, s/2, "Start");
+        startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
+
+        var innerCircleMouse = {
+          click : function() { gameHandler.start(); },
+          hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
+          hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
+        }
+
+        innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
+        innerCircle.click(innerCircleMouse.click);
+        innerCircle.data('events', innerCircleMouse);
+
+        startText.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut, innerCircle, innerCircle);
+        startText.click(innerCircleMouse.click, innerCircle);
+      } else {
+        $('#gameControlsContainer').show();
+      }
 
 			// set references from gameObjects
 			gameObjects.paper = paper;
 			gameObjects.outerCircle = outerCircle;
 			gameObjects.innerCircle = innerCircle;
+      gameObjects.startText = startText;
 			gameObjects.s = s;
 			gameObjects.ir = ir;
 			gameObjects.or = or;
@@ -597,13 +662,6 @@
       }
 
       // set up text/buzzing
-			$game.append('<div id="gameControlsContainer">'
-                 +   '<div id="gameText"></div>'
-                 +   '<div id="gameAnswerControl">'
-                 +     '<input id="gameBuzz" type="button" value="Buzz"></input>'
-                 +     '<input id="gameAnswer" type="text"></input>'
-                 +   '</div>'
-                 + '</div>');
       if (room.game.partial) {
         $('#gameText').html(room.game.partial+" ");
       }
@@ -623,16 +681,14 @@
           roomHandler.answer($("#gameAnswer").val().trim());
         }
       });
-			
-      // set up positioning
-			$(window).resize();
+      $(window).resize();
 	  });
+
   }
 
   var loadGM = function(gm) {
     gameHandler = gm;
     window.gameHandler = gm;
-    console.log(gameHandler.start);
   }
 
   var joinRoom = function(name, id, callback) {
@@ -1114,8 +1170,10 @@
       el : $("#create")
     });
     $(document).keydown(function(e) {
-      if (!unbind)  {
-        if (e.which == 32) {
+      if (e.which == 32) {
+        var noBind = ['#gameAnswer', '#roomChatMessage'],
+            selector = noBind.join(', ');
+        if( $(selector).has(e.target).length === 0 && !$(selector).is(e.target) ) {
           if (roomHandler) {
             roomHandler.buzz(function(buzzed) {
               if (buzzed) {
@@ -1125,6 +1183,7 @@
               }
             });
           }
+          e.preventDefault();
         }
       }
     });
@@ -1140,6 +1199,9 @@
     $("#roomChatMessage").blur(function(e) {
       unbind = false;
     });
+
+    // hide the default buttons
+    $('#gameControlsContainer').hide();
   });
   jQuery.fn.outerHTML = function(s) {
     return s
