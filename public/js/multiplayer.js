@@ -326,14 +326,14 @@
 		  return arr;
 	  },
     _drawSeparator : function(paper, cx, cy, ir, or, radian) {
-			var ptOnCircle = gameHelpers._ptOnCircle;
-		  var ops = ptOnCircle(cx, cy, or, radian); // outer end points
-		  var ips = ptOnCircle(cx, cy, ir, radian); // inner end points
+      var ptOnCircle = gameHelpers._ptOnCircle,
+          ops = ptOnCircle(cx, cy, or, radian), // outer end points
+          ips = ptOnCircle(cx, cy, ir, radian); // inner end points
 
-		  var ix = ips[0];
-		  var iy = ips[1];
-		  var ox = ops[0];
-		  var oy = ops[1];
+      var ix = ips[0],
+          iy = ips[1],
+          ox = ops[0],
+          oy = ops[1];
 			
 		  // move to the inner point
 		  var path = 'M'+ix+','+iy;
@@ -352,25 +352,23 @@
 			  } else {
 				  endRad -= 0.0001; // other browsers can have a smaller offset
 			  }
-		  }
-			var ptOnCircle = gameHelpers._ptOnCircle;
-		  var osps = ptOnCircle(cx, cy, or, startRad); // outer start points
-		  var isps = ptOnCircle(cx, cy, ir, startRad); // inner start points
-		  var oeps = ptOnCircle(cx, cy, or, endRad); // outer end points
-		  var ieps = ptOnCircle(cx, cy, ir, endRad); // inner end points
+      }
+      var ptOnCircle = gameHelpers._ptOnCircle,
+          osps = ptOnCircle(cx, cy, or, startRad), // outer start points
+          isps = ptOnCircle(cx, cy, ir, startRad), // inner start points
+          oeps = ptOnCircle(cx, cy, or, endRad), // outer end points
+          ieps = ptOnCircle(cx, cy, ir, endRad); // inner end points
 
-		  var osx = osps[0];	// outer start x
-		  var osy = osps[1];	// outer start y
+      var osx = osps[0],	// outer start x
+          osy = osps[1],	// outer start y
+          oex = oeps[0],	// outer end x
+          oey = oeps[1];	// outer end y
 
-		  var oex = oeps[0];	// outer end x
-		  var oey = oeps[1];	// outer end y
-
-		  // inner calculations
-		  var isx = isps[0];	// inner start x
-		  var isy = isps[1];	// inner start y
-
-		  var iex = ieps[0];		// outer end x
-		  var iey = ieps[1];		// outer end y
+          // inner calculations
+      var isx = isps[0],	// inner start x
+          isy = isps[1],	// inner start y
+          iex = ieps[0],		// outer end x
+          iey = ieps[1];		// outer end y
 
 		  // larger arc?
 		  var la = endRad - startRad > pi ? 1 : 0;
@@ -396,14 +394,14 @@
 			var shape = paper.path(path);
 
       // write the text
-			var midRadian = (endRad + startRad)/2;
-			var midRadius = (or + ir)/2;
-			var textPts = ptOnCircle(cx, cy, midRadius, midRadian);
-			var textX = textPts[0];
-			var textY = textPts[1];
-			var text = paper.text(textX, textY, name.split(' ')[0]);
-      var fontSize = (or - ir)/4; // about a fourth looks decent
-			text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
+      var midRadian = (endRad + startRad)/2,
+          midRadius = (or + ir)/2,
+          textPts = ptOnCircle(cx, cy, midRadius, midRadian),
+          textX = textPts[0],
+          textY = textPts[1],
+          text = paper.text(textX, textY, name.split(' ')[0]),
+          fontSize = (or - ir)/4; // about a fourth looks decent
+      text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
       // draw the separators
       var separator = gameHelpers._drawSeparator(paper, cx, cy, ir, or, endRad);
@@ -532,180 +530,184 @@
   var loadRoom = function(room) {
 
     window.room = room;
+    // roughly sync up animations
+    var animOptions = { duration : 500, queue : false };
+    // remove padding left on holy grail container
+    $('#holyGrailContainer').animate({paddingLeft : 0 }, animOptions);
+    // scroll header out
+    $('html, body').animate({ scrollTop:	$('#header').height() }, animOptions);
 	  // slide left wrapper
-	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, function() {
-      
-      // increase height of game and make sure the height never gets smaller
-      var newHeight = $('body').height();
-      $('#holyGrailContainer').height(newHeight);
-      $('#holyGrailContainer').css('min-height', newHeight);
+	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, {
+      duration : 500,
+      queue : false, // animate with holy grail container
+      complete : function() {
 
-		  // scroll header out
-		  $('html, body').animate({ scrollTop:	$('#header').height() });
-		  // remove padding left on holy grail container
-		  $('#holyGrailContainer').css({paddingLeft : 0 });
+        // show leave room
+        $('#leaveRoom').show().css('left', $('#leftWrapper').width()*2);
 
-			var $game = $('#game'),
-		      height	= $game.height(),
-		      width		= $game.width();
+        // set up raphael/game/circle stuff
+        var $game = $('#game'),
+            height	= $game.height(),
+            width		= $game.width();
 
-      // CALCULATE DIMENSIONS
-         
-		  var s = height < width ? height : width,  // smaller dimension
-		      or = .9*s/2,                          // outer radius
-		      ir = .75*or,                          // inner radius
-          outerBorder = .025*s,
-		      pi = Math.PI;
+        // CALCULATE DIMENSIONS
+           
+        var s = height < width ? height : width,  // smaller dimension
+            or = .9*s/2,                          // outer radius
+            ir = .75*or,                          // inner radius
+            outerBorder = .025*s,
+            pi = Math.PI;
 
-		  var paper = Raphael('game', s, s),
-		      outerCircle = paper.circle(s/2, s/2, or+outerBorder/2),
-		      innerCircle = paper.circle(s/2, s/2, ir);
+        var paper = Raphael('game', s, s),
+            outerCircle = paper.circle(s/2, s/2, or+outerBorder/2),
+            innerCircle = paper.circle(s/2, s/2, ir);
 
-		  outerCircle.attr({
-			  'stroke-width'	: outerBorder,
-			  stroke	:	'#555',
-        gradient: 'r(.5,.5)#00f-#00f:50-#000'
-		  });
+        outerCircle.attr({
+          'stroke-width'	: outerBorder,
+          stroke	:	'#555',
+          gradient: 'r(.5,.5)#00f-#00f:50-#000'
+        });
 
-      innerCircle.data('defaultGradient', 'r(.5, .5)#fff-#aaa');
-      innerCircle.data('hoverGradient', 'r(.5, .5)#fff-#555');
-      innerCircle.attr({ gradient		:	 innerCircle.data('defaultGradient')});
+        innerCircle.data('defaultGradient', 'r(.5, .5)#fff-#aaa');
+        innerCircle.data('hoverGradient', 'r(.5, .5)#fff-#555');
+        innerCircle.attr({ gradient		:	 innerCircle.data('defaultGradient')});
 
-      if (!room.game.started) {
-        var startText = paper.text(s/2, s/2, "Start");
-        startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
+        if (!room.game.started) {
+          var startText = paper.text(s/2, s/2, "Start");
+          startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
-        var innerCircleMouse = {
-          click : function() { 
-            $('#gameControlsContainer').show();
-            var innerCircle = gameObjects.innerCircle,
-            startText = gameObjects.startText,
-            events = innerCircle.data('events');
-            innerCircle.unhover(events.hoverIn, events.hoverOut);
-            innerCircle.unclick(events.click);
-            startText.unhover(events.hoverIn, events.hoverOut);
-            startText.unclick(events.click);
-            gameObjects.startText.remove();
+          var innerCircleMouse = {
+            click : function() { 
+              $('#gameControlsContainer').show();
+              var innerCircle = gameObjects.innerCircle,
+              startText = gameObjects.startText,
+              events = innerCircle.data('events');
+              innerCircle.unhover(events.hoverIn, events.hoverOut);
+              innerCircle.unclick(events.click);
+              startText.unhover(events.hoverIn, events.hoverOut);
+              startText.unclick(events.click);
+              gameObjects.startText.remove();
 
-            var num = 0;
-            var circle = gameObjects.innerCircle;
-            highlight(circle, 0);
-            num++;
-
-            var timer = setInterval(function() {
-              highlight(circle, num);
+              var num = 0;
+              var circle = gameObjects.innerCircle;
+              highlight(circle, 0);
               num++;
-            }, 500);
-            function highlight(circle, num) {
-              if (num == 4) { clearInterval(timer); }
-              var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
-              gameObjects.innerCircle.attr({ gradient : grad });
+
+              var timer = setInterval(function() {
+                highlight(circle, num);
+                num++;
+              }, 500);
+              function highlight(circle, num) {
+                if (num == 4) { clearInterval(timer); }
+                var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
+                gameObjects.innerCircle.attr({ gradient : grad });
+              }
+              setTimeout(gameHandler.start, 2000); 
+            },
+            hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
+            hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
+          }
+
+          innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
+          innerCircle.click(innerCircleMouse.click);
+          innerCircle.data('events', innerCircleMouse);
+
+          startText.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut, innerCircle, innerCircle);
+          startText.click(innerCircleMouse.click, innerCircle);
+        } else {
+          $('#gameControlsContainer').show();
+        }
+
+        // set references from gameObjects
+        gameObjects.paper = paper;
+        gameObjects.outerCircle = outerCircle;
+        gameObjects.innerCircle = innerCircle;
+        gameObjects.startText = startText;
+        gameObjects.s = s;
+        gameObjects.ir = ir;
+        gameObjects.or = or;
+
+        // draw as many arcs as we need
+        var numTeams = room.properties.numTeams,
+            numPlayersPerTeam = room.properties.numPlayers,
+            numUsers = numTeams * numPlayersPerTeam,
+            part = 2*pi/numUsers,
+            gradientArr = gameHelpers._gradientAngleArr(numUsers);
+
+        var teamArcs = {},
+            separators = [];
+
+        var userIndex = 0;
+        for (var teamName in room.teams) {
+          var team = room.teams[teamName],
+              players = team.players,
+              teamObj = teamArcs[teamName] = new TeamObj(teamName, numPlayersPerTeam),
+              last = 0;
+
+          for(var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
+            var start = part*userIndex,
+                end = part*(userIndex+1);
+
+            // draw the actual arc
+            var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
+
+            var userArcProperties = {
+              shape : arc.shape,
+              text  : arc.text,
+              separator : arc.separator
             }
-            setTimeout(gameHandler.start, 2000); 
-          },
-          hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
-          hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
-        }
-
-        innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);
-        innerCircle.click(innerCircleMouse.click);
-        innerCircle.data('events', innerCircleMouse);
-
-        startText.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut, innerCircle, innerCircle);
-        startText.click(innerCircleMouse.click, innerCircle);
-      } else {
-        $('#gameControlsContainer').show();
-      }
-
-			// set references from gameObjects
-			gameObjects.paper = paper;
-			gameObjects.outerCircle = outerCircle;
-			gameObjects.innerCircle = innerCircle;
-      gameObjects.startText = startText;
-			gameObjects.s = s;
-			gameObjects.ir = ir;
-			gameObjects.or = or;
-
-      // draw as many arcs as we need
-      var numTeams = room.properties.numTeams,
-          numPlayersPerTeam = room.properties.numPlayers,
-          numUsers = numTeams * numPlayersPerTeam,
-          part = 2*pi/numUsers,
-          gradientArr = gameHelpers._gradientAngleArr(numUsers);
-
-      var teamArcs = {},
-          separators = [];
-
-      var userIndex = 0;
-      for (var teamName in room.teams) {
-        var team = room.teams[teamName],
-            players = team.players,
-            teamObj = teamArcs[teamName] = new TeamObj(teamName, numPlayersPerTeam),
-            last = 0;
-
-        for(var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
-          var start = part*userIndex,
-              end = part*(userIndex+1);
-
-          // draw the actual arc
-          var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
-
-          var userArcProperties = {
-            shape : arc.shape,
-            text  : arc.text,
-            separator : arc.separator
+            teamObj.addArc(userArcProperties);
+           
+            // draw a separator on the last user
+            if (teamUserIndex == numPlayersPerTeam - 1) {
+              var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
+              separator.attr({
+                  'stroke-width':5,
+                  stroke: '#f00'
+                  }).toFront();
+              separators.push(separator);
+            }
+            userIndex++;
           }
-          teamObj.addArc(userArcProperties);
-         
-          // draw a separator on the last user
-          if (teamUserIndex == numPlayersPerTeam - 1) {
-            var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
-            separator.attr({
-                'stroke-width':5,
-                stroke: '#f00'
-                }).toFront();
-            separators.push(separator);
+        }
+        // all the arcs have been drawn
+        for (var i = 0; i < separators.length; i++) {
+          separators[i].toFront();
+        }
+        gameObjects.teams = teamArcs;
+        gameObjects.separators = separators;
+
+        // if there are already users in the game, load their names
+        for (var teamName in room.teams) {
+          var team = room.teams[teamName];
+          for (var i = 0; i < team.players.length; i++) {
+            gameObjects.teams[teamName].addUser(team.players[i]);
           }
-          userIndex++;
         }
-      }
-      // all the arcs have been drawn
-      for (var i = 0; i < separators.length; i++) {
-        separators[i].toFront();
-      }
-      gameObjects.teams = teamArcs;
-      gameObjects.separators = separators;
 
-      // if there are already users in the game, load their names
-      for (var teamName in room.teams) {
-        var team = room.teams[teamName];
-        for (var i = 0; i < team.players.length; i++) {
-          gameObjects.teams[teamName].addUser(team.players[i]);
+        // set up text/buzzing
+        if (room.game.partial) {
+          $('#gameText').html(room.game.partial+" ");
         }
-      }
+        
+        // set up buzz event handling
+        $('#gameBuzz').click(function() {
+          roomHandler.buzz(function(buzzed) {
+            if (buzzed) {
+              $('#gameBuzz').hide();
+              $('#gameAnswer').show();
+            }
+          });
+        });
 
-      // set up text/buzzing
-      if (room.game.partial) {
-        $('#gameText').html(room.game.partial+" ");
-      }
-			
-      // set up buzz event handling
-      $('#gameBuzz').click(function() {
-        roomHandler.buzz(function(buzzed) {
-          if (buzzed) {
-            $('#gameBuzz').hide();
-            $('#gameAnswer').show();
+        $('#gameAnswer').bind("keydown", function(e) {
+          if(e.which == 13) {
+            roomHandler.answer($("#gameAnswer").val().trim());
           }
         });
-      });
-
-      $('#gameAnswer').bind("keydown", function(e) {
-        if(e.which == 13) {
-          roomHandler.answer($("#gameAnswer").val().trim());
-        }
-      });
-      $(window).resize();
-	  });
+        $(window).resize();
+      }
+    });
 
   }
 
