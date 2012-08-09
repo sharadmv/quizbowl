@@ -1192,12 +1192,21 @@
     createView = new View.Create({
       el : $("#create")
     });
+    
+    //  EVENT BINDING
+    // ===============
+    
+    // leave room
+    $('#leaveRoom').click(roomHandler.leave);
+
+    // space to buzz
     $(document).keydown(function(e) {
-      if (e.which == 32) {
-        var noBind = ['#gameAnswer', '#roomChatMessage', 'input'],
-            selector = noBind.join(', ');
-        if( $(selector).has(e.target).length === 0 && !$(selector).is(e.target) ) {
-          if (roomHandler) {
+      var noBind = ['#gameAnswer', '#roomChatMessage', 'input'],
+          selector = noBind.join(', '),
+          SPACE = 32;
+      if (e.which == SPACE && 
+            $(selector).has(e.target).length === 0 && !$(selector).is(e.target) 
+                && roomHandler) {
             roomHandler.buzz(function(buzzed) {
               if (buzzed) {
                 $('#gameBuzz').hide();
@@ -1205,9 +1214,7 @@
                 $('#gameAnswer').focus();
               }
             });
-          }
           e.preventDefault();
-        }
       }
     });
     $("#gameAnswer").focus(function(e) {
