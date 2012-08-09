@@ -1171,9 +1171,10 @@
     });
     $(document).keydown(function(e) {
       if (e.which == 32) {
-        var noBind = ['#gameAnswer', '#roomChatMessage'],
+        var noBind = ['#gameAnswer', '#roomChatMessage', 'input'],
             selector = noBind.join(', ');
         if( $(selector).has(e.target).length === 0 && !$(selector).is(e.target) ) {
+          console.log("hi");
           if (roomHandler) {
             roomHandler.buzz(function(buzzed) {
               if (buzzed) {
