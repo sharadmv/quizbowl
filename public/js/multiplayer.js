@@ -131,7 +131,6 @@
       this._setAttr('inactive');
     },
     hasUser : function() { 
-      console.log(this.userName);
       return typeof this.userName !== "undefined" && this.userName !== ''; 
     },
     _setUserName : function(name) { 
@@ -154,7 +153,6 @@
     // boolChangeCurr ->  if true, change "currPropName" to this property; true
     //                      by default
     _setAttr : function(name, boolChangeCurr, boolAnimate, animDuration) {
-      console.log("changing to " + name);
       var boolChangeCurr = typeof boolChangeCurr == "undefined" ? true : boolChangeCurr;
       if (!(name in this._attributes)) { return; }
       
@@ -257,8 +255,12 @@
           angle = Math.PI/4,
           containerWidth = 2*ir*Math.cos(angle),
           containerHeight = ir + ir*Math.sin(angle),
+          heightScaler = 2*ir*Math.sin(angle),
           textWidth = .95*containerWidth,
-          textHeight = 2*ir*Math.sin(angle);
+          textHeight = 1.7*heightScaler/2,
+          textLeft = .5*($('#gameControlsContainer').width() - textWidth),
+          notifHeight = heightScaler - textHeight,
+          notifWidth = textWidth;
 
       var $game = $('#game');
 
@@ -276,14 +278,29 @@
       });
 
       // positioning is relative to #gameTextContainer div
-      $('#gameText').width(textWidth).height(textHeight).css({
+      $('#gameText').css({
+        width : textWidth,
+        height: textHeight,
         left: .5*($('#gameControlsContainer').width() - textWidth)
       });
 
-      $('#gameAnswerControl').width(.5*textWidth).css({
+      $('#gameNotificationText').css({
+        width : notifWidth,
+        height: notifHeight,
+        background:'yellow',
+        left: .5*($('#gameControlsContainer').width() - textWidth)
+      });
+      $('#gameNotificationText').textfill({ maxFontPixels : 18 });
+
+      $('#gameAnswerControl').css({
+        width : .5*textWidth,
         marginTop : (ir - (textHeight/2))/4
       });
 
+    },
+    addNotif : function(notifStr) {
+      $('#gameNotificationText span').html(notifStr);
+      $('#gameNotificationText').textfill({ maxFontPixels : 18 });
     },
     // generates gradient angles for circle
     _gradientAngleArr : function(numPieces) {
@@ -439,37 +456,26 @@
     },
     onAnswerTimeout : function(user) {
       gameObjects.arcs[user.id].answer(false);
+      gameHelpers.addNotif(user.name + " ran out of time to answer the question.");
     },
     onQuestionTimeout : function() {
       gameObjects.innerCircle.attr({ background : '#A30000' });
+      gameHelpers.addNotif("The question timed out.");
     },
     onChat : function(chat) {
       chatRoom.add(chat);
     },
     // message params: answer: their answer, correct: bool, message: state of answer on game
     onAnswer : function(user, message) {
-                 console.log(user, message);
       gameObjects.arcs[user.id].answer(message.correct);
+      var notif = user.name + " answered with "
+                    + message.answer + " " + message.message + ".";
+      gameHelpers.addNotif(notif);
       // TODO: output message
     },
     onNewWord : function(word) {
-      // credit http://stackoverflow.com/questions/687998 for textfill code
 			$('#gameText span').append(word+" ");
-
-      var div = $('#gameText'),
-          maxHeight = div.height(),
-          maxWidth = div.width(),
-          text = $('span', div),
-          fontSize = gameObjects.ir/10,
-          textHeight, textWidth;
-      do {
-        text.css('font-size', fontSize);
-        textHeight = text.height();
-        textWidth = text.width();
-        fontSize = fontSize - 1;
-        console.log("Text h/w",textHeight,textWidth,"; Div h/w",maxHeight, maxWidth);
-      } while ((textHeight > maxHeight || textWidth > maxWidth) && fontSize > 3);
-
+      $('#gameText').textfill({ maxFontPixels : gameObjects.ir/10 });
     },
     onSystemBroadcast : function(message){
     },
@@ -485,17 +491,12 @@
       //TODO achal can you create some sort of "this user joined" notification?
     },
     onBuzz : function(user) {
-      // debugging
-      window.user = user;
-      window.answer = {
-        answer  : 'whatever',
-        correct : false
-      };
-
+      console.log("hi");
       gameObjects.arcs[user.id].buzz();
+      console.log("buzzed");
+      gameHelpers.addNotif(user.name + " buzzed in");
     },
     onSit : function(user, team) {
-      console.log("hi");
       gameObjects.teams[team].addUser(user);
     },
     onLeave : function(user) {
@@ -582,7 +583,6 @@
             gameObjects.startText.remove();
 
             var num = 0;
-            console.log(num);
             var circle = gameObjects.innerCircle;
             highlight(circle, 0);
             num++;
@@ -710,7 +710,6 @@
   }
 
   var joinRoom = function(name, id, callback) {
-    console.log("join room");
     bridge.storeService("handler", mHandler);
     multi.joinRoom(name, user.id, mHandler, function(rh, partial, gh) {
       if (oldRoomName) {
@@ -1066,7 +1065,6 @@
       chatRoom.meta("id", this.id);
       chatRoom.fetch({ add : true });
       chatRoom.bind("add", function(model) {
-        console.log("added");
         var div = this.$("#roomChatBox");
         div.animate({ scrollTop: div.prop("scrollHeight") - div.height() }, 100);
       }, this);
@@ -1221,10 +1219,32 @@
     // hide the default buttons
     $('#gameControlsContainer').hide();
   });
-  jQuery.fn.outerHTML = function(s) {
+
+  $.fn.outerHTML = function(s) {
     return s
       ? this.before(s).remove()
       : jQuery("<p>").append(this.eq(0).clone()).html();
   };
+
+  // credit http://stackoverflow.com/questions/687998 for textfill code
+  $.fn.textfill = function(options) {
+    console.log("textFill called on ", $(this).attr('id'));
+    var fontSize = options.maxFontPixels;
+    var ourText = $('span:visible:first', this);
+    var maxHeight = $(this).height();
+    var maxWidth = $(this).width();
+    var textHeight;
+    var textWidth;
+    do {
+      ourText.css({
+        fontSize : fontSize,
+        lineHeight  : (1.25*fontSize)+'px'
+      });
+      textHeight = ourText.height();
+      textWidth = ourText.width();
+      fontSize = fontSize - 1;
+    } while ((textHeight > maxHeight || textWidth > maxWidth) && fontSize > 3);
+    return this;
+  }
 
 })();
