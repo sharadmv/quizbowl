@@ -15,19 +15,20 @@ html, body {
 
 body {
   background-color:transparent;
-}
-
-html, body {
-	height:100%;
-	width:100%;
+  min-height:100%;
+  height:auto !important;
+  height:100%;
+  background-color:#ccc;
+  /*
+  background-image: -webkit-gradient(linear, left top, left bottm, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.2)));
+  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+  */
 }
 
 html {
   height:100%;
-  background-color:#ccc;
-  background-image: -webkit-gradient(linear, left top, left bottm, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.2)));
-  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
-  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+  width:100%;
 }
 
 .fbLoginButtonWrapper {
@@ -125,11 +126,7 @@ html {
 }
 
 #container {
-  min-height:100%;
-  height:auto !important;
   height:100%;
-  margin:0 auto -40px;
-  padding-bottom:20px;
 }
 
 #headerContainer {
