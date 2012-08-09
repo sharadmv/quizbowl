@@ -192,10 +192,8 @@ html {
 #left {
   float : left;
 }
-#footer, #push {
-  height:40px;
-}
 #footer {
+  height:40px;
   background:white;
   text-align:center;
   font-family:Helvetica Neue, Helvetica, Arial, sans-serif;
