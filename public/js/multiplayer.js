@@ -248,6 +248,7 @@
   }
 
   var gameHelpers = {
+    // TODO clean up this code
     recenterGameText : function() {
       // we want the div's top to start somewhere at the upper half of the
       // circle. 
@@ -295,12 +296,10 @@
         width : notifWidth,
         height: notifHeight,
         left: .5*($('#gameControlsContainer').width() - textWidth)
-      });
-      $('#gameNotificationText').textfill({ maxFontPixels : 18 });
+      }).textfill({ maxFontPixels : 18 });
 
-      $('#gameAnswerControl').css({
+      $('#gameAnswerControl, #gameAnswer').css({
         width : .5*textWidth,
-        marginTop : (ir - (textHeight/2))/4
       });
 
     },
