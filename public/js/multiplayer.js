@@ -1240,7 +1240,6 @@
 
   // credit http://stackoverflow.com/questions/687998 for textfill code
   $.fn.textfill = function(options) {
-    console.log("textFill called on ", $(this).attr('id'));
     var fontSize = options.maxFontPixels;
     var ourText = $('span:visible:first', this);
     var maxHeight = $(this).height();
