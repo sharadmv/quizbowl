@@ -1230,8 +1230,6 @@
       unbind = false;
     });
 
-    // hide the default buttons
-    $('#gameControlsContainer').hide();
   });
 
   $.fn.outerHTML = function(s) {
