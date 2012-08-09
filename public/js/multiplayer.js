@@ -453,7 +453,23 @@
       // TODO: output message
     },
     onNewWord : function(word) {
-			$('#gameText').append(word+" ");
+      // credit http://stackoverflow.com/questions/687998 for textfill code
+			$('#gameText span').append(word+" ");
+
+      var div = $('#gameText'),
+          maxHeight = div.height(),
+          maxWidth = div.width(),
+          text = $('span', div),
+          fontSize = gameObjects.ir/10,
+          textHeight, textWidth;
+      do {
+        text.css('font-size', fontSize);
+        textHeight = text.height();
+        textWidth = text.width();
+        fontSize = fontSize - 1;
+        console.log("Text h/w",textHeight,textWidth,"; Div h/w",maxHeight, maxWidth);
+      } while ((textHeight > maxHeight || textWidth > maxWidth) && fontSize > 3);
+
     },
     onSystemBroadcast : function(message){
     },

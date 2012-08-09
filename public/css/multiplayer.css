@@ -133,7 +133,7 @@
 
 #gameText {
 	position:relative;
-	text-align:left;
+	text-align:justify;
 }
 
 #gameAnswerControl { margin: 0 auto; }
