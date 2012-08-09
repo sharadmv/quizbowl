@@ -1,7 +1,7 @@
 Quizbowl DB 
 ================
 
-Quizbowl DB is an online framework that provides quizbowlers (see ["www.naqt.com"]("NAQT")) with an easy way to learn, practice, and play with others.
+Quizbowl DB is an online framework that provides quizbowlers (see [NAQT]("www.naqt.com")) with an easy way to learn, practice, and play with others.
 
 Features
 ----------
@@ -11,8 +11,14 @@ Features
 
 Technology
 ---------
-At the top, Quizbowl DB operates with a MySQL database, with a Solr indexing for full-text search. The core framework is written in node.js, with Expressjs for routing. The framework serves up a REST API that allow access to the 3 features. For the multiplayer game, the realtime communication and server events are handled with ["www.getbridge.com"]("Bridge"). Also implemented is a web interface, also completely in javascript. It uses the REST API and Bridge to interface with the server. It also utilizes ["www.backbonejs.org"]("BackboneJS"), jQuery, some minimal Bootstrap, qTip, and Mustache for templating.
+At the top, Quizbowl DB operates with a MySQL database, with a Solr indexing for full-text search. The core framework is written in node.js, with Expressjs for routing. The framework serves up a REST API that allow access to the 3 features. For the multiplayer game, the realtime communication and server events are handled with [Bridge](www.getbridge.com). Also implemented is a web interface, also completely in javascript. It uses the REST API and Bridge to interface with the server. It also utilizes [BackboneJS](www.backbonejs.org), jQuery, some minimal Bootstrap, qTip, and Mustache for templating.
 
 API
 --------
-To be written...
+The API is divided into two parts: REST and Bridge
+
+The REST API gives you access to the such things as the searching service, the browsing service, and other static things. The Bridge component allows you to hook into the realtime services of the framework, such as the chat, ticker, and multiplayer.
+
+To get access to the REST API, you will need some HTTP Basic Auth credentials. Please email me at sharad.vikram@gmail.com.
+TO get access to the Bridge API, you will need some a Bridge API Key. Please email me at sharad.vikram@gmail.com.
+To be continued...
