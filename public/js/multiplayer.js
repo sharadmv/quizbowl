@@ -55,21 +55,26 @@
     this.team = obj.team,
     this.teamUserIndex = obj.teamUserIndex;
     this.currAttrName = 'inactive';
-    this.userName;
     this._setAttr(this.currAttrName);
+    this.userName;
+    this.userSet = gameObjects.paper.set(); 
+    // for hover/click event binding
+    this.userSet.push(this.rShape, this.rText)
 
     // MOUSE EVENT HANDLING
     // always pass in the UserArc object as context for handlers
-    this.rShape.hover(this.onHoverIn, this.onHoverOut, this, this);
-    this.rShape.click(this.onClick, this);
-    this.rText.hover(this.onHoverIn, this.onHoverOut, this, this);
-    this.rText.click(this.onClick, this);
+    this.userSet.hover(this.onHoverIn, this.onHoverOut, this, this);
+    this.userSet.click(this.onClick, this);
   }
 
   var userArcPrototypeExtender = {
     // mouse event handlers
     // "this" will always refer to a UserArc object
     onHoverIn : function() {
+      // hover in is getting triggered multiple times if you change the text attr
+      // of the text element. Take out the hover in event binding, and put it 
+      // back during on hover.
+      this.userSet.unhover(this.onHoverIn, null);
       if (this.hasUser()) {
         this.rText.attr({
           text: 'Leave',
@@ -98,6 +103,8 @@
           curr._setAttr(curr.currAttrName, false);
         }
       }
+      // see on hover in comments
+      this.userSet.hover(this.onHoverIn, null, this, this);
     },
     onClick : function() {
       if (this.hasUser()) {
