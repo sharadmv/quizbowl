@@ -287,7 +287,6 @@
       $('#gameNotificationText').css({
         width : notifWidth,
         height: notifHeight,
-        background:'yellow',
         left: .5*($('#gameControlsContainer').width() - textWidth)
       });
       $('#gameNotificationText').textfill({ maxFontPixels : 18 });

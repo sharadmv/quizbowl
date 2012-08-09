@@ -134,8 +134,6 @@
 #gameText {
 	position:relative;
 	text-align:justify;
-  background:red;
-  line-height:1em;
 }
 
 #gameNotificationText {
