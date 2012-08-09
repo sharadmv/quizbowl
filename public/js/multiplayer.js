@@ -436,31 +436,6 @@
 
   var mHandler = {
     onGameStart : function() {
-      $('#gameControlsContainer').show();
-      var innerCircle = gameObjects.innerCircle,
-          startText = gameObjects.startText,
-          events = innerCircle.data('events');
-      innerCircle.unhover(events.hoverIn, events.hoverOut);
-      innerCircle.unclick(events.click);
-      startText.unhover(events.hoverIn, events.hoverOut);
-      startText.unclick(events.click);
-      gameObjects.startText.remove();
-
-      var num = 0;
-      console.log(num);
-      var circle = gameObjects.innerCircle;
-      highlight(circle, 0);
-      num++;
-
-      var timer = setInterval(function() {
-        highlight(circle, num);
-        num++;
-      }, 500);
-      function highlight(circle, num) {
-        if (num == 4) { clearInterval(timer); }
-        var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
-        gameObjects.innerCircle.attr({ gradient : grad });
-      }
     },
     onAnswerTimeout : function(user) {
       gameObjects.arcs[user.id].answer(false);
@@ -579,7 +554,34 @@
         startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
         var innerCircleMouse = {
-          click : function() { gameHandler.start(); },
+          click : function() { 
+            $('#gameControlsContainer').show();
+            var innerCircle = gameObjects.innerCircle,
+            startText = gameObjects.startText,
+            events = innerCircle.data('events');
+            innerCircle.unhover(events.hoverIn, events.hoverOut);
+            innerCircle.unclick(events.click);
+            startText.unhover(events.hoverIn, events.hoverOut);
+            startText.unclick(events.click);
+            gameObjects.startText.remove();
+
+            var num = 0;
+            console.log(num);
+            var circle = gameObjects.innerCircle;
+            highlight(circle, 0);
+            num++;
+
+            var timer = setInterval(function() {
+              highlight(circle, num);
+              num++;
+            }, 500);
+            function highlight(circle, num) {
+              if (num == 4) { clearInterval(timer); }
+              var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
+              gameObjects.innerCircle.attr({ gradient : grad });
+            }
+            setTimeout(gameHandler.start, 2000); 
+          },
           hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
           hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
         }
@@ -1174,7 +1176,6 @@
         var noBind = ['#gameAnswer', '#roomChatMessage', 'input'],
             selector = noBind.join(', ');
         if( $(selector).has(e.target).length === 0 && !$(selector).is(e.target) ) {
-          console.log("hi");
           if (roomHandler) {
             roomHandler.buzz(function(buzzed) {
               if (buzzed) {
