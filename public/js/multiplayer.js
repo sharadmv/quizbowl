@@ -307,6 +307,23 @@
       $('#gameNotificationText span').html(notifStr);
       $('#gameNotificationText').textfill({ maxFontPixels : 18 });
     },
+    leaveRoom : function() {
+      // return to original state
+      $('#leaveRoom').hide();
+      $('#game').animate({ opacity : 0 }, {
+        queue : false,
+        duration : 500,
+        complete : function() { 
+          // rougly sync up animations
+          var animOptions = { queue : false, duration : 500 };
+          $('#holyGrailContainer').animate({paddingLeft : 250}, animOptions);         
+          $('#leftWrapper').animate({
+            right : $('#leftWrapper').width() 
+          }, animOptions);
+          $('html, body').animate({ scrollTop : 0 }, animOptions);
+        }
+      });
+    },
     // generates gradient angles for circle
     _gradientAngleArr : function(numPieces) {
 		  // We start with the right side of the circle, taking the bottom piece of
@@ -457,6 +474,9 @@
   var mHandler = {
     onGameStart : function() {
     },
+    onGameEnd : function() {
+      gameHelpers.leaveRoom();
+    },
     onAnswerTimeout : function(user) {
       gameObjects.arcs[user.id].answer(false);
       gameHelpers.addNotif(user.name + " ran out of time to answer the question.");
@@ -494,21 +514,14 @@
       //TODO achal can you create some sort of "this user joined" notification?
     },
     onBuzz : function(user) {
-      console.log("hi");
       gameObjects.arcs[user.id].buzz();
-      console.log("buzzed");
       gameHelpers.addNotif(user.name + " buzzed in");
     },
     onSit : function(user, team) {
       gameObjects.teams[team].addUser(user);
     },
     onLeave : function(user) {
-      for (var i = 0; i < joinedRoom.users.length; i++) {
-        if (joinedRoom.users[i] == user.id) {
-          joinedRoom.users.splice(i, 1);
-        }
-      }
-      
+      gameHelpers.leaveRoom();
     },
     onLeaveTeam : function(user) {
       gameObjects.arcs[user.id].removeUser();
@@ -1167,12 +1180,12 @@
   var gameHandler;
   var roomHandler;
   var unbind = false;
-  $(document).ready(function() {
+  $(function() {
     // set up the holy grail stuffs
-    var holyGrailHeight = $('body').height() - $('#header').height();
-    $('#holyGrailContainer').height(holyGrailHeight).css({
-      minHeight : holyGrailHeight
-    });
+    // increase height of game and make sure the height never gets smaller
+    var newHeight = $('body').height();
+    $('#holyGrailContainer').height(newHeight);
+    $('#holyGrailContainer').css('min-height', newHeight);
     $(window).resize(function() {
       gameHelpers.recenterGameText();
     });
