@@ -21,8 +21,12 @@
   width:910px;
   height:195px;
   border-radius:5px;
-  border: 10px rgba(10, 157, 264, 1) solid;
-  background:white;
+  border: 10px #000438 solid;
+  background: #dcdbff;
+  -moz-box-shadow:inset 0px 0px 5px 3px #000438;
+  -o-box-shadow:inset 0px 0px 5px 3px #000438;
+  -webkit-box-shadow:inset 0px 0px 5px 3px #000438;
+  box-shadow:inset 0px 0px 5px 3px #000438;
   margin:auto;
   margin-top:20px;
   padding:15px;
