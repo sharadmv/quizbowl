@@ -1,15 +1,14 @@
 #filterBox {
-  margin:auto;
   display:block;
-  width: 940px;
-  border: 10px rgba(10, 157, 264, 1) solid;
-  line-height: 50px;
-  margin: auto;
+  margin:auto;
   margin-top: 20px;
-  border-radius: 5px;
-  height:170px;
   padding:5px;
-  background:white;
+  height:170px;
+  width: 940px;
+  line-height: 50px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 #readerControl {
   width:350px;
@@ -30,6 +29,7 @@
 }
 #filter {
   margin-top:20px;
+  display:inline-block;
 }
 #readerControl{
   width:261px;
@@ -58,7 +58,7 @@
 #readerSpeedInput {
   width:125px;
 }
-.category, .difficulty, .tournament {
+#filter > div {
   float:left;
   line-height:100%;
   padding-left:20px;
@@ -82,7 +82,8 @@
   font-size: 1.1em;
   margin-left: 5px;
 }
-.categorySelect, .difficultySelect, .tournamentSelect {
+#filter select {
+  width:220px;
   vertical-align:middle;
 }
 .filterLabel {
