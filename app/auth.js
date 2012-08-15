@@ -71,11 +71,14 @@ var init = function(app) {
               callback(user);
             }
           }
+          console.log(fbObject);
           app.dao.user.getFromFB(fbObject.id, function(user) {
             if (!user) {
               user = new app.model.Dao.User(null, fbObject.name, fbObject.id, fbObject.email, null);
             }
+            console.log(user);
             app.dao.user.save(user, function(u) {
+              console.log(u);
               if (u) {
                 update(u);
               }

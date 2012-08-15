@@ -278,6 +278,9 @@ var init = function(app) {
     });
   });
 
+  application.get('/privacy', function (req, res) {
+    res.send("QuizbowlDB is only holding your email for future purposes of email lists",200);
+  });
   application.get('*', function (req, res) {
     res.send("Sorry bro",404);
   });

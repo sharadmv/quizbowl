@@ -479,7 +479,7 @@
       // TODO: output message
     },
     onNewWord : function(word) {
-			$('#gameText span').append(word+" ");
+			$('#gameText').append(word+" ");
       $('#gameText').textfill({ maxFontPixels : gameObjects.ir/10 });
     },
     onSystemBroadcast : function(message){

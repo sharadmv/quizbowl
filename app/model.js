@@ -679,7 +679,7 @@ var init = function(app) {
                 questionTimer();
               }
             }
-          },app.Constants.Multiplayer.Game.DEFAULT_READ_SPEED);
+          },room.getProperties().readingSpeed);
         }
         var answerTimer = function(user){
           var team = room.getTeams()[room.getUserToTeam()[user]];
