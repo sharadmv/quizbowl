@@ -4,21 +4,13 @@
 	padding-right:250px;
 	height:100%;
 }
+  #holyGrailContainer > div {
+    position:relative;
+    height:100%;
+    float:left;
+  }
 
-#holyGrailContainer > div {
-	position:relative;
-	height:100%;
-	float:left;
-}
-
-#roomChat { 
-}
-#roomChatBox {
-  height:300px;
-  overflow:auto;
-}
 #game {
-	background:#aaa;
 	width:100%;
 	text-align:center;
 }
@@ -40,6 +32,9 @@
   width:250px;
 	margin-right:-250px;
 }
+/* holy grail end */
+
+/* game creation styling */
 #lobby {
   width:100%;
   border-top:1px solid black;
@@ -92,7 +87,6 @@
   width:25px;
   margin-top:5px;
 }
-
 .joinButton {
   position: relative;
   float: right;
@@ -108,18 +102,9 @@
   text-align: center;
   height:100%;
 }
-
-.chatImage {
-  width : 25px;
-  border-radius : 12px;
-}
-.numBox {
-  width:20px;
-}
 #create {
   width:100%;
   border-top: 1px solid black;
-  border-bottom: 1px solid black;
   height: 485px;
   text-align: center;
   background-color: rgba(72, 160, 229, 0.4);
@@ -127,8 +112,26 @@
 .createButton {
 }
 
+/* room leaving */
+#leaveRoom { 
+  display:none; /* until loadRoom called */
+  position:absolute;
+  cursor:pointer;
+  top:0px;
+  width:100px;
+  height:30px;
+  line-height:30px;
+  background:red;
+} #leaveRoom :hover {
+
+  } #leaveRoom :active {
+
+  }
+
+/* actual game controls styling */
 #gameControlsContainer {
 	position:absolute;
+  display:none;
 }
 
 #gameText {
@@ -146,6 +149,21 @@
 .userImage {
   width:25px;
   border-radius:13px;
+}
+
+/* chat styling */
+#roomChat { 
+}
+#roomChatBox {
+  height:300px;
+  overflow:auto;
+}
+.chatImage {
+  width : 25px;
+  border-radius : 12px;
+}
+.numBox {
+  width:20px;
 }
 .user {
   position:relative;
