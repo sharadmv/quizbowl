@@ -121,6 +121,9 @@ body {
   height:60px;
   background:#000438;
   background-image: -moz-linear-gradient(top, #000438, #000545);
+  background-image: -o-linear-gradient(top, #000438, #000545);
+  background-image: -webkit-linear-gradient(top, #000438, #000545);
+  background-image: linear-gradient(top, #000438, #000545);
   /*
 	background:#0A70DC;
   background-image: -webkit-gradient(linear, left bottom, left top, from(#0A9DFF), to(#0A72F2));
@@ -184,6 +187,9 @@ body {
   margin-top: -20px;
   font-size:1.3em;
   background-image: -moz-radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
+  background-image: -o-radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
+  background-image: -webkit-radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
+  background-image: radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
   /* animate the background image through hacky ways yay! */
   background-repeat:no-repeat;
   background-size:100% 0%;
@@ -205,6 +211,5 @@ body {
   height:40px;
   background:white;
   text-align:center;
-  font-family:Helvetica Neue, Helvetica, Arial, sans-serif;
   line-height:40px;
 }
