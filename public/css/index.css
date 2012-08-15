@@ -1,3 +1,6 @@
+/* GENERAL CODE 
+   ============ */
+
 /* Main fonts */
 @font-face {
   font-family: 'Junction';
@@ -31,10 +34,9 @@ body {
   background-image: -o-linear-gradient(top, #dcdbff, #efefef);
   background-image: -webkit-linear-gradient(top, #dcdbff, #efefef);
   background-image: linear-gradient(top, #dcdbff, #efefef);
+  background-attachment:fixed;
+  background-repeat:no-repeat;
 }
-
-/* GENERAL CODE 
-   ============ */
 img {
   vertical-align:middle;
 }
