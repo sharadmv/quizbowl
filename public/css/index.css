@@ -32,6 +32,23 @@ body {
   background-image: linear-gradient(top, #dcdbff, #efefef);
 }
 
+/* GENERAL CODE 
+   ============ */
+img {
+  vertical-align:middle;
+}
+
+/* General classes */
+.bigBox {
+  border: 10px #000438 solid;
+  background: #dcdbff;
+  -moz-box-shadow:inset 0px 0px 5px 3px #000438;
+  -o-box-shadow:inset 0px 0px 5px 3px #000438;
+  -webkit-box-shadow:inset 0px 0px 5px 3px #000438;
+  box-shadow:inset 0px 0px 5px 3px #000438;
+}
+
+/* Header/navigation styling */
 .fbLoginButtonWrapper {
   padding-top: 21px !important;
   padding-bottom: 21px !important;
@@ -62,59 +79,6 @@ body {
   border-left: 1px solid rgba(0, 0, 0, 0.2);
   height:13px;
 }
-
-/*
-.btn-small{
-  cursor: pointer;
-  border: none;
-  border-radius: 14px;
-  padding-left: 12px;
-  color: white;
-  -moz-box-shadow: 3px 3px 5px 6px #ccc;
-  -webkit-box-shadow: 3px 3px 5px -11px #ccc;
-  box-shadow: 0px 0px 0px 2px #ddd;
-  background: #4096EE;
-  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#00344B), to(#06192C));
-  background-image: -webkit-linear-gradient(bottom, #4096EE, #4096E0);
-  background-image: -moz-linear-gradient(top, #00344B, #06192C);
-  background-image: -ms-linear-gradient(top, #00344B, #06192C);
-  background-image: -o-linear-gradient(top, #00344B, #06192C);
-  padding-right: 12px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-  font-size: 0.8em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-  margin-top: 3px;
-  margin-left: 3px;
-  margin-right: 3px;
-  margin-bottom: 3px;
-}
-
-.btn-medium {
-  cursor:pointer;
-  border: none;
-  border-radius:14px;
-  padding-left: 12px;
-  color: white;
-  -moz-box-shadow: 3px 3px 5px 6px #ccc;
-  -webkit-box-shadow: 3px 3px 5px -11px #ccc;
-  box-shadow: 0px 0px 0px 5px #ddd;
-  background: #4096EE;
-  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#00344B), to(#06192C));
-  background-image: -webkit-linear-gradient(bottom, #4096EE, #4096E0);
-  background-image:    -moz-linear-gradient(top, #00344B, #06192C);
-  background-image:     -o-linear-gradient(top, #00344B, #06192C);
-  padding-right: 12px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  font-size: 1.1em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-  margin-top: 5px;
-  margin-left: 5px;
-  margin-right: 5px;
-  margin-bottom: 5px;
-}
-*/
 
 #header {
 	width:100%;
@@ -161,36 +125,39 @@ body {
   padding-top: 5px;
   padding-bottom: 6px;
 }
+
 #headerImg {
+  vertical-align:middle;
   height:40px;
 }
+
 #menu li {
 	list-style:none;
 	display:inline-block;
+  line-height:18px;
 }
 #menu a {
   display: inline-block;
-  margin: 0;
   float: left;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 25px;
-  padding-bottom: 19px;
-  background: #09F;
-  -moz-transition: background 0.3s ease-out;
-  -o-transition: background 0.3s ease-out;
-  -webkit-transition: background 0.3s ease-out;
-  transition: background 0.3s ease-out;
-  background-color: transparent;
+  margin: 0;
+  margin-top: -20px;
+  padding: 25px 20px 19px 20px;
+
   text-decoration: none;
   color: white;
-  margin-top: -20px;
   font-size:1.3em;
+
+  background:transparent;
   background-image: -moz-radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
   background-image: -o-radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
   background-image: -webkit-radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
   background-image: radial-gradient(center bottom, circle farthest-side, #000661 10%, #000438 100%);
+
   /* animate the background image through hacky ways yay! */
+  -moz-transition: background 0.3s ease-out;
+  -o-transition: background 0.3s ease-out;
+  -webkit-transition: background 0.3s ease-out;
+  transition: background 0.3s ease-out;
   background-repeat:no-repeat;
   background-size:100% 0%;
   background-position: 200% 300%;
