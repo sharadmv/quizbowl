@@ -118,7 +118,7 @@
       // if we have an id, call the function again with an object
       if (typeof data == "number") {
         var self = this;
-        $.get('/api/user/'+userId, function(response) {
+        $.get('/api/user/'+data, function(response) {
           self.addUser(response.data);
         });
         return;
@@ -360,7 +360,7 @@
 
 			return paper.path(path);
 	  }, 
-    _drawUser : function(paper, cx, cy, ir, or, startRad, endRad, name) {
+    _drawUser : function(paper, cx, cy, ir, or, startRad, endRad) {
       var pi = Math.PI;
 		  // if it's too close to a circle, Raphael won't draw anything
 		  if ((endRad - startRad).toFixed(3) == (2*pi).toFixed(3)) {
@@ -416,7 +416,7 @@
           textPts = ptOnCircle(cx, cy, midRadius, midRadian),
           textX = textPts[0],
           textY = textPts[1],
-          text = paper.text(textX, textY, name.split(' ')[0]),
+          text = paper.text(textX, textY, ''),
           fontSize = (or - ir)/4; // about a fourth looks decent
       text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
@@ -659,10 +659,11 @@
 
           for(var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
             var start = part*userIndex,
-                end = part*(userIndex+1);
+                end = part*(userIndex+1),
+                user = team[teamUserIndex];
 
             // draw the actual arc
-            var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end, name);
+            var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end);
 
             var userArcProperties = {
               shape : arc.shape,
