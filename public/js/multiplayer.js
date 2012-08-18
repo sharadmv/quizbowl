@@ -591,18 +591,19 @@
 
           var innerCircleMouse = {
             click : function() { 
+              // TODO: light box to confirm leaving the game
               $('#gameControlsContainer').show();
               var innerCircle = gameObjects.innerCircle,
-              startText = gameObjects.startText,
-              events = innerCircle.data('events');
+                  startText = gameObjects.startText,
+                  events = innerCircle.data('events');
               innerCircle.unhover(events.hoverIn, events.hoverOut);
               innerCircle.unclick(events.click);
               startText.unhover(events.hoverIn, events.hoverOut);
               startText.unclick(events.click);
               gameObjects.startText.remove();
 
-              var num = 0;
-              var circle = gameObjects.innerCircle;
+              var num = 0,
+                  circle = gameObjects.innerCircle;
               highlight(circle, 0);
               num++;
 
@@ -610,11 +611,15 @@
                 highlight(circle, num);
                 num++;
               }, 500);
+
               function highlight(circle, num) {
-                if (num == 4) { clearInterval(timer); }
+                if (num == 4) { 
+                  clearInterval(timer); 
+                }
                 var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
                 gameObjects.innerCircle.attr({ gradient : grad });
               }
+
               setTimeout(gameHandler.start, 2000); 
             },
             hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
