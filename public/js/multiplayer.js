@@ -4,8 +4,13 @@
     this.userArcs = []; 
     this.maxPlayers = maxPlayers;
 
-    this.addScoreArc = function(rArc) {
-      
+    this.addScoreArc = function(scoreArcObj) {
+      this.scoreArcObj = scoreArcObj;
+    }
+
+    this.updateScore = function(score) {
+      console.log(score);
+      this.scoreArcObj.text.attr({ text : score+'' });
     }
 
     this.addArc = function(arcProperties) {
@@ -377,8 +382,11 @@
 
       rPath.attr({'fill':'#f00'}).toFront();
 
-      gameHelpers._drawText(paper, cx, cy, rInner, rOuter, startRad, endRad, '0');
-      return rPath;
+      var text = gameHelpers._drawText(paper, cx, cy, rInner, rOuter, startRad, endRad, '0', width*9/10);
+      return {
+        shape : rPath,
+        text : text
+      };
     },
     drawUser : function(paper, cx, cy, ir, or, startRad, endRad) {
       var pi = Math.PI,
@@ -390,7 +398,7 @@
 			var shape = gameHelpers._drawBasicArc(paper, cx, cy, ir, or, startRad, endRad);
 
       // write the text
-      var text = gameHelpers._drawText(paper, cx, cy, ir, or, startRad, endRad, '');
+      var text = gameHelpers._drawText(paper, cx, cy, ir, or, startRad, endRad, '', (or-ir)/3);
 
       // draw the separators
       var separator = gameHelpers.drawSeparator(paper, cx, cy, ir, or, endRad);
@@ -447,16 +455,23 @@
 
       return paper.path(path);
     },
-    _drawText : function(paper, cx, cy, ir, or, startRad, endRad, text) {
+    _drawText : function(paper, cx, cy, ir, or, startRad, endRad, text, fontSize) {
+      var pi = Math.PI;
+
       var midRadian = (endRad + startRad)/2,
           midRadius = (or + ir)/2,
           textPts = gameHelpers._ptOnCircle(cx, cy, midRadius, midRadian),
           ptX = textPts[0],
           ptY = textPts[1],
           text = paper.text(ptX, ptY, text),
-          fontSize = (or - ir)/4; // about a fourth looks decent
+          fontSize = typeof fontSize == "undefined" ? (or - ir)/4 : fontSize;
       
-      text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
+      text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif'});
+      var startDeg = startRad*360/2/pi,
+          endDeg = endRad*360/2/pi,
+          mid = (startDeg+endDeg)/2,
+          rotateDegree = endDeg <= 180 ? mid - 90 : mid + 90;
+      text.transform('R'+rotateDegree+','+ptX+','+ptY);
       return text;
     },
     _fixArcPossibleCircle : function(startRad, endRad) {
@@ -574,7 +589,10 @@
     onCompleteQuestion : function(question) {
       $('#gameText').html(''/*question.question*/);
     },
-    onUpdateScore : function(score){
+    onUpdateScore : function(scoreObj) {
+      for (var i in scoreObj) {
+        gameObjects.teams[i].updateScore(scoreObj[i].total);
+      }
     }
   };
   window.mHandler = mHandler;
