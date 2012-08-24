@@ -8,11 +8,6 @@
   z-index:200;
   width: 940px;
   border: 10px #000438 solid;
-  background: #dcdbff;
-  -moz-box-shadow:inset 0px 0px 5px 3px #000438;
-  -o-box-shadow:inset 0px 0px 5px 3px #000438;
-  -webkit-box-shadow:inset 0px 0px 5px 3px #000438;
-  box-shadow:inset 0px 0px 5px 3px #000438;
   line-height: 50px;
   margin: auto;
   margin-top: 20px;

@@ -4,6 +4,15 @@
     this.userArcs = []; 
     this.maxPlayers = maxPlayers;
 
+    this.addScoreArc = function(scoreArcObj) {
+      this.scoreArcObj = scoreArcObj;
+    }
+
+    this.updateScore = function(score) {
+      console.log(score);
+      this.scoreArcObj.text.attr({ text : score+'' });
+    }
+
     this.addArc = function(arcProperties) {
       arcProperties.team = this;
       this.userArcs.push(new UserArc(arcProperties));
@@ -342,7 +351,7 @@
 		  }
 		  return arr;
 	  },
-    _drawSeparator : function(paper, cx, cy, ir, or, radian) {
+    drawSeparator : function(paper, cx, cy, ir, or, radian) {
       var ptOnCircle = gameHelpers._ptOnCircle,
           ops = ptOnCircle(cx, cy, or, radian), // outer end points
           ips = ptOnCircle(cx, cy, ir, radian); // inner end points
@@ -360,32 +369,67 @@
 
 			return paper.path(path);
 	  }, 
-    _drawUser : function(paper, cx, cy, ir, or, startRad, endRad) {
+    drawTeamScoreArc : function(paper, cx, cy, r, width, startRad, endRad) {
+      var pi = Math.PI,
+          fixed = gameHelpers._fixArcPossibleCircle(startRad, endRad),
+          startRad = fixed[0],
+          endRad = fixed[1];
+
+      var rInner = r,
+          rOuter = r + width;
+
+      var rPath = gameHelpers._drawBasicArc(paper, cx, cy, rInner, rOuter, startRad, endRad);
+
+      rPath.attr({'fill':'#f00'}).toFront();
+
+      var text = gameHelpers._drawText(paper, cx, cy, rInner, rOuter, startRad, endRad, '0', width*9/10);
+      return {
+        shape : rPath,
+        text : text
+      };
+    },
+    drawUser : function(paper, cx, cy, ir, or, startRad, endRad) {
+      var pi = Math.PI,
+          ptOnCircle = gameHelpers._ptOnCircle,
+          fixed = gameHelpers._fixArcPossibleCircle(startRad, endRad),
+          startRad = fixed[0],
+          endRad = fixed[1];
+
+			var shape = gameHelpers._drawBasicArc(paper, cx, cy, ir, or, startRad, endRad);
+
+      // write the text
+      var text = gameHelpers._drawText(paper, cx, cy, ir, or, startRad, endRad, '', (or-ir)/3);
+
+      // draw the separators
+      var separator = gameHelpers.drawSeparator(paper, cx, cy, ir, or, endRad);
+			return {
+				shape	:	shape,
+				text	: text,
+        separator : separator
+			}
+	  },
+    _ptOnCircle : function(cx, cy, r, radian) {
+		  return [cx+r*Math.cos(radian), cy+r*Math.sin(radian)];
+    },
+    _drawBasicArc : function(paper, cx, cy, ir, or, startRad, endRad) {
       var pi = Math.PI;
-		  // if it's too close to a circle, Raphael won't draw anything
-		  if ((endRad - startRad).toFixed(3) == (2*pi).toFixed(3)) {
-			  if (Raphael.vml) { // VML needs this offset
-				  endRad -= 0.001; 
-			  } else {
-				  endRad -= 0.0001; // other browsers can have a smaller offset
-			  }
-      }
+
       var ptOnCircle = gameHelpers._ptOnCircle,
-          osps = ptOnCircle(cx, cy, or, startRad), // outer start points
-          isps = ptOnCircle(cx, cy, ir, startRad), // inner start points
-          oeps = ptOnCircle(cx, cy, or, endRad), // outer end points
-          ieps = ptOnCircle(cx, cy, ir, endRad); // inner end points
+          osps = ptOnCircle(cx, cy, or, startRad),  // outer start points
+          isps = ptOnCircle(cx, cy, ir, startRad),  // inner start points
+          oeps = ptOnCircle(cx, cy, or, endRad),    // outer end points
+          ieps = ptOnCircle(cx, cy, ir, endRad);    // inner end points
 
       var osx = osps[0],	// outer start x
           osy = osps[1],	// outer start y
           oex = oeps[0],	// outer end x
           oey = oeps[1];	// outer end y
 
-          // inner calculations
+      // inner calculations
       var isx = isps[0],	// inner start x
           isy = isps[1],	// inner start y
-          iex = ieps[0],		// outer end x
-          iey = ieps[1];		// outer end y
+          iex = ieps[0],	// outer end x
+          iey = ieps[1];	// outer end y
 
 		  // larger arc?
 		  var la = endRad - startRad > pi ? 1 : 0;
@@ -408,28 +452,38 @@
 
 		  // close the path
 		  path += 'Z';
-			var shape = paper.path(path);
 
-      // write the text
+      return paper.path(path);
+    },
+    _drawText : function(paper, cx, cy, ir, or, startRad, endRad, text, fontSize) {
+      var pi = Math.PI;
+
       var midRadian = (endRad + startRad)/2,
           midRadius = (or + ir)/2,
-          textPts = ptOnCircle(cx, cy, midRadius, midRadian),
-          textX = textPts[0],
-          textY = textPts[1],
-          text = paper.text(textX, textY, ''),
-          fontSize = (or - ir)/4; // about a fourth looks decent
-      text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif', 'font-weight':'300'});
-
-      // draw the separators
-      var separator = gameHelpers._drawSeparator(paper, cx, cy, ir, or, endRad);
-			return {
-				shape	:	shape,
-				text	: text,
-        separator : separator
-			}
-	  },
-    _ptOnCircle : function(cx, cy, r, radian) {
-		  return [cx+r*Math.cos(radian), cy+r*Math.sin(radian)];
+          textPts = gameHelpers._ptOnCircle(cx, cy, midRadius, midRadian),
+          ptX = textPts[0],
+          ptY = textPts[1],
+          text = paper.text(ptX, ptY, text),
+          fontSize = typeof fontSize == "undefined" ? (or - ir)/4 : fontSize;
+      
+      text.attr({fill:'#fff', font:fontSize+'px Segoe UI, sans-serif'});
+      var startDeg = startRad*360/2/pi,
+          endDeg = endRad*360/2/pi,
+          mid = (startDeg+endDeg)/2,
+          rotateDegree = endDeg <= 180 ? mid - 90 : mid + 90;
+      text.transform('R'+rotateDegree+','+ptX+','+ptY);
+      return text;
+    },
+    _fixArcPossibleCircle : function(startRad, endRad) {
+		  // if an arc is too close to a circle, Raphael won't draw anything
+		  if ((endRad - startRad).toFixed(3) == (2*Math.PI).toFixed(3)) {
+			  if (Raphael.vml) { // VML needs this offset
+				  endRad -= 0.001; 
+			  } else {
+				  endRad -= 0.0001; // other browsers can have a smaller offset
+			  }
+      }
+      return [startRad, endRad];
     }
   }
 
@@ -535,7 +589,10 @@
     onCompleteQuestion : function(question) {
       $('#gameText').html(''/*question.question*/);
     },
-    onUpdateScore : function(score){
+    onUpdateScore : function(scoreObj) {
+      for (var i in scoreObj) {
+        gameObjects.teams[i].updateScore(scoreObj[i].total);
+      }
     }
   };
   window.mHandler = mHandler;
@@ -576,7 +633,7 @@
             innerCircle = paper.circle(s/2, s/2, ir);
 
         outerCircle.attr({
-          'stroke-width'	: outerBorder,
+          'stroke-width'	: 0,
           stroke	:	'#555',
           gradient: 'r(.5,.5)#00f-#00f:50-#000'
         });
@@ -589,20 +646,22 @@
           var startText = paper.text(s/2, s/2, "Start");
           startText.attr({font:(ir/3)+'px Segoe UI, sans-serif', 'font-weight':'300'});
 
+          // set up inner circle event handlers
           var innerCircleMouse = {
             click : function() { 
+              // TODO: light box to confirm leaving the game
               $('#gameControlsContainer').show();
               var innerCircle = gameObjects.innerCircle,
-              startText = gameObjects.startText,
-              events = innerCircle.data('events');
+                  startText = gameObjects.startText,
+                  events = innerCircle.data('events');
               innerCircle.unhover(events.hoverIn, events.hoverOut);
               innerCircle.unclick(events.click);
               startText.unhover(events.hoverIn, events.hoverOut);
               startText.unclick(events.click);
               gameObjects.startText.remove();
 
-              var num = 0;
-              var circle = gameObjects.innerCircle;
+              var num = 0,
+                  circle = gameObjects.innerCircle;
               highlight(circle, 0);
               num++;
 
@@ -610,11 +669,15 @@
                 highlight(circle, num);
                 num++;
               }, 500);
+
               function highlight(circle, num) {
-                if (num == 4) { clearInterval(timer); }
+                if (num == 4) { 
+                  clearInterval(timer); 
+                }
                 var grad = num%2 == 0 ? 'r(.5, .5)#fff-#aaa' : 'r(.5, .5)#aaa-#000';
                 gameObjects.innerCircle.attr({ gradient : grad });
               }
+
               setTimeout(gameHandler.start, 2000); 
             },
             hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
@@ -657,13 +720,18 @@
               teamObj = teamArcs[teamName] = new TeamObj(teamName, numPlayersPerTeam),
               last = 0;
 
+          var teamScoreArcStart = part*userIndex,
+              teamScoreArcEnd   = part*(userIndex + numPlayersPerTeam)
+              teamScoreArc = gameHelpers.drawTeamScoreArc(paper, s/2, s/2, or, outerBorder, teamScoreArcStart, teamScoreArcEnd);
+          teamObj.addScoreArc(teamScoreArc);
+           
           for(var teamUserIndex = 0; teamUserIndex < numPlayersPerTeam; teamUserIndex++) {
             var start = part*userIndex,
                 end = part*(userIndex+1),
                 user = team[teamUserIndex];
 
             // draw the actual arc
-            var arc = gameHelpers._drawUser(paper, s/2, s/2, ir, or, start, end);
+            var arc = gameHelpers.drawUser(paper, s/2, s/2, ir, or, start, end);
 
             var userArcProperties = {
               shape : arc.shape,
@@ -674,7 +742,7 @@
            
             // draw a separator on the last user
             if (teamUserIndex == numPlayersPerTeam - 1) {
-              var separator = gameHelpers._drawSeparator(paper, s/2, s/2, ir, or, end);
+              var separator = gameHelpers.drawSeparator(paper, s/2, s/2, ir, or, end);
               separator.attr({
                   'stroke-width':5,
                   stroke: '#f00'
