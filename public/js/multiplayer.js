@@ -88,13 +88,15 @@
         this.rText.attr({
           text: 'Leave',
           fill: '#f00',
-          'font-weight':'900'
+          'font-weight':'900',
+          cursor : 'pointer'
         }).toFront();
       } else {
         var userArcs = gameObjects.teams[this.team.name].userArcs;
         for (var i = 0; i < userArcs.length; i++) {
           userArcs[i]._setAttr('hover', false);
         }
+        this.rShape.attr({cursor : 'pointer'});
       }
     },
     onHoverOut : function() {
@@ -598,6 +600,7 @@
   window.mHandler = mHandler;
 
   var loadRoom = function(room) {
+    // TODO: clean up this code, move much of it to gameHelpers.init or such
 
     window.room = room;
     // roughly sync up animations
@@ -648,7 +651,7 @@
 
           // set up inner circle event handlers
           var innerCircleMouse = {
-            click : function() { 
+            click : function() {
               // TODO: light box to confirm leaving the game
               $('#gameControlsContainer').show();
               var innerCircle = gameObjects.innerCircle,
@@ -680,8 +683,18 @@
 
               setTimeout(gameHandler.start, 2000); 
             },
-            hoverIn : function() { this.attr({ gradient : this.data('hoverGradient')}); },
-            hoverOut : function() { this.attr({ gradient : this.data('defaultGradient')}); }
+            hoverIn : function() { 
+              this.attr({ 
+                gradient : this.data('hoverGradient'),
+                cursor : 'pointer'
+              }); 
+            },
+            hoverOut : function() { 
+              this.attr({ 
+                gradient : this.data('defaultGradient'),
+                cursor : 'pointer'
+              }); 
+            },
           }
 
           innerCircle.hover(innerCircleMouse.hoverIn, innerCircleMouse.hoverOut);

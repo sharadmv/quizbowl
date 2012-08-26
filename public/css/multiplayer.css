@@ -16,7 +16,6 @@
 }
 
 #leftWrapper{
-	text-align:center;
 	background-color:rgba(0, 143, 213, 0.5);
 	height:100%;
 	width:250px;
@@ -44,14 +43,17 @@
 }
 
 .room {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  border-top:1px solid rgba(0,0,0,0.4);
-  border-bottom:1px solid rgba(0,0,0,0.4);
   height:35px;
   padding-top:3px;
+  border:solid rgba(0,0,0,0.4);
+  border-width:1px 0px;
+  cursor:pointer;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
+
 .roomName {
   line-height:38px;
   position:relative;
@@ -64,10 +66,10 @@
   position : relative;
   margin-top:-3px;
   height:38px;
-}
-.roomWrapper:hover {
-  background-color:rgba(0, 0, 0, 0.3);
-}
+} .roomWrapper:hover {
+    background-color:rgba(0, 0, 0, 0.3);
+  }
+
 .roomHostImage {
   margin-top: 5px;
   margin-bottom: 5px;
@@ -102,15 +104,55 @@
   text-align: center;
   height:100%;
 }
-#create {
-  width:100%;
-  border-top: 1px solid black;
-  height: 485px;
-  text-align: center;
-  background-color: rgba(72, 160, 229, 0.4);
+
+#lobbyWrapper {
+
 }
-.createButton {
+  #lobbyWrapper h2 {
+    margin:0;
+    height:2em;
+    line-height:2em;
+    text-align:center;
+  }
+
+#createWrapper {
+  padding:0;
 }
+  #createWrapper h2 {
+    margin:0;
+    height:2em;
+    line-height:2em;
+    text-align:center;
+  }
+  #createWrapper .createField {
+    min-height:1.5em;
+    width:90%;
+    margin:0 auto;
+    overflow:auto;
+    padding:5px 0px;
+  }
+  #createWrapper label {
+    display:inline-block;
+    vertical-align:middle;
+    width:30%;
+  }
+  #createWrapper input, #createWrapper select {
+    width:70%;
+    /* ^ width should include all borders/padding, so: */
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  #create {
+    width:100%;
+    border-top: 1px solid black;
+    height: 485px;
+  }
+  #createButton {
+    display:block;
+    margin:0 auto;
+  }
 
 /* room leaving */
 #leaveRoom { 
@@ -161,9 +203,6 @@
 .chatImage {
   width : 25px;
   border-radius : 12px;
-}
-.numBox {
-  width:20px;
 }
 .user {
   position:relative;
