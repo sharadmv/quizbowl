@@ -44,36 +44,36 @@
     },
     loadTournaments : function(arr) {
       $.each(arr, function(key, val) {
-        $(".tournamentSelect").append(
+        $("#tournamentSelect").append(
           "<option>"+val.year+" "+val.tournament+"</option>"
         );
       });
     },
     loadCategories : function(arr) {
       $.each(arr, function(key, val) {
-        $(".categorySelect").append(
+        $("#categorySelect").append(
           "<option>"+val+"</option>"
         );
       });
     },
     loadDifficulties : function(arr) {
       $.each(arr, function(key, val) {
-        $(".difficultySelect").append(
+        $("#difficultySelect").append(
           "<option>"+val+"</option>"
         );
       });
     },
     getParams : function() {
       var options = {};
-      var difficulty = this.$(".difficultySelect").val();
+      var difficulty = this.$("#difficultySelect").val();
       if (difficulty) {
         options.difficulty = difficulty.join("|");
       }
-      var category = this.$(".categorySelect").val();
+      var category = this.$("#categorySelect").val();
       if (category) {
         options.category = category.join("|");
       }
-      var tournament = this.$(".tournamentSelect").val();
+      var tournament = this.$("#tournamentSelect").val();
       if (tournament) {
         options.tournament = tournament.join("|");
       }
