@@ -26,7 +26,6 @@
 #rightWrapper {
   float:left;
   background-color:rgba(0, 143, 213, 0.5);
-  text-align:center;
   height:100%;
   width:250px;
 	margin-right:-250px;
@@ -194,15 +193,33 @@
 }
 
 /* chat styling */
+#userlist {
+  overflow:auto;
+}
 #roomChat { 
 }
 #roomChatBox {
   height:300px;
   overflow:auto;
 }
+.chat {
+  overflow:auto;
+}
 .chatImage {
+  display:inline-block;
   width : 25px;
-  border-radius : 12px;
+  border-radius : 500px;
+}
+
+.chatText {
+  display:inline-block;
+  margin-left:5px;
+  width:180px;
+  vertical-align:middle
+}
+.chatTime {
+  display:inline-block;
+  width : 40px;
 }
 .user {
   position:relative;
