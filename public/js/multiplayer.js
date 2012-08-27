@@ -800,6 +800,9 @@
             roomHandler.answer($("#gameAnswer").val().trim());
           }
         });
+    
+        // leave room
+        $('#leaveRoom').click(roomHandler.leave);
         $(window).resize();
       }
     });
@@ -1290,9 +1293,6 @@
     
     //  EVENT BINDING
     // ===============
-    
-    // leave room
-    $('#leaveRoom').click(roomHandler.leave);
 
     // space to buzz
     $(document).keydown(function(e) {
