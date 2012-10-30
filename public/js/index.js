@@ -1,6 +1,6 @@
 (function() {
   var triggers = {};
-  var bridge = new Bridge({ apiKey : "c44bcbad333664b9" });
+  var bridge = new Bridge({ host : "quizbowldb.com", port:8091, apiKey : "llikiklaandcmnmf" });
   bridge.connect();
   window.bridge = bridge;
   window.events = {

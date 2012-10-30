@@ -1,6 +1,5 @@
 var app = this;
-
-var namespace = process.argv[2]?process.argv[2]:"test";
+var namespace = process.argv[2]?process.argv[2]:"release";
 this.namespace = function() {
   return namespace;
 }
@@ -143,4 +142,5 @@ app.login(5,function(user){
   });
 });
 */
+console.log("sup");
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

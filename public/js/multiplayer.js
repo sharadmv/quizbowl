@@ -592,6 +592,7 @@
       $('#gameText').html(''/*question.question*/);
     },
     onUpdateScore : function(scoreObj) {
+                      console.log(scoreObj);
       for (var i in scoreObj) {
         gameObjects.teams[i].updateScore(scoreObj[i].total);
       }

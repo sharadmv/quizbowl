@@ -47,7 +47,7 @@ var init = function(app) {
   });
   
   var authorize = express.basicAuth(function(user, password) {
-    return (user == 'username' && password =='password');
+    return true;
   });
 
   application.get('/api/auth', function(req, res) {
@@ -284,14 +284,13 @@ var init = function(app) {
   application.get('*', function (req, res) {
     res.send("Sorry bro",404);
   });
-  
   var server = {
-    listen:function(deploy){
-      var port = DEPLOY[deploy];
-      port = port?port:1337;
-      application.listen(port);
-      app.log(app.Constants.Tag.SERVER, ["Listening on", port]);
-    }
+      app : function() {return application},
+      listen:function(deploy){
+             var port = DEPLOY[deploy]?DEPLOY[deploy]:1337;
+             console.log("listening on", port);
+            application.listen(port);
+      }
   }
   return server;
 }

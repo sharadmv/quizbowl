@@ -1,0 +1,17 @@
+{
+  "author": "",
+  "name": "quizbowl",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sharadmv/quizbowl.git"
+  },
+  "dependencies": {
+    "express" : "2.x"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
