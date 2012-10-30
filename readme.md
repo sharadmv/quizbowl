@@ -29,9 +29,13 @@ Base URL: http://www.quizbowldb.com/api
 * /tossup/:id/
 
 **Services:**
+
 * Search: /service/?method=tossup.search
+
 Example: http://quizbowldb.com/api/search/?random=true&limit=1&params%5Bdifficulty%5D=HS&params%5Bcategory%5D=Literature
+
 * Answer Checking: /service/?method=answer.check
+
 Example: http://quizbowldb.com/api/service?method=answer.check&answer=dickens&canon=George%20Eliot%20[or%20Mary%20Ann%20Evans]
 
 To get access to the Bridge API, you will need some a Bridge API Key. Please email me at sharad.vikram@gmail.com.
