@@ -801,6 +801,9 @@
             roomHandler.answer($("#gameAnswer").val().trim());
           }
         });
+    
+        // leave room
+        $('#leaveRoom').click(roomHandler.leave);
         $(window).resize();
       }
     });
@@ -1015,15 +1018,30 @@
           classes : "ui-tooltip-blue ui-tooltip-shadow ui-tooltip-rounded"
         }
       });
+      this.$(".chatTime").qtip({
+        style : {
+          classes : "ui-tooltip-blue ui-tooltip-shadow ui-tooltip-rounded"
+        },
+        position : {
+          my : 'top right',
+          at : 'bottom left'
+        }
+      });
       return this;
     },
     template : function(model) {
+      var date = new Date(model.time),
+          rawHour = date.getHours();
+      function padZero(int) { return int < 10 ? '0'+int : ''+int; }
+      model.hour = padZero(rawHour == 0 || rawHour > 12 ? Math.abs(rawHour - 12) : rawHour);
+      model.min = padZero(date.getMinutes());
+      model.time = date.toUTCString();
       return Mustache.render(
         "<span title='{{user.name}}' class='chatImageWrapper'>" +
         "<img class='chatImage' src='http://graph.facebook.com/{{user.fbId}}/picture'></img>" +
         "</span>" +
         "<span class='chatText'>{{message}}</span>" +
-        "<span class='chatTime'>{{time}}</span>"
+        "<span class='chatTime' title='{{time}}'>{{hour}}:{{min}}</span>"
         ,
         model 
       );
@@ -1291,9 +1309,6 @@
     
     //  EVENT BINDING
     // ===============
-    
-    // leave room
-    $('#leaveRoom').click(roomHandler.leave);
 
     // space to buzz
     $(document).keydown(function(e) {
