@@ -1,7 +1,7 @@
 Quizbowl DB 
 ================
 
-Quizbowl DB is an online framework that provides quizbowlers (see [NAQT]("www.naqt.com")) with an easy way to learn, practice, and play with others.
+Quizbowl DB is an online framework that provides quizbowlers (see [NAQT](http://www.naqt.com)) with an easy way to learn, practice, and play with others.
 
 Features
 ----------
@@ -11,7 +11,7 @@ Features
 
 Technology
 ---------
-At the top, Quizbowl DB operates with a MySQL database, with a Solr indexing for full-text search. The core framework is written in node.js, with Expressjs for routing. The framework serves up a REST API that allow access to the 3 features. For the multiplayer game, the realtime communication and server events are handled with [Bridge](www.getbridge.com). Also implemented is a web interface, also completely in javascript. It uses the REST API and Bridge to interface with the server. It also utilizes [BackboneJS](www.backbonejs.org), jQuery, some minimal Bootstrap, qTip, and Mustache for templating.
+At the top, Quizbowl DB operates with a MySQL database, with a Solr indexing for full-text search. The core framework is written in node.js, with Expressjs for routing. The framework serves up a REST API that allow access to the 3 features. For the multiplayer game, the realtime communication and server events are handled with [Bridge](http://www.getbridge.com). Also implemented is a web interface, also completely in javascript. It uses the REST API and Bridge to interface with the server. It also utilizes [BackboneJS](http://www.backbonejs.org), jQuery, some minimal Bootstrap, qTip, and Mustache for templating.
 
 API
 --------
