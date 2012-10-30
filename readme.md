@@ -19,6 +19,19 @@ The API is divided into two parts: REST and Bridge
 
 The REST API gives you access to the such things as the searching service, the browsing service, and other static things. The Bridge component allows you to hook into the realtime services of the framework, such as the chat, ticker, and multiplayer.
 
-To get access to the REST API, you will need some HTTP Basic Auth credentials. Please email me at sharad.vikram@gmail.com.
-TO get access to the Bridge API, you will need some a Bridge API Key. Please email me at sharad.vikram@gmail.com.
-To be continued...
+Base URL: http://www.quizbowldb.com/api
+
+**Endpoints:**
+* /tournament/
+* /tournament/:id/
+* /category/
+* /service/
+* /tossup/:id/
+
+**Services:**
+* Search: /service/?method=tossup.search
+Example: http://quizbowldb.com/api/search/?random=true&limit=1&params%5Bdifficulty%5D=HS&params%5Bcategory%5D=Literature
+* Answer Checking: /service/?method=answer.check
+Example: http://quizbowldb.com/api/service?method=answer.check&answer=dickens&canon=George%20Eliot%20[or%20Mary%20Ann%20Evans]
+
+To get access to the Bridge API, you will need some a Bridge API Key. Please email me at sharad.vikram@gmail.com.
