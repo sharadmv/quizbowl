@@ -294,7 +294,22 @@
       question.begin();
     }
   });
-  var FilterBox = Backbone.View.extend({ initialize : function() { var self = this; if (window.tournaments) { self.loadTournaments(window.tournaments); } else { window.events.on("tournaments_loaded", function(ev) { self.loadTournaments(window.tournaments); }); } if (window.categories) { self.loadCategories(window.categories); } else { window.events.on("categories_loaded", function(ev) { self.loadCategories(window.categories); }); } if (window.difficulties) {
+  var FilterBox = Backbone.View.extend({
+    initialize : function() {
+      var self = this;
+      if (window.tournaments) {
+          self.loadTournaments(window.tournaments);
+      } else {
+          window.events.on("tournaments_loaded", function(ev) {
+            self.loadTournaments(window.tournaments);
+          });
+      } if (window.categories) {
+          self.loadCategories(window.categories);
+      } else {
+          window.events.on("categories_loaded", function(ev) {
+              self.loadCategories(window.categories);
+          });
+      } if (window.difficulties) {
         self.loadDifficulties(window.difficulties);
       } else {
         window.events.on("difficulties_loaded", function(ev) {
