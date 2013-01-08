@@ -382,11 +382,11 @@
 
       var fin = [];
       if (categoryString)
-          fin.push("category:"+"\""+categoryString+"\"");
+          fin.push("category:"+"\""+categoryString.join("|")+"\"");
       if (tournamentString)
-          fin.push("tournament:"+"\""+tournamentString+"\"");
+          fin.push("tournament:"+"\""+tournamentString.join("|")+"\"");
       if (difficultyString)
-          fin.push("difficulty:"+"\""+difficultyString+"\"");
+          fin.push("difficulty:"+"\""+difficultyString.join("|")+"\"");
       fin.push("condition:"+"\""+conditionString+"\"");
       fin.push(term);
       $("#searchBox").val(fin.join(" "));
