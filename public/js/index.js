@@ -155,6 +155,7 @@
       });
     };
   };
+})();
   var FilterBox = Backbone.View.extend({
     initialize : function() {
       var self = this;
@@ -218,4 +219,3 @@
       return options;
     }
   });
-})();
