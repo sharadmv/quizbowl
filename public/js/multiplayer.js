@@ -609,6 +609,7 @@
     // remove padding left on holy grail container
     $('#holyGrailContainer').animate({paddingLeft : 0 }, animOptions);
     // scroll header out
+    $('#game').animate({ opacity : 1 });
     $('html, body').animate({ scrollTop:	$('#header').height() }, animOptions);
 	  // slide left wrapper
 	  $('#leftWrapper').animate({right : $('#leftWrapper').width()*2}, {
@@ -803,7 +804,9 @@
         });
     
         // leave room
-        $('#leaveRoom').click(roomHandler.leave);
+        $('#leaveRoom').click(function() {
+            gameHelpers.leaveRoom();
+        });
         $(window).resize();
       }
     });

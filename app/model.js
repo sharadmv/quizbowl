@@ -322,12 +322,11 @@ var init = function(app) {
                     users.splice(i,1);
                   }
                 }
-                app.bridge.leaveChannel(channelName, userToHandler[user]);
-                if (callback) {
+                if (typeof(callback) == "function") {
                   callback(true);
                 }
               } else {
-                if (callback) {
+                if (typeof(callback) == "function") {
                   callback(false);
                 }
               }
