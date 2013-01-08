@@ -83,6 +83,7 @@ var init = function(app) {
         tournament: req.query.params.tournament
       }
     };
+    console.log(pars);
     app.service.services.tossup.search(res, pars, function(ret) {
       if (ret) {
         res.json(ret);
