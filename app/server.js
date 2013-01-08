@@ -45,7 +45,7 @@ var init = function(app) {
   application.get('/m', function (req, res) {
     res.render('multiplayer_old', { page: 'multiplayer_old' });
   });
-  
+
   var authorize = express.basicAuth(function(user, password) {
     return true;
   });
@@ -71,17 +71,17 @@ var init = function(app) {
     if (!req.query.params) {
       req.query.params={};
     }
-    var pars = { 
+    var pars = {
       condition : req.query.condition,
       random : req.query.random,
-      term : req.params.term, 
-      limit : req.query.limit, 
-      offset : req.query.offset, 
-      params : { 
-        category : req.query.params.category, 
-        difficulty : req.query.params.difficulty, 
+      term : req.params.term,
+      limit : req.query.limit,
+      offset : req.query.offset,
+      params : {
+        category : req.query.params.category,
+        difficulty : req.query.params.difficulty,
         tournament: req.query.params.tournament
-      } 
+      }
     };
     app.service.services.tossup.search(res, pars, function(ret) {
       if (ret) {
@@ -194,7 +194,7 @@ var init = function(app) {
     app.dao.tossup.get(req.params.tossup, function(tossup) {
       if (tossup) {
         res.json(tossup);
-      } else { 
+      } else {
         res.error(app.Constants.Error.TOSSUP_NOT_FOUND);
       }
     });
@@ -205,7 +205,7 @@ var init = function(app) {
     app.dao.round.get(req.params.round, function(round) {
       if (round) {
         res.json(round);
-      } else { 
+      } else {
         res.error(app.Constants.Error.ROUND_NOT_FOUND);
       }
     });
@@ -216,7 +216,7 @@ var init = function(app) {
     app.dao.tournament.tournaments(function(tournament) {
       if (tournament) {
         res.json(tournament);
-      } else { 
+      } else {
         res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
       }
     });
@@ -227,7 +227,7 @@ var init = function(app) {
     app.dao.tournament.list(req.params.tournament, function(tournament) {
       if (tournament) {
         res.json(tournament);
-      } else { 
+      } else {
         res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
       }
     });
@@ -237,7 +237,7 @@ var init = function(app) {
     app.dao.tournament.get(req.params.tournament, function(tournament) {
       if (tournament) {
         res.json(tournament);
-      } else { 
+      } else {
         res.error(app.Constants.Error.TOURNAMENT_NOT_FOUND);
       }
     });
@@ -249,7 +249,7 @@ var init = function(app) {
     app.dao.round.list(req.params.round, function(round) {
       if (round) {
         res.json(round);
-      } else { 
+      } else {
         res.error(app.Constants.Error.ROUND_NOT_FOUND);
       }
     });
@@ -260,7 +260,7 @@ var init = function(app) {
     app.dao.round.get(req.params.round, function(round) {
       if (round) {
         res.json(round);
-      } else { 
+      } else {
         res.error(app.Constants.Error.ROUND_NOT_FOUND);
       }
     });
@@ -272,7 +272,7 @@ var init = function(app) {
     app.dao.tossup.get(req.params.tossup, function(tossup) {
       if (tossup) {
         res.json(tossup);
-      } else { 
+      } else {
         res.error(app.Constants.Error.TOSSUP_NOT_FOUND);
       }
     });

@@ -53,21 +53,21 @@
   var alive = function() {
     auth.alive(user.id);
   }
-  function getQueryStrings() { 
+  function getQueryStrings() {
     var assoc  = {};
     var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
-    var queryString = location.search.substring(1); 
-    var keyValues = queryString.split('&'); 
+    var queryString = location.search.substring(1);
+    var keyValues = queryString.split('&');
 
-    for(var i in keyValues) { 
+    for(var i in keyValues) {
       var key = keyValues[i].split('=');
       if (key.length > 1) {
         assoc[decode(key[0])] = decode(key[1]);
       }
-    } 
+    }
 
-    return assoc; 
-  } 
+    return assoc;
+  }
   if(!getQueryStrings()["fb"] == "false")  {
   } else {
     window.login = function() {
@@ -145,7 +145,7 @@
         xfbml      : true, // parse XFBML
         oauth      : true
       });
-      FB.Event.subscribe('auth.statusChange', function(response) {  
+      FB.Event.subscribe('auth.statusChange', function(response) {
         console.log("Facebook Status Change: ", response);
         if (response.status == "connected") {
           if (window.onFbAuth) {
@@ -155,4 +155,67 @@
       });
     };
   };
+  var FilterBox = Backbone.View.extend({
+    initialize : function() {
+      var self = this;
+      if (window.tournaments) {
+        self.loadTournaments(window.tournaments);
+      } else {
+        window.events.on("tournaments_loaded", function(ev) {
+          self.loadTournaments(window.tournaments);
+        });
+      }
+      if (window.categories) {
+        self.loadCategories(window.categories);
+      } else {
+        window.events.on("categories_loaded", function(ev) {
+          self.loadCategories(window.categories);
+        });
+      }
+      if (window.difficulties) {
+        self.loadDifficulties(window.difficulties);
+      } else {
+        window.events.on("difficulties_loaded", function(ev) {
+          self.loadDifficulties(window.difficulties);
+        });
+      }
+    },
+    loadTournaments : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#tournamentSelect").append(
+          "<option>"+val.year+" "+val.tournament+"</option>"
+        );
+      });
+    },
+    loadCategories : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#categorySelect").append(
+          "<option>"+val+"</option>"
+        );
+      });
+    },
+    loadDifficulties : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#difficultySelect").append(
+          "<option>"+val+"</option>"
+        );
+      });
+    },
+    getParams : function() {
+      var options = {};
+      var difficulty = this.$("#difficultySelect").val();
+      if (difficulty) {
+        options.difficulty = difficulty.join("|");
+      }
+      var category = this.$("#categorySelect").val();
+      if (category) {
+        options.category = category.join("|");
+      }
+      var tournament = this.$("#tournamentSelect").val();
+      if (tournament) {
+        options.tournament = tournament.join("|");
+      }
+      return options;
+    }
+  });
 })();

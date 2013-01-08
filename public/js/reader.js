@@ -17,69 +17,6 @@
   var scope = this;
   var BASE_URL = "/api";
 
-  var FilterBox = Backbone.View.extend({
-    initialize : function() {
-      var self = this;
-      if (window.tournaments) {
-        self.loadTournaments(window.tournaments);
-      } else {
-        window.events.on("tournaments_loaded", function(ev) {
-          self.loadTournaments(window.tournaments);
-        });
-      }
-      if (window.categories) {
-        self.loadCategories(window.categories);
-      } else {
-        window.events.on("categories_loaded", function(ev) {
-          self.loadCategories(window.categories);
-        });
-      }
-      if (window.difficulties) {
-        self.loadDifficulties(window.difficulties);
-      } else {
-        window.events.on("difficulties_loaded", function(ev) {
-          self.loadDifficulties(window.difficulties);
-        });
-      }
-    },
-    loadTournaments : function(arr) {
-      $.each(arr, function(key, val) {
-        $("#tournamentSelect").append(
-          "<option>"+val.year+" "+val.tournament+"</option>"
-        );
-      });
-    },
-    loadCategories : function(arr) {
-      $.each(arr, function(key, val) {
-        $("#categorySelect").append(
-          "<option>"+val+"</option>"
-        );
-      });
-    },
-    loadDifficulties : function(arr) {
-      $.each(arr, function(key, val) {
-        $("#difficultySelect").append(
-          "<option>"+val+"</option>"
-        );
-      });
-    },
-    getParams : function() {
-      var options = {};
-      var difficulty = this.$("#difficultySelect").val();
-      if (difficulty) {
-        options.difficulty = difficulty.join("|");
-      }
-      var category = this.$("#categorySelect").val();
-      if (category) {
-        options.category = category.join("|");
-      }
-      var tournament = this.$("#tournamentSelect").val();
-      if (tournament) {
-        options.tournament = tournament.join("|");
-      }
-      return options;
-    }
-  });
   var Model = {
     Question : Backbone.Model.extend({
       initialize : function() {
@@ -130,8 +67,7 @@
                 self.pause();
                 self.index = 0;
               }
-            }, timer);
-          })(readerControl.speed());
+            }, timer); })(readerControl.speed());
         }
       },
       pause : function() {
@@ -160,7 +96,7 @@
         answer = answer.trim();
         this.answering = false;
         var self = this;
-        var url = BASE_URL+"/service?method=answer.check&answer="+answer+"&canon="+self.get("answer"); 
+        var url = BASE_URL+"/service?method=answer.check&answer="+answer+"&canon="+self.get("answer");
         $.ajax({
           url : url,
         }).done(function(response) {
