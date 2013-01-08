@@ -4,7 +4,7 @@
 
   $(document).scroll(function() {
     if ($(document).scrollTop() > 60) {
-      $('#searchBoxWrapper').css({ 
+      $('#searchBoxWrapper').css({
         'position':'fixed',
         'top': '0px',
         'left':'50%',
@@ -20,7 +20,7 @@
     }
 
     if($(document).scrollTop() < 60) {
-      $('#searchBoxWrapper').css({ 
+      $('#searchBoxWrapper').css({
         'position':'relative',
         'left':'0px',
         'margin':'auto',
@@ -37,12 +37,12 @@
 
   var searched = false;
   var Router = Backbone.Router.extend({
-    routes : { 
+    routes : {
       ":term" : "search"
     },
     search : function(term) {
       results.search(term);
-    } 
+    }
   });
 
   var Super = {
@@ -137,6 +137,7 @@
   });
   View.SearchBox = Backbone.View.extend({
     initialize : function() {
+      this.advanced = false;
       results.bind("search", this.load, this);
       results.bind("change", this.unload, this);
     },
@@ -148,7 +149,16 @@
     },
     events : {
       "click #searchButton" : "search",
+      "click .advanced" : "toggle",
       "keydown #searchBox" : "keydown"
+    },
+    toggle : function() {
+      if (!this.advanced){
+        $("#filterBox").show();
+      } else {
+        $("#filterBox").hide();
+      }
+      this.advanced = !this.advanced;
     },
     keydown : function(e) {
       if (e.which == 13) {
@@ -219,7 +229,7 @@
     })
   }
   var Collection = {
-    Results : Backbone.Paginator.requestPager.extend({ 
+    Results : Backbone.Paginator.requestPager.extend({
       model : Model.Tossup,
 
       initialize : function() {
@@ -258,7 +268,7 @@
         options.params = params;
         this._params = options;
         var self = this;
-        this.fetch({ 
+        this.fetch({
           add : true
         }).done(function(data, textStatus, jqXHR) {
               self.trigger("change");
@@ -332,11 +342,84 @@
       parameters.term = terms.trim();
     return parameters;
   }
+  var FilterBox = Backbone.View.extend({
+      initialize : function() {
+      var self = this;
+      if (window.tournaments) {
+          self.loadTournaments(window.tournaments);
+      } else {
+        window.events.on("tournaments_loaded", function(ev) {
+          self.loadTournaments(window.tournaments);
+        });
+      } if (window.categories) {
+        self.loadCategories(window.categories);
+      } else {
+        window.events.on("categories_loaded", function(ev) {
+          self.loadCategories(window.categories); });
+      } if (window.difficulties) {
+        self.loadDifficulties(window.difficulties);
+      } else {
+        window.events.on("difficulties_loaded", function(ev) {
+          self.loadDifficulties(window.difficulties);
+        });
+      }
+    },
+    events : {
+      "change #categorySelect" : "update",
+      "change #conditionSelect" : "update",
+      "change #tournamentSelect" : "update",
+      "change #difficultySelect" : "update"
+    },
+    update : function() {
+      var value = $("#searchBox").val();
+      var term = value.split(/[a-zA-Z]+:.*? /);
+      console.log(term);
+      term = term[term.length-1];
+      var categoryString = this.$("#categorySelect").val();
+      var tournamentString = this.$("#tournamentSelect").val();
+      var difficultyString = this.$("#difficultySelect").val();
+      var conditionString = this.$("#conditionSelect").val();
+
+      var fin = [];
+      if (categoryString)
+          fin.push("category:"+"\""+categoryString+"\"");
+      if (tournamentString)
+          fin.push("tournament:"+"\""+tournamentString+"\"");
+      if (difficultyString)
+          fin.push("difficulty:"+"\""+difficultyString+"\"");
+      fin.push("condition:"+"\""+conditionString+"\"");
+      fin.push(term);
+      $("#searchBox").val(fin.join(" "));
+    },
+    loadTournaments : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#tournamentSelect").append(
+          "<option>"+val.year+" "+val.tournament+"</option>"
+        );
+      });
+    },
+    loadCategories : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#categorySelect").append(
+          "<option>"+val+"</option>"
+        );
+      });
+    },
+    loadDifficulties : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#difficultySelect").append(
+          "<option>"+val+"</option>"
+        );
+      });
+    },
+  });
 
 
   //entry point
   $(document).ready(function() {
     new Router;
+    filterBox = new FilterBox({ el :$("#filterBox")});
+    window.filterBox = filterBox;
     results = new Collection.Results;
     resultView = new View.Results({ el : $("#results"), collection : results });
     searchBox = new View.SearchBox({ el : $("#searchBoxWrapper") });

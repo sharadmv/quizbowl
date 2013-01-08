@@ -9,12 +9,12 @@ var init = function(app) {
     gerald: {
       apiKey: "bfejbadbniakckji",
       host: "localhost",
-      port: 8090 
+      port: 8090
     },
     default: {
       apiKey: API_KEY,
       host: "localhost",
-      port: 8090 
+      port: 8090
     }
   }
   var bridge = new Bridge(
@@ -22,7 +22,7 @@ var init = function(app) {
   );
   console.log(bridge);
 
-  bridge.connect();
+  //bridge.connect();
   return bridge;
 }
 module.exports = init;

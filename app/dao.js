@@ -4,7 +4,9 @@ var init = function(app) {
   }
   var Dao = function(host, username, password, db) {
     var mysql = require('mysql');
-    var solr = require('solr').createClient();
+    var solr = require('solr').createClient({
+      host     : "23.23.188.247"
+    });
     var client = mysql.createClient({
       host     : host,
       user     : username,
@@ -69,7 +71,7 @@ var init = function(app) {
         });
       }
     };
-    
+
     this.user = {
       get:function(id, callback) {
         app.log(app.Constants.Tag.DAO, ["user.get", id]);
@@ -80,7 +82,7 @@ var init = function(app) {
             return;
           }
           var result = rows[0];
-          var user = new Model.User(result.id, result.username, result.fb_id, result.email, result.timestamp); 
+          var user = new Model.User(result.id, result.username, result.fb_id, result.email, result.timestamp);
           if (isNaN(user.created)) {
             user.created = null;
           }
@@ -140,9 +142,9 @@ var init = function(app) {
           var tossup = new Model.Tossup(result.id, result.year, result.tournament, result.round, result.difficulty, result.category, result.question, result.answer);
           callback(tossup);
         });
-      }, 
+      },
       search:function(query, callback) {
-        app.log(app.Constants.Tag.DAO, ["tossup.search", JSON.stringify(query)]);  
+        app.log(app.Constants.Tag.DAO, ["tossup.search", JSON.stringify(query)]);
         var condition = "answer";
         if (query.condition == "all" || query.condition == "question") {
           var condition = query.condition;
@@ -211,12 +213,12 @@ var init = function(app) {
           d: 10,
           sort: sort,
           start: offset,
-          rows: limit 
+          rows: limit
         }
         var querystring = finQuery.join(" AND ");
         if (querystring == "") {
           querystring = "*:*";
-        } 
+        }
         solr.query(querystring, options, function(err, response) {
           if (err) {
             console.log(err);
@@ -283,7 +285,7 @@ var init = function(app) {
           var round = new Model.Round(result.id, result.round);
           callback(round);
         });
-      }, 
+      },
       list:function(id, callback) {
         app.log(app.Constants.Tag.DAO, ["round.list", id]);
         client.query(""+"SELECT tossup.id AS id, tournament.name AS tournament, tournament.year AS year, tossup.round AS round, tossup.difficulty AS difficulty, tossup.category AS category, tossup.question AS question, tossup.answer AS answer FROM "+Constants.Table.TOSSUP+", "+Constants.Table.TOURNAMENT+", "+Constants.Table.ROUND+" WHERE tournament.id=tossup.tournament AND tossup.round = round.id AND round.id=?",[id] ,function(err, rows, fields) {

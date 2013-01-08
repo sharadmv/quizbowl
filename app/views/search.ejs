@@ -1,29 +1,59 @@
 <div id='search'>
-  <div id='searchBoxWrapper' class='bigBox'>
-    <div id='searchBoxContainer'>
-      <div id='searchText'>Enter a term to search here:</div>
-      <input id='searchBox'></input>
-      <button id='searchButton'>Search</button>
-      <img class='searchLoader' src='/img/loading.gif'></img>
+    <div id='searchBoxWrapper' class='bigBox'>
+        <div id='searchBoxContainer'>
+            <div id='searchText'>Enter a term to search here:</div>
+            <input id='searchBox'></input>
+            <button id='searchButton'>Search</button>
+            <img class='searchLoader' src='/img/loading.gif'></img>
+            <a class='advanced'>Advanced Search</a>
+        </div>
     </div>
-  </div>
-  <div id='resultsWrapper'>
-    <div id='topWrapper'>
-      <div id='topResultControl'>
-        <a class='previous'>Previous</a>
-        <span class='pages'></span>
-        <a class='next'>Next</a>
-      </div>
-      <div id='results'>
-        No results yet...
-      </div>
+    <div id='filterBox' class='bigBox' style='display:none'>
+        <form id='filter'>
+            <div id="category">
+                <label class='filterLabel'>Category</label>
+                <select multiple="multiple" id="categorySelect">
+                </select>
+            </div> 
+
+            <div id="difficulty">
+                <label class='filterLabel'>Difficulty</label>
+                <select multiple="multiple" id="difficultySelect">
+                </select>
+            </div>
+
+            <div class="tournamentBox">
+                <label class='filterLabel'>Tournament</label>
+                <select multiple="multiple" id="tournamentSelect">
+                </select>
+            </div>
+            <div class="conditionBox">
+                <label class='filterLabel'>Keyword</label>
+                <select id="conditionSelect">
+                  <option>Answer</option>
+                  <option>Question</option>
+                  <option>All</option>
+                </select>
+            </div>
+        </form>
     </div>
-    <div id='bottomWrapper'>
-      <div id='bottomResultControl'>
-        <a class='previous'>Previous</a>
-        <span class='pages'></span>
-        <a class='next'>Next</a>
-      </div>
+    <div id='resultsWrapper'>
+        <div id='topWrapper'>
+            <div id='topResultControl'>
+                <a class='previous'>Previous</a>
+                <span class='pages'></span>
+                <a class='next'>Next</a>
+            </div>
+            <div id='results'>
+                No results yet...
+            </div>
+        </div>
+        <div id='bottomWrapper'>
+            <div id='bottomResultControl'>
+                <a class='previous'>Previous</a>
+                <span class='pages'></span>
+                <a class='next'>Next</a>
+            </div>
+        </div>
     </div>
-  </div>
 </div>

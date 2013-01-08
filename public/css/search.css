@@ -14,7 +14,7 @@
   border-radius: 5px;
 }
 #searchBoxContainer {
-  width:610px;
+  width:715px;
   margin:auto;
   height:115px;
 }
@@ -91,4 +91,14 @@
 }
 .next, .previous {
   cursor:pointer;
+}
+.advanced {
+  cursor:pointer;
+  text-decoration:underline;
+}
+.filterLabel {
+  display : block;
+}
+#filter select {
+  width : 210px;
 }

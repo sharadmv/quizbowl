@@ -11,7 +11,7 @@ app.bridge = require('./bridge.js')(this);
 app.server = require('./server.js')(this);
 app.model = require('./model.js')(this);
 app.Constants = app.model.Constants;
-app.dao = new (require('./dao.js')(this))("localhost", "quizbowl", "", "quizbowl");
+app.dao = new (require('./dao.js')(this))("23.23.188.247", "sharad", "", "quizbowl");
 app.auth = require('./auth.js')(this);
 app.fb = require('./fb.js')(this);
 app.util = require('./util.js')(this);
@@ -126,7 +126,7 @@ app.login(5,function(user){
   var Room = app.model.Multiplayer.Room;
   var room = new Room("main",user.id, {}, function(room) {
     room.join(
-      user.id, 
+      user.id,
       new Room.ChannelHandler({
         onChat:function(user, message) {
           app.log(app.Constants.Tag.MULTIPLAYER, [users[user].name, ":", message]);

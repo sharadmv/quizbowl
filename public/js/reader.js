@@ -294,6 +294,52 @@
       question.begin();
     }
   });
+  var FilterBox = Backbone.View.extend({ initialize : function() { var self = this; if (window.tournaments) { self.loadTournaments(window.tournaments); } else { window.events.on("tournaments_loaded", function(ev) { self.loadTournaments(window.tournaments); }); } if (window.categories) { self.loadCategories(window.categories); } else { window.events.on("categories_loaded", function(ev) { self.loadCategories(window.categories); }); } if (window.difficulties) {
+        self.loadDifficulties(window.difficulties);
+      } else {
+        window.events.on("difficulties_loaded", function(ev) {
+          self.loadDifficulties(window.difficulties);
+        });
+      }
+    },
+    loadTournaments : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#tournamentSelect").append(
+          "<option>"+val.year+" "+val.tournament+"</option>"
+        );
+      });
+    },
+    loadCategories : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#categorySelect").append(
+          "<option>"+val+"</option>"
+        );
+      });
+    },
+    loadDifficulties : function(arr) {
+      $.each(arr, function(key, val) {
+        $("#difficultySelect").append(
+          "<option>"+val+"</option>"
+        );
+      });
+    },
+    getParams : function() {
+      var options = {};
+      var difficulty = this.$("#difficultySelect").val();
+      if (difficulty) {
+        options.difficulty = difficulty.join("|");
+      }
+      var category = this.$("#categorySelect").val();
+      if (category) {
+        options.category = category.join("|");
+      }
+      var tournament = this.$("#tournamentSelect").val();
+      if (tournament) {
+        options.tournament = tournament.join("|");
+      }
+      return options;
+    }
+  });
 
   var filterBox;
   var question;

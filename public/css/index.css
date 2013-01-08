@@ -183,3 +183,49 @@ img {
   text-align:center;
   line-height:40px;
 }
+
+#filterBox {
+  display:block;
+  margin:auto;
+  margin-top: 20px;
+  padding:5px;
+  height:170px;
+  width: 940px;
+  line-height: 50px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+#filterText {
+  height: 2em;
+  line-height: 3em;
+  font-size: 2em;
+  margin-left:20px;
+}
+#filter {
+  margin-top:20px;
+  display:inline-block;
+}
+#filter > div {
+  float:left;
+  line-height:100%;
+  padding-left:20px;
+}
+#tournamentBox {
+  font-size:1.2em;
+  font-weight:bold;
+  padding-bottom:6px;
+}
+#filter select {
+  width:220px;
+  vertical-align:middle;
+}
+.filterLabel {
+  display:inline-block;
+}
+#category {
+  display:inline;
+}
+#difficulty {
+  display:inline;
+}
