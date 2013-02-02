@@ -378,7 +378,7 @@
       var categoryString = this.$("#categorySelect").val();
       var tournamentString = this.$("#tournamentSelect").val();
       var difficultyString = this.$("#difficultySelect").val();
-      var conditionString = this.$("#conditionSelect").val();
+      var conditionString = this.$("#conditionSelect").val().toLowerCase();
 
       var fin = [];
       if (categoryString)

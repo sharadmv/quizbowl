@@ -213,6 +213,7 @@ var init = function(app) {
   });
 
   application.get('/api/tournament/', function(req, res) {
+      console.log("tournament");
     var res = app.router.wrap(req, res);
     app.dao.tournament.tournaments(function(tournament) {
       if (tournament) {
