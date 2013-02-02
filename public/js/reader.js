@@ -270,7 +270,7 @@
         setTimeout(function() {
           self.$("#answerNotification").animate({ opacity : 0 }, 2000);
         }, 3000);
-        question.start();
+        question.continue();
       }, this);
       question.bind("answer", function(correct) {
         self.$("#answerNotification").css("display","inline");
