@@ -100,7 +100,7 @@
         $.ajax({
           url : url,
         }).done(function(response) {
-          if $("#multi").prop("checked") {
+          if ($("#multi").prop("checked")) {
               self.trigger("continue", response.data.correct);
           } else {
               self.trigger("answer", response.data.correct);
