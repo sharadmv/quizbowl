@@ -49,6 +49,22 @@
           }
         });
       },
+      continue : function() {
+          (function read(timer) {
+            self.interval = setTimeout(function() {
+              if (self.index <= self.split.length - 1) {
+                self.trigger("new", self.split[self.index]);
+                self.index++;
+                read(readerControl.speed());
+              } else {
+                self.timeout = setTimeout(function() {
+                  self.questionTimeout();
+                }, 10000);
+                self.pause();
+                self.index = 0;
+              }
+            }, timer); })(readerControl.speed());
+      },
       start : function() {
         var self = this;
         if (!this.reading) {
