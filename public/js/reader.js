@@ -257,6 +257,7 @@
       }, this);
       question.bind("continue", function(correct) {
         self.$("#answerNotification").css("display","inline");
+        self.$("#answerBox").val("");
         self.$("#answerNotification").css("opacity",1);
         if (correct) {
           self.$("#answerNotification").css("color","green");
