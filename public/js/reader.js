@@ -50,6 +50,7 @@
         });
       },
       continue : function() {
+          var self = this;
           (function read(timer) {
             self.interval = setTimeout(function() {
                 console.log('hi');
