@@ -52,6 +52,8 @@
       continue : function() {
           (function read(timer) {
             self.interval = setTimeout(function() {
+                console.log(hi);
+                console.log(self.index)
               if (self.index <= self.split.length - 1) {
                 self.trigger("new", self.split[self.index]);
                 self.index++;
@@ -218,7 +220,6 @@
     },
     toggleDifficulty : function() {
       this.difficulty = !this.difficulty;
-      console.log(this);
       questionBox.difficulty(this.difficulty);
       if (this.difficulty) {
         this.$("#readerToggleDifficulty").html("Hide Difficulty");
