@@ -100,8 +100,12 @@
         $.ajax({
           url : url,
         }).done(function(response) {
-          self.trigger("answer", response.data.correct);
-          self.reading = false;
+          if $("#multi").prop("checked") {
+              self.trigger("continue", response.data.correct);
+          } else {
+              self.trigger("answer", response.data.correct);
+              self.reading = false;
+          }
         });
       }
     })
@@ -232,6 +236,24 @@
         self.$("#skipButton").css("display","none");
         self.$("#answerBox").focus();
         self.$("#answerNotification").css("display","none");
+      }, this);
+      question.bind("continue", function(correct) {
+        self.$("#answerNotification").css("display","inline");
+        self.$("#answerNotification").css("opacity",1);
+        if (correct) {
+          self.$("#answerNotification").css("color","green");
+        } else {
+          self.$("#answerNotification").css("color","red");
+        }
+        self.$("#answerNotification").html(correct?"Correct":"Incorrect");
+        self.$("#startButton").css("display","none");
+        self.$("#buzzButton").css("display","inline");
+        self.$("#skipButton").css("display","inline");
+        self.$("#answerBox").css("display","none");
+        setTimeout(function() {
+          self.$("#answerNotification").animate({ opacity : 0 }, 2000);
+        }, 3000);
+        question.start();
       }, this);
       question.bind("answer", function(correct) {
         self.$("#answerNotification").css("display","inline");
