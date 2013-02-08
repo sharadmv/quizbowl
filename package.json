@@ -1,0 +1,23 @@
+{
+  "name": "quizbowl",
+  "version": "0.0.0",
+  "description": "Quizbowl DB  ================",
+  "main": "app/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sharadmv/quizbowl.git"
+  },
+  "keywords": [
+    "quizbowl"
+  ],
+  "dependencies" : {
+    "express" : "2.X"
+  },
+  "author": "Sharad Vikram",
+  "license": "BSD",
+  "readmeFilename": "readme.md",
+  "gitHead": "dce95391afeaf7ef386208fcb154e93330819a24"
+}
